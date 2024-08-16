@@ -1,0 +1,251 @@
+---
+title: "Hands-on Exercise 1"
+author: "Xu Haiyang"
+---
+
+### 1 Learning Outcome
+Geospatial Data Science involves the process of importing, wrangling, integrating, and analyzing geographically referenced datasets. In this hands-on exercise, I have learned how to perform geospatial data science tasks in R using the `sf` package, which provides powerful tools for working with spatial data.
+
+### 2 Data Acquisition
+Data is the foundation of any analytical task, including geospatial analysis. Therefore, before diving into analysis, I first gathered the necessary datasets. In this exercise, I have acquired the following data:
+
+- **Master Plan 2014 Subzone Boundary** from [data.gov.sg](https://data.gov.sg)
+- **Pre-Schools Location** from [data.gov.sg](https://data.gov.sg)
+- **Cycling Path** data from [LTA DataMall](https://www.lta.gov.sg/content/ltagov/en.html)
+- The latest version of **Singapore Airbnb listing data** from [Inside Airbnb](http://insideairbnb.com/get-the-data.html)
+
+### 3 Getting Started
+Before importing and working with geospatial data, I ensured that the necessary packages were loaded. The following command uses `pacman::p_load()` to load or install the required R packages: `sf` for spatial data handling and `tidyverse` for data manipulation.
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+### 4 Importing Geospatial Data
+Next, I imported the geospatial data into R as sf objects, which are data frames that include spatial information.
+- **Master Plan 2014 Subzone Boundary**:
+The st_read() function is used to read spatial data. Here, I specified the data source directory (dsn) and the specific layer to be loaded.
+```{r}
+mpsz = st_read(dsn = "data/geospatial/MasterPlan2014SubzoneBoundaryWebSHP", 
+                  layer = "MP14_SUBZONE_WEB_PL")
+```
+- **Cycling Path data**:
+Similarly, I imported the cycling path data using st_read(). This command loads the specified layer from the provided directory.
+```{r}
+cyclingpath = st_read(dsn = "data/geospatial/CyclingPath_Jul2024", 
+                         layer = "CyclingPathGazette")
+```
+- **Pre-Schools Location**:
+The pre-schools data is stored in a KML (Keyhole Markup Language) file. The st_read() function can directly import this format, converting it into an sf object.
+```{r}
+preschool = st_read("data/geospatial/PreSchoolsLocation/PreSchoolsLocation.kml")
+```
+
+### 5 Checking the Content of A Simple Feature Data Frame
+Once the spatial data was imported, I inspected its contents to understand its structure and the types of geometries it contains.
+- **Inspecting geometries**:
+The st_geometry() function extracts and displays the geometric data from an sf object, helping me understand the spatial structure of the dataset.
+```{r}
+st_geometry(mpsz)
+```
+- **Glimpse of the data**:
+Using glimpse() from tidyverse, I obtained a quick overview of the mpsz data frame, showing its structure and the first few rows of each column.
+```{r}
+glimpse(mpsz)
+```
+- **Viewing the first few records**:
+The head() function displayed the first few rows of the mpsz data frame, which helped me quickly inspect the data.
+```{r}
+head(mpsz, n=5)  
+```
+
+### 6 Plotting the Geospatial Data
+Visualizing spatial data is a key part of geospatial analysis. The plot() function is used to create basic plots of spatial objects.
+
+- **Plotting the entire mpsz object**:
+This command created a default plot of the mpsz spatial object, showing all its spatial features.
+```{r}
+plot(mpsz)
+```
+- **Plotting only the geometries**:
+
+Here, I used st_geometry() within plot() to visualize just the geometric shapes, without any associated attribute data.
+```{r}
+plot(st_geometry(mpsz))
+```
+- **Plotting specific attributes**:
+
+To visualize specific attributes, such as the planning area names (PLN_AREA_N), I used the following command.
+```{r}
+plot(mpsz["PLN_AREA_N"])
+```
+
+### 7 Working with Projection
+Understanding and managing coordinate reference systems (CRS) is critical in geospatial analysis. I have checked the CRS of the `mpsz` data and reprojected it to a different CRS using the following commands:
+
+- **Checking the CRS**:
+
+  I used the `st_crs()` function to check the current CRS of the `mpsz` object.
+
+```{r}
+st_crs(mpsz)
+```
+- **Setting a new CRS (EPSG: 3414)**:
+
+The st_set_crs() function allowed me to assign the Singapore-specific EPSG: 3414 to the mpsz data.
+```{r}
+mpsz3414 <- st_set_crs(mpsz, 3414)
+```
+- **Verifying the new CRS**:
+
+After setting the new CRS, I confirmed the change by checking the CRS of the mpsz3414 object.
+```{r}
+st_crs(mpsz3414)
+```
+- **Checking the geometry of the preschool data**:
+
+I inspected the geometry of the preschool data to understand its current projection.
+```{r}
+st_geometry(preschool)
+```
+- **Transforming the CRS of the preschool data**:
+
+The st_transform() function was used to reproject the preschool data to match the CRS (EPSG: 3414) of the mpsz3414 object.
+```{r}
+preschool3414 <- st_transform(preschool, 
+                              crs = 3414)
+```
+- **Verifying the transformed geometry**:
+
+I verified the transformed geometry of the preschool3414 object.
+```{r}
+st_geometry(preschool3414)
+```
+
+### 8 Importing and Converting an Aspatial Data
+In this step, I imported an aspatial dataset (a dataset without spatial attributes) and converted it to a spatial format using the sf package.
+
+- **Importing the listings data**:
+
+I used read_csv() to load a CSV file containing Airbnb listings into R.
+
+```{r}
+listings <- read_csv("data/aspatial/listings.csv")
+```
+- **Inspecting the data structure**:
+
+The list() function was used to check the structure of the listings data frame.
+```{r}
+list(listings) 
+```
+- **Converting to an sf object**:
+
+I converted the listings data into a spatial format using st_as_sf(). The coords argument specifies the columns containing longitude and latitude, and I set the CRS to EPSG: 4326 before transforming it to EPSG: 3414.
+```{r}
+listings_sf <- st_as_sf(listings, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+- **Checking the structure of the spatial data**:
+
+Finally, I used glimpse() to inspect the structure of the newly created listings_sf object.
+```{r}
+glimpse(listings_sf)
+```
+
+### 9 Geoprocessing with sf package
+Geoprocessing involves creating new data by transforming and analyzing existing spatial data. I performed several geoprocessing tasks as follows:
+
+- **Creating a buffer around cycling paths**:
+
+I created a buffer of 5 meters around each cycling path using the st_buffer() function. This buffer helps analyze areas within a certain distance from the paths.
+
+```{r}
+buffer_cycling <- st_buffer(cyclingpath, 
+                               dist=5, nQuadSegs = 30)
+```
+- **Calculating the area of each buffer**:
+
+The st_area() function was used to calculate the area of each buffer polygon, which I stored in a new column named AREA.
+```{r}
+buffer_cycling$AREA <- st_area(buffer_cycling)
+```
+- **Summing the total buffer area**:
+
+I calculated the total area of all buffer polygons to get an overall sense of the space covered by the cycling path buffers.
+```{r}
+sum(buffer_cycling$AREA)
+```
+- **Counting pre-schools within each subzone**:
+
+I used st_intersects() to count the number of pre-schools within each subzone in mpsz3414, and stored the result in a new column PreSch Count.
+```{r}
+mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
+```
+- **Summarizing the pre-school count data**:
+
+The summary() function provided a quick statistical summary of the pre-school counts across different subzones.
+```{r}
+summary(mpsz3414$`PreSch Count`)
+```
+- **Identifying the subzone with the highest pre-school count**:
+
+I used top_n() to identify the subzone with the highest number of pre-schools.
+```{r}
+top_n(mpsz3414, 1, `PreSch Count`)
+```
+- **Calculating the area of each subzone**:
+
+I calculated the area of each subzone in mpsz3414 and stored it in a new column Area.
+```{r}
+mpsz3414$Area <- mpsz3414 %>%
+  st_area()
+```
+- **Calculating pre-school density**:
+
+I calculated the density of pre-schools (number of pre-schools per square kilometer) in each subzone, and stored it in a new column PreSch Density.
+```{r}
+mpsz3414 <- mpsz3414 %>%
+  mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
+```
+
+### 10 Exploratory Data Analysis (EDA)
+Exploratory Data Analysis (EDA) involves summarizing and visualizing data to discover patterns, trends, and relationships. I performed EDA on the pre-school density data as follows:
+
+- **Creating a histogram of pre-school density**:
+
+I plotted a histogram to visualize the distribution of pre-school densities across subzones.
+```{r}
+hist(mpsz3414$`PreSch Density`)
+```
+- **Visualizing pre-school density with ggplot2**:
+
+Using ggplot2, I created a more detailed histogram with custom colors and labels. The plot helps identify subzones with extremely high or low pre-school densities.
+
+```{r}
+ggplot(data=mpsz3414, 
+       aes(x= as.numeric(`PreSch Density`)))+
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue") +
+  labs(title = "Are pre-school even distributed in Singapore?",
+       subtitle= "There are many planning sub-zones with a single pre-school, on the other hand, \nthere are two planning sub-zones with at least 20 pre-schools",
+      x = "Pre-school density (per km sq)",
+      y = "Frequency")
+```
+- **Creating a scatter plot of pre-school count vs. density**:
+
+I created a scatter plot to explore the relationship between pre-school density and the actual number of pre-schools in each subzone.
+```{r}
+ggplot(data=mpsz3414, 
+       aes(y = `PreSch Count`, 
+           x= as.numeric(`PreSch Density`)))+
+  geom_point(color="black", 
+             fill="light blue") +
+  xlim(0, 40) +
+  ylim(0, 40) +
+  labs(title = "",
+      x = "Pre-school density (per km sq)",
+      y = "Pre-school count")
+```

@@ -1,11 +1,37 @@
 ---
 title: "IS415"
+format:
+  html:
+    theme: materia
+    toc: true
+    toc-title: "Contents"
+    toc-depth: 2
 ---
 
-This is a Quarto website.
+# Welcome to my IS415 Website
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+## Course Overview
 
-```{r}
-1 + 1
-```
+Welcome to my IS415 website, dedicated to the fascinating world of **Geospatial Analytics**. This site showcases all my exercise results and research conducted throughout the course.
+
+## About Geospatial Analytics
+
+Geospatial Analytics involves the analysis and interpretation of data related to geographic locations. By using various tools and techniques, we can derive meaningful insights from spatial data, enabling better decision-making in various fields like urban planning, environmental monitoring, and logistics.
+
+## Exercises and Results
+
+This section contains links to my exercises and their corresponding results. Each exercise demonstrates a different aspect of geospatial analysis, from data collection to visualization.
+
+- [Exercise 1: Geospatial Data Science with R](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd)
+
+## Research
+
+My research in this course focuses on various applications of geospatial analytics. Below, you can find my in-depth research projects.
+
+## Contact
+
+Feel free to reach out if you have any questions or comments about my work.
+
+------------------------------------------------------------------------
+
+Thank you for visiting my IS415 website!
