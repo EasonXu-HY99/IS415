@@ -1,1 +1,8 @@
 /* css styles */
+body {
+  background-image: url('ocean.jpg');
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
+  background-position: center;
+}
