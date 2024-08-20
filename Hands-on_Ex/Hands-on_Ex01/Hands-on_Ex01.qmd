@@ -2,11 +2,6 @@
 title: "Hands-on Exercise 1"
 author: "Xu Haiyang"
 date: "`r format(Sys.time(), '%B %d, %Y')`" 
-tags: 
-  - HANDS-ON EXERCISE
-  - R
-  - SF
-  - GGPLOT2
 ---
 
 ### 1 Learning Outcome

@@ -1,0 +1,10 @@
+---
+title: "In-class Exercise 1: Geospatial Data Science"
+author: "Xu Haiyang"
+date: "`r format(Sys.time(), '%B %d, %Y')`" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
