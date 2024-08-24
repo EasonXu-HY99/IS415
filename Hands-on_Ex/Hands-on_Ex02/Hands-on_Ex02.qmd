@@ -25,12 +25,6 @@ Before we begin, I loaded the necessary R packages to handle geospatial data, ma
 pacman::p_load(sf, tmap, tidyverse)
 ```
 
--   **`sf`**: Used for handling spatial data.
-
--   **`tmap`**: A powerful package for thematic mapping.
-
--   **`tidyverse`**: A collection of R packages for data manipulation and visualization.
-
 ### 3. Importing Data into R
 
 To create the choropleth map, I used two datasets:
@@ -73,6 +67,18 @@ popdata <- read_csv("data/aspatial/respopagesexfa2011to2020.csv")
 
 Here, I imported the population data stored in a CSV file. This dataset contains demographic information about Singapore residents by planning area, subzone, age group, and sex from 2011 to 2020.
 
+Next, I am required to prepare a data table with year 2020 values. The data table should include the variables PA, SZ, YOUNG, ECONOMY ACTIVE, AGED, TOTAL, DEPENDENCY.
+
+-   YOUNG: age group 0 to 4 until age group 20 to 24,
+
+-   ECONOMY ACTIVE: age group 25-29 until age group 60-64,
+
+-   AGED: age group 65 and above,
+
+-   TOTAL: all age group, and
+
+-   DEPENDENCY: the ratio between young and aged against economy active group
+
 ```{r}
 popdata2020 <- popdata %>%
   filter(Time == 2020) %>%  
@@ -80,8 +86,8 @@ popdata2020 <- popdata %>%
   summarise(POP = sum(Pop)) %>%  
   ungroup() %>%  
   pivot_wider(names_from = AG, values_from = POP) %>% 
-  mutate(YOUNG = rowSums(.[3:6]) + rowSums(.[12])) %>%  
-  mutate(`ECONOMY ACTIVE` = rowSums(.[7:11]) + rowSums(.[13:15])) %>%  
+  mutate(YOUNG = rowSums(.[3:6])) %>%  
+  mutate(`ECONOMY ACTIVE` = rowSums(.[7:13]) + rowSums(.[15])) %>%  
   mutate(AGED = rowSums(.[16:21])) %>% 
   mutate(TOTAL = rowSums(.[3:21])) %>%  
   mutate(DEPENDENCY = (YOUNG + AGED) / `ECONOMY ACTIVE`) %>% 
@@ -94,19 +100,9 @@ popdata2020 <- popdata %>%
 
 -   **summarise(POP = sum(Pop))**: Summarizes the population counts by summing them within each group.
 
--   **ungroup()**: Removes the grouping, returning the data to its ungrouped state.
+-   **ungroup()**: ungroup() is to ensure that any further mutations called on the code after it would not use the grouping for aggregate statistics
 
 -   **pivot_wider(names_from = AG, values_from = POP)**: Reshapes the data so that each Age Group (AG) becomes a column.
-
--   **mutate(YOUNG = rowSums(.\[3:6\]) + rowSums(.\[12\]))**: Calculates the young population (0-14 years and infants) and creates a new column `YOUNG`.
-
--   **mutate(`ECONOMY ACTIVE` = rowSums(.\[7:11\]) + rowSums(.\[13:15\]))**: Calculates the economically active population (15-64 years) and creates a new column `ECONOMY ACTIVE`.
-
--   **mutate(AGED = rowSums(.\[16:21\]))**: Calculates the aged population (65+ years) and creates a new column `AGED`.
-
--   **mutate(TOTAL = rowSums(.\[3:21\]))**: Calculates the total population and creates a new column `TOTAL`.
-
--   **mutate(DEPENDENCY = (YOUNG + AGED) / `ECONOMY ACTIVE`)**: Calculates the dependency ratio (ratio of the young and aged population to the economically active population) and creates a new column `DEPENDENCY`.
 
 -   **select(PA, SZ, YOUNG, `ECONOMY ACTIVE`, AGED, TOTAL, DEPENDENCY)**: Selects the relevant columns for the final dataset.
 
@@ -259,7 +255,7 @@ tm_shape(mpsz_pop2020) + tm_fill("DEPENDENCY", style = "quantile", palette = "-G
 Next, I explored different map layouts to enhance the presentation of the dependency ratio data:
 
 ```{r}
-tm_shape(mpsz_pop2020)+
+tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY", style = "jenks", palette = "Blues", legend.hist = TRUE, legend.is.portrait = TRUE, legend.hist.z = 0.1) +
   tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone \n(Jenks classification)", main.title.position = "center", main.title.size = 1, legend.height = 0.45, legend.width = 0.35, legend.outside = FALSE, legend.position = c("right", "bottom"), frame = FALSE) +
   tm_borders(alpha = 0.5)
@@ -268,14 +264,14 @@ tm_shape(mpsz_pop2020)+
 -   **Jenks Classification**: This layout uses Jenks natural breaks classification and includes a histogram in the legend. The layout was customized with a centered title and a compact legend.
 
 ```{r}
-tm_shape(mpsz_pop2020)+
+tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY", style = "quantile", palette = "-Greens") + tm_borders(alpha = 0.5) + tmap_style("classic")
 ```
 
--   **Classic Style**: Here, I applied the classic tmap style, which provides a traditional map appearance.
+-   **Classic Style**: Here, the classic tmap style, which provides a traditional map appearance.
 
 ```{r}
-tm_shape(mpsz_pop2020)+
+tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY", style = "quantile", palette = "Blues", title = "No. of persons") + tm_layout(main.title = "Distribution of Dependency Ratio \nby planning subzone", main.title.position = "center", main.title.size = 1.2, legend.height = 0.45, legend.width = 0.35, frame = TRUE) +
   tm_borders(alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
@@ -290,7 +286,7 @@ tm_shape(mpsz_pop2020)+
 tmap_style("white")
 ```
 
--   **White Style**: Finally, I switched to the white style for a clean, modern look.
+-   **White Style**: Switch to the white style for a clean, modern look.
 
 #### 4.6 Drawing Small Multiple Choropleth Maps
 
