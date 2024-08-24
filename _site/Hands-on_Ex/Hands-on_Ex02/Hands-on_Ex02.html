@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Xu Haiyang">
-<meta name="dcterms.date" content="2024-08-20">
+<meta name="dcterms.date" content="2024-08-24">
 
 <title>IS415 - Xu Haiyang - Hands on Exercise 2</title>
 <style>
@@ -205,14 +205,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 20, 2024</p>
+      <p class="date">August 24, 2024</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">August 20, 2024</p>
+      <p class="date-modified">August 24, 2024</p>
     </div>
   </div>
     
@@ -235,11 +235,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tmap, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<ul>
-<li><p><strong><code>sf</code></strong>: Used for handling spatial data.</p></li>
-<li><p><strong><code>tmap</code></strong>: A powerful package for thematic mapping.</p></li>
-<li><p><strong><code>tidyverse</code></strong>: A collection of R packages for data manipulation and visualization.</p></li>
-</ul>
 </section>
 <section id="importing-data-into-r" class="level3">
 <h3 class="anchored" data-anchor-id="importing-data-into-r">3. Importing Data into R</h3>
@@ -336,6 +331,14 @@ dbl (2): Pop, Time
 </div>
 </div>
 <p>Here, I imported the population data stored in a CSV file. This dataset contains demographic information about Singapore residents by planning area, subzone, age group, and sex from 2011 to 2020.</p>
+<p>Next, I am required to prepare a data table with year 2020 values. The data table should include the variables PA, SZ, YOUNG, ECONOMY ACTIVE, AGED, TOTAL, DEPENDENCY.</p>
+<ul>
+<li><p>YOUNG: age group 0 to 4 until age group 20 to 24,</p></li>
+<li><p>ECONOMY ACTIVE: age group 25-29 until age group 60-64,</p></li>
+<li><p>AGED: age group 65 and above,</p></li>
+<li><p>TOTAL: all age group, and</p></li>
+<li><p>DEPENDENCY: the ratio between young and aged against economy active group</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>popdata2020 <span class="ot">&lt;-</span> popdata <span class="sc">%&gt;%</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Time <span class="sc">==</span> <span class="dv">2020</span>) <span class="sc">%&gt;%</span>  </span>
@@ -343,8 +346,8 @@ dbl (2): Pop, Time
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">POP =</span> <span class="fu">sum</span>(Pop)) <span class="sc">%&gt;%</span>  </span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span>  </span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> AG, <span class="at">values_from =</span> POP) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">YOUNG =</span> <span class="fu">rowSums</span>(.[<span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>]) <span class="sc">+</span> <span class="fu">rowSums</span>(.[<span class="dv">12</span>])) <span class="sc">%&gt;%</span>  </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">ECONOMY ACTIVE</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rowSums</span>(.[<span class="dv">7</span><span class="sc">:</span><span class="dv">11</span>]) <span class="sc">+</span> <span class="fu">rowSums</span>(.[<span class="dv">13</span><span class="sc">:</span><span class="dv">15</span>])) <span class="sc">%&gt;%</span>  </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">YOUNG =</span> <span class="fu">rowSums</span>(.[<span class="dv">3</span><span class="sc">:</span><span class="dv">6</span>])) <span class="sc">%&gt;%</span>  </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">ECONOMY ACTIVE</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">rowSums</span>(.[<span class="dv">7</span><span class="sc">:</span><span class="dv">13</span>]) <span class="sc">+</span> <span class="fu">rowSums</span>(.[<span class="dv">15</span>])) <span class="sc">%&gt;%</span>  </span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">AGED =</span> <span class="fu">rowSums</span>(.[<span class="dv">16</span><span class="sc">:</span><span class="dv">21</span>])) <span class="sc">%&gt;%</span> </span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TOTAL =</span> <span class="fu">rowSums</span>(.[<span class="dv">3</span><span class="sc">:</span><span class="dv">21</span>])) <span class="sc">%&gt;%</span>  </span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEPENDENCY =</span> (YOUNG <span class="sc">+</span> AGED) <span class="sc">/</span> <span class="st">`</span><span class="at">ECONOMY ACTIVE</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
@@ -358,13 +361,8 @@ dbl (2): Pop, Time
 <li><p><strong>filter(Time == 2020)</strong>: Selects the data for the year 2020.</p></li>
 <li><p><strong>group_by(PA, SZ, AG)</strong>: Groups the data by Planning Area (PA), Subzone (SZ), and Age Group (AG).</p></li>
 <li><p><strong>summarise(POP = sum(Pop))</strong>: Summarizes the population counts by summing them within each group.</p></li>
-<li><p><strong>ungroup()</strong>: Removes the grouping, returning the data to its ungrouped state.</p></li>
+<li><p><strong>ungroup()</strong>: ungroup() is to ensure that any further mutations called on the code after it would not use the grouping for aggregate statistics</p></li>
 <li><p><strong>pivot_wider(names_from = AG, values_from = POP)</strong>: Reshapes the data so that each Age Group (AG) becomes a column.</p></li>
-<li><p><strong>mutate(YOUNG = rowSums(.[3:6]) + rowSums(.[12]))</strong>: Calculates the young population (0-14 years and infants) and creates a new column <code>YOUNG</code>.</p></li>
-<li><p><strong>mutate(<code>ECONOMY ACTIVE</code> = rowSums(.[7:11]) + rowSums(.[13:15]))</strong>: Calculates the economically active population (15-64 years) and creates a new column <code>ECONOMY ACTIVE</code>.</p></li>
-<li><p><strong>mutate(AGED = rowSums(.[16:21]))</strong>: Calculates the aged population (65+ years) and creates a new column <code>AGED</code>.</p></li>
-<li><p><strong>mutate(TOTAL = rowSums(.[3:21]))</strong>: Calculates the total population and creates a new column <code>TOTAL</code>.</p></li>
-<li><p><strong>mutate(DEPENDENCY = (YOUNG + AGED) / <code>ECONOMY ACTIVE</code>)</strong>: Calculates the dependency ratio (ratio of the young and aged population to the economically active population) and creates a new column <code>DEPENDENCY</code>.</p></li>
 <li><p><strong>select(PA, SZ, YOUNG, <code>ECONOMY ACTIVE</code>, AGED, TOTAL, DEPENDENCY)</strong>: Selects the relevant columns for the final dataset.</p></li>
 </ul>
 <p>In this step, I filtered the population data to only include the year 2020. I then grouped the data by planning area, subzone, and age group to summarize the population for each group. The data was reshaped so that each age group became a separate column. New columns were created to represent the young, economically active, and aged populations, as well as the total population and dependency ratio.</p>
@@ -522,7 +520,7 @@ dbl (2): Pop, Time
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mpsz_pop2020<span class="sc">$</span>DEPENDENCY)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
- 0.0000  0.7113  0.7926  0.8561  0.8786 19.0000      92 </code></pre>
+ 0.0000  0.5696  0.6154  0.6917  0.6950 19.0000      92 </code></pre>
 </div>
 </div>
 <p>I used the <code>summary()</code> function to generate summary statistics for the <code>DEPENDENCY</code> variable. This helps in understanding the distribution of the data before deciding on classification methods.</p>
@@ -577,7 +575,7 @@ dbl (2): Pop, Time
 <h4 class="anchored" data-anchor-id="map-layouts">4.5 Map Layouts</h4>
 <p>Next, I explored different map layouts to enhance the presentation of the dependency ratio data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020)<span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020) <span class="sc">+</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"DEPENDENCY"</span>, <span class="at">style =</span> <span class="st">"jenks"</span>, <span class="at">palette =</span> <span class="st">"Blues"</span>, <span class="at">legend.hist =</span> <span class="cn">TRUE</span>, <span class="at">legend.is.portrait =</span> <span class="cn">TRUE</span>, <span class="at">legend.hist.z =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Distribution of Dependency Ratio by planning subzone </span><span class="sc">\n</span><span class="st">(Jenks classification)"</span>, <span class="at">main.title.position =</span> <span class="st">"center"</span>, <span class="at">main.title.size =</span> <span class="dv">1</span>, <span class="at">legend.height =</span> <span class="fl">0.45</span>, <span class="at">legend.width =</span> <span class="fl">0.35</span>, <span class="at">legend.outside =</span> <span class="cn">FALSE</span>, <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"bottom"</span>), <span class="at">frame =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -593,7 +591,7 @@ dbl (2): Pop, Time
 <li><strong>Jenks Classification</strong>: This layout uses Jenks natural breaks classification and includes a histogram in the legend. The layout was customized with a centered title and a compact legend.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020)<span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020) <span class="sc">+</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"DEPENDENCY"</span>, <span class="at">style =</span> <span class="st">"quantile"</span>, <span class="at">palette =</span> <span class="st">"-Greens"</span>) <span class="sc">+</span> <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">tmap_style</span>(<span class="st">"classic"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap style set to "classic"</code></pre>
@@ -610,10 +608,10 @@ dbl (2): Pop, Time
 </div>
 </div>
 <ul>
-<li><strong>Classic Style</strong>: Here, I applied the classic tmap style, which provides a traditional map appearance.</li>
+<li><strong>Classic Style</strong>: Here, the classic tmap style, which provides a traditional map appearance.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020)<span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020) <span class="sc">+</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"DEPENDENCY"</span>, <span class="at">style =</span> <span class="st">"quantile"</span>, <span class="at">palette =</span> <span class="st">"Blues"</span>, <span class="at">title =</span> <span class="st">"No. of persons"</span>) <span class="sc">+</span> <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Distribution of Dependency Ratio </span><span class="sc">\n</span><span class="st">by planning subzone"</span>, <span class="at">main.title.position =</span> <span class="st">"center"</span>, <span class="at">main.title.size =</span> <span class="fl">1.2</span>, <span class="at">legend.height =</span> <span class="fl">0.45</span>, <span class="at">legend.width =</span> <span class="fl">0.35</span>, <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
@@ -641,7 +639,7 @@ dbl (2): Pop, Time
 </div>
 </div>
 <ul>
-<li><strong>White Style</strong>: Finally, I switched to the white style for a clean, modern look.</li>
+<li><strong>White Style</strong>: Switch to the white style for a clean, modern look.</li>
 </ul>
 </section>
 <section id="drawing-small-multiple-choropleth-maps" class="level4">
