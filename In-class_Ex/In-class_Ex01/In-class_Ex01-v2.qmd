@@ -1,10 +1,12 @@
 ---
 title: "In-class Exercise 1: Geospatial Data Science"
 author: "Xu Haiyang"
-date: "`r format(Sys.time(), '%B %d, %Y')`" 
+date: "19 August, 2024" 
 date-modified: "last-modified"
 execute: 
   eval: true
   echo: true
   freeze: true
 ---
+
+### The data file include "MPSZ-2019" from SMU E-Learn.

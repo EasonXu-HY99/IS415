@@ -1,7 +1,7 @@
 ---
 title: "Hands on Exercise 2"
 author: "Xu Haiyang"
-date: "`r format(Sys.time(), '%B %d, %Y')`" 
+date: "20 August, 2024" 
 date-modified: "last-modified"
 execute: 
   eval: true
