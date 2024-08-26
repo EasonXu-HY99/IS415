@@ -1,0 +1,77 @@
+---
+title: "In-class Exercise 2"
+author: "Xu Haiyang"
+date: "26 August, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{r}
+pacman::p_load(tidyverse, sf)
+```
+
+```{r}
+pacman::p_load(tidyverse, sf, ggstatsplot, tmap)
+```
+
+ESRI Shapefile of Master Plan 2014 Subzone Boundary Web data.
+
+```{r}
+mpsz14_shp <- st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+```{r}
+class(mpsz14_shp)
+```
+
+KML file of Master Plan 2014 Subzone Boundary Web data.
+
+```{r}
+#| eval: false
+mpsz14_kml <- st_read("data/MasterPlan2014SubzoneBoundaryWebKML.kml")
+```
+
+```{r}
+#| output: false
+st_write(mpsz14_shp, "data/MP14_SUBZONE_WEB_PL.kml", delete_dsn = TRUE)
+```
+
+"delete_dsn" is to avoid the errors that the same name file exists in the same location.
+
+```{r}
+mpsz19_shp <- st_read(dsn = "data/MPSZ-2019", layer = "MPSZ-2019")
+```
+
+```{r}
+mpsz19_kml <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
+```
+
+```{r}
+mpsz19_shp <- st_read(dsn = "data/MPSZ-2019", layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+popdata <- read_csv("data/respopagesextod2023.csv")
+```
+
+```{r}
+popdata2023 <- popdata %>%
+  group_by(PA, SZ, AG) %>%
+  summarise(`POP` = sum(`Pop`)) %>%  
+  ungroup() %>%
+  pivot_wider(names_from = AG, values_from = POP)
+colnames(popdata2023)
+```
+
+```{r}
+popdata2023 <- popdata2023 %>%
+  mutate_at(.vars = vars(PA, SZ), .funs = list(toupper))  
+```
+
+```{r}
+pop2023_mpsz <- left_join(popdata2023, mpsz19_shp, by = c("SZ" = "SUBZONE_N"))
+```

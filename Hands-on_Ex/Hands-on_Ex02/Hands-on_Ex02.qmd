@@ -86,7 +86,7 @@ popdata2020 <- popdata %>%
   summarise(POP = sum(Pop)) %>%  
   ungroup() %>%  
   pivot_wider(names_from = AG, values_from = POP) %>% 
-  mutate(YOUNG = rowSums(.[3:6])) %>%  
+  mutate(YOUNG = rowSums(.[3:6]) + rowSums(.[14])) %>%  
   mutate(`ECONOMY ACTIVE` = rowSums(.[7:13]) + rowSums(.[15])) %>%  
   mutate(AGED = rowSums(.[16:21])) %>% 
   mutate(TOTAL = rowSums(.[3:21])) %>%  
