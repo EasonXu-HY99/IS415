@@ -661,4 +661,4 @@ clarkevans.test(childcare_tm_ppp, correction="none", clipregion=NULL, alternativ
 
 -   **Why**: Performing the Clark and Evans test on different areas allows for localized analysis of spatial point patterns to identify variations in clustering.
 
-[Continue to Page 2](Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03_2.html)
+[Continue to Page 2](Hands-on_Ex03_2.html)
