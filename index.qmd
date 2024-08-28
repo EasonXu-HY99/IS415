@@ -20,13 +20,8 @@ Geospatial Analytics involves the analysis and interpretation of data related to
 
 ## Exercises and Results
 
-This section contains links to my exercises and their corresponding results. Each exercise demonstrates a different aspect of geospatial analysis, from data collection to visualization.
+This website showcases all my R coding exercises, each illustrating various aspects of geospatial analysis, from data collection to visualization.
 
--   Hands-on Exercise
-    -   [Exercise 1: Geospatial Data Science with R](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd)
-    -   [Exercise 2: Thematic Mapping and GeoVisualisation with R](Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd)
--   In-class Exercise
-    -   Exercise 2
 
 ## Research
 
