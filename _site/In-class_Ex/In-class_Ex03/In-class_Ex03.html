@@ -241,8 +241,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"maptools"</span>, <span class="at">repos =</span> <span class="st">"https://packagemanager.posit.co/cran/2023-10-13"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li><code>st_combine()</code> returns a singe. combined geometry, with no resolved boundaries; returned geometries may well be invalid.</li>
-<li><code>st_union()</code></li>
+<li><p><code>st_combine()</code> returns a single, combined geometry, with no resolved boundaries; returned geometries may well be invalid. It simply groups geometries together without performing any topological operations or considering the relationships between the geometries.</p>
+<p>On the other hand, <code>st_union()</code>:</p></li>
+<li><p><code>st_union()</code> returns a single geometry that represents the union of all geometries. Unlike <code>st_combine()</code>, <code>st_union()</code> performs topological operations to resolve boundaries and overlaps between geometries. It merges overlapping or touching geometries into one cohesive shape, ensuring that the returned geometry is valid. This function is often used when you need a true geometric union where boundaries are properly accounted for and combined.</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, raster, spatstat, tmap, tidyverse)</span>

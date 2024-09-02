@@ -27,8 +27,11 @@ If you run the same code again with `set.seed(123)`, you will get the same outpu
 install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
 ```
 
--   `st_combine()` returns a singe. combined geometry, with no resolved boundaries; returned geometries may well be invalid.
--   `st_union()`
+-   `st_combine()` returns a single, combined geometry, with no resolved boundaries; returned geometries may well be invalid. It simply groups geometries together without performing any topological operations or considering the relationships between the geometries.
+
+    On the other hand, `st_union()`:
+
+-   `st_union()` returns a single geometry that represents the union of all geometries. Unlike `st_combine()`, `st_union()` performs topological operations to resolve boundaries and overlaps between geometries. It merges overlapping or touching geometries into one cohesive shape, ensuring that the returned geometry is valid. This function is often used when you need a true geometric union where boundaries are properly accounted for and combined.
 
 ```{r}
 pacman::p_load(sf, raster, spatstat, tmap, tidyverse)
