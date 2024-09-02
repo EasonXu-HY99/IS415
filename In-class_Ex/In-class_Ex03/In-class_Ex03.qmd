@@ -1,0 +1,45 @@
+---
+title: "In-class Exercise 3"
+author: "Xu Haiyang"
+date: "2 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+In R, `set.seed()` is a function used to set the seed of the random number generator. This is important when you want to ensure reproducibility in your code, especially when you're working with functions that involve random number generation, such as simulations, sampling, or generating random numbers. (from ChatGPT)
+
+When you use `set.seed()` with a specific integer value, it initializes the random number generator to a specific state. This means that every time you run the same code with the same seed, you will get the same sequence of random numbers. This is particularly useful when you want to share your code with others or when you want to debug your code, as it ensures that your results are consistent and reproducible. (from ChatGPT)
+
+```{r}
+set.seed(123)  # Set the seed to 123
+sample(1:10, 5)# Output: 3 9 4 7 6
+```
+
+If you run the same code again with `set.seed(123)`, you will get the same output every time. (from ChatGPT)
+
+====================================================================
+
+```{r}
+#| eval: false
+install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+```
+
+-   `st_combine()` returns a singe. combined geometry, with no resolved boundaries; returned geometries may well be invalid.
+-   `st_union()`
+
+```{r}
+sg_sf <- mpsz_sf %>%
+  st_union()
+```
+
+`st_union()` is used to derive the coatal outline sf tibble data.frme
+
+```{r}
+acled_sf <- readr::read_csv("data/ACLED_Myanmar.csv") %>%
+  st_as_sf(coords = c( "longitude","latitude"), crs = 4326) %>%
+  st_transform(crs = 32647) %>%
+    mutate(event_date = dmy(event_date))
+```
