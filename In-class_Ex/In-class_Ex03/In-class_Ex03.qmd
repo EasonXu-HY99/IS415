@@ -31,6 +31,8 @@ install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-
 -   `st_union()`
 
 ```{r}
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse)
+mpsz_sf <- st_read(dsn = "data", layer = "MP14_SUBZONE_WEB_PL")
 sg_sf <- mpsz_sf %>%
   st_union()
 ```
