@@ -1,0 +1,238 @@
+---
+title: "Hands_on Exercise 4"
+author: "Xu Haiyang"
+date: "2 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## **1. Overview**
+
+**Network Constrained Spatial Point Patterns Analysis (NetSPAA)** involves methods specifically designed for analyzing spatial point events that occur on or near a network. Examples of spatial point events include the locations of traffic accidents or childcare centers, while networks could be road networks or river networks.
+
+In this exercise, I will use functions from the **spNetwork** package to:
+
+-   Perform **network kernel density estimation (NKDE)**
+
+-   Conduct network G-function and K-function analyses
+
+## **2. The Data**
+
+The study focuses on analyzing the spatial distribution of childcare centers in the [Punggol planning area](https://en.wikipedia.org/wiki/Punggol). The following geospatial datasets are used:
+
+-   **Punggol_St**: A line feature dataset representing the road network within the Punggol Planning Area.
+
+-   **Punggol_CC**: A point feature dataset representing the locations of childcare centers within the Punggol Planning Area.
+
+Both datasets are in ESRI shapefile format.
+
+## **3. Installing and Launching the R Packages**
+
+To begin, I installed and loaded the necessary R packages:
+
+```{r}
+pacman::p_load(sf, spNetwork, tmap, tidyverse)
+```
+
+-   **`pacman::p_load()`**: Installs and loads the specified packages if they are not already installed. Here, I used:
+
+    -   **`sf`**: For handling and analyzing spatial vector data.
+
+    -   **`spNetwork`**: For network-constrained spatial point pattern analysis.
+
+    -   **`tmap`**: For creating thematic maps.
+
+    -   **`tidyverse`**: For general data manipulation and visualization.
+
+## **4. Data Import and Preparation**
+
+I imported the spatial datasets required for the analysis:
+
+```{r}
+network <- st_read(dsn="data/geospatial", layer="Punggol_St")
+```
+
+-   **`st_read()`**: Reads geospatial data into R as a simple feature (`sf`) object.
+
+To confirm the data import, I displayed the contents of the datasets:
+
+```{r}
+childcare <- st_read(dsn="data/geospatial", layer="Punggol_CC")
+```
+
+```{r}
+childcare
+```
+
+```{r}
+network
+```
+
+## **5. Visualizing the Geospatial Data**
+
+To visualize the road network and childcare center locations, I created basic plots:
+
+```{r}
+plot(st_geometry(network))
+plot(childcare,add=T,col='red',pch = 19)
+```
+
+-   **Why**: Visualizing the data helps in understanding the spatial distribution of childcare centers in relation to the road network.
+
+-   **Functions**:
+
+    -   **`plot()`**: Plots spatial objects; `st_geometry(network)` extracts the geometry of the road network, and `add=T` overlays the childcare points on the same plot.
+
+For an interactive map visualization:
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare) + tm_dots() + tm_shape(network) + tm_lines()
+```
+
+-   **Why**: The interactive map allows dynamic exploration of the spatial data.
+
+-   **Functions**:
+
+    -   **`tmap_mode('view')`**: Switches to interactive viewing mode.
+
+    -   **`tm_shape()`**: Specifies the spatial object to be visualized.
+
+    -   **`tm_dots()`**: Adds point symbols to the map.
+
+    -   **`tm_lines()`**: Adds line features to the map.
+
+Switching back to static plotting mode:
+
+```{r}
+tmap_mode('plot')
+```
+
+-   **Why**: Returning to static mode is useful after exploring the interactive map.
+
+## **6. Network KDE (NKDE) Analysis**
+
+Network Kernel Density Estimation (NKDE) analyzes the intensity of events (e.g., childcare centers) along a network (e.g., road network) to identify areas with higher densities of points.
+
+### **6.1 Preparing the Lixels Objects**
+
+```{r}
+lixels <- lixelize_lines(network, 700, mindist = 375)
+```
+
+-   **Why**: Lixels (linear pixels) are small segments created along the network lines to facilitate density estimation. The size of the lixels and the minimum distance between them influence the resolution and accuracy of the analysis.
+
+-   **Functions**:
+
+    -   **`lixelize_lines()`**: Segments the network lines into smaller linear pieces (lixels) for finer density analysis.
+
+### **6.2 Generating Line Centre Points**
+
+```{r}
+samples <- lines_center(lixels) 
+```
+
+-   **Why**: Calculating the center points of the lixels helps to identify the specific locations along the network where densities will be estimated.
+
+-   **Functions**:
+
+    -   **`lines_center()`**: Computes the center points of each lixel for use in density estimation.
+
+### **6.3 Performing NKDE**
+
+```{r}
+densities <- nkde(network, 
+                  events = childcare,
+                  w = rep(1, nrow(childcare)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, 
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+-   **Why**: NKDE estimates the density of childcare centers along the network using a specified bandwidth and kernel function, which affects the smoothing of the density estimate.
+
+-   **Functions**:
+
+    -   **`nkde()`**: Performs Network Kernel Density Estimation using specified parameters such as bandwidth (`bw`), kernel function (`kernel_name`), and grid shape.
+
+#### **6.3.1 Visualizing NKDE**
+
+```{r}
+samples$density <- densities
+lixels$density <- densities
+```
+
+-   **Why**: Assigning the calculated densities to the samples and lixels allows for visual representation of the density estimates on the network.
+
+-   **Code Explanation**: The densities calculated from NKDE are added as new columns to the `samples` and `lixels` objects.
+
+Rescaling for better visualization:
+
+```{r}
+# rescaling to help the mapping
+samples$density <- samples$density*1000
+lixels$density <- lixels$density*1000
+```
+
+-   **Why**: Rescaling density values helps in making them more readable and visually interpretable on the map.
+
+Visualizing the NKDE results:
+
+```{r}
+tmap_mode('view')
+tm_shape(lixels) + tm_lines(col="density") + tm_shape(childcare) + tm_dots()
+tmap_mode('plot')
+```
+
+-   **Why**: Visualizing the density estimates along the network helps identify areas with high concentrations of childcare centers.
+
+-   **Functions**:
+
+    -   **`tm_shape()`**: Specifies the spatial objects to be visualized.
+
+    -   **`tm_lines()`**: Visualizes the network with density values as line colors.
+
+    -   **`tm_dots()`**: Adds childcare center locations to the map.
+
+## **7. Network Constrained G- and K-Function Analysis**
+
+The G- and K-function analyses are used to assess the spatial distribution of events (e.g., childcare centers) relative to a network.
+
+```{r}
+kfun_childcare <- kfunctions(network, 
+                             childcare,
+                             start = 0, 
+                             end = 1000, 
+                             step = 50, 
+                             width = 50, 
+                             nsim = 50, 
+                             resolution = 50,
+                             verbose = FALSE, 
+                             conf_int = 0.05)
+```
+
+-   **Why**: The K-function analysis helps determine the clustering or regularity of childcare centers along the network at different distances.
+
+-   **Functions**:
+
+    -   **`kfunctions()`**: Computes the K-function for events along a network, allowing for network-constrained spatial analysis.
+
+Visualizing the K-function results:
+
+```{r}
+kfun_childcare$plotk
+```
+
+-   **Code Explanation**: This command extracts and plots the K-function results, showing the spatial distribution pattern of childcare centers along the network.
