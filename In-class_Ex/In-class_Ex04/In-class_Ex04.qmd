@@ -1,0 +1,146 @@
+---
+title: "In-class Exercise 4"
+author: "Xu Haiyang"
+date: "9 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{r}
+pacman::p_load(sf, raster, spatstat, sparr, tmap, tidyverse)
+```
+
+```{r}
+#| eval: false
+kbb <- st_read(dsn = "data/rawdata", layer = "Kepulauan_Bangka_Belitung")
+```
+
+```{r}
+kbb_sf <- st_read(dsn = "data/rawdata", layer = "Kepulauan_Bangka_Belitung") %>%
+  st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+```
+
+Converting OWIN
+
+```{r}
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+```
+
+```{r}
+class(kbb_owin)
+```
+
+Importing and preparing Forest Fire data
+
+```{r}
+fire_sf <- read_csv("data/rawdata/forestfires.csv") %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(crs = 32748)
+```
+
+`read_csv` is from the `readr` package
+
+```{r}
+fire_sf <- fire_sf %>%
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date, label = TRUE, abbr = FALSE))
+```
+
+`lubridate` package could be very useful to handle date data
+
+### Visualising the Fire Points
+
+```{r}
+tm_shape(kbb_sf) + tm_polygons() + tm_shape(fire_sf) + tm_dots()
+```
+
+```{r}
+tm_shape(kbb_sf) + tm_polygons() + tm_shape(fire_sf) + tm_dots(size = 0.1) + tm_facets(by = "Month_fac", free.coords = FALSE, drop.units = TRUE)
+```
+
+Next,
+
+Extracting forest fires by month
+
+```{r}
+fire_month <- fire_sf %>%
+  select(Month_num)
+```
+
+Creating ppp
+
+```{r}
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+```
+
+```{r}
+summary(fire_month_ppp)
+```
+
+```{r}
+any(duplicated(fire_month_ppp))
+```
+
+Including Owin Object
+
+```{r}
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+```
+
+```{r}
+plot(fire_month_owin)
+```
+
+Computing Spatio-Temporal KDE
+
+```{r}
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+```
+
+Plotting the Spatio-temporal KDE object
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tims <- c(7,8,9,10,11,12)
+par(mfcol = c(2,3))
+for(i in tims)(
+  plot(st_kde, i,
+       override.par=FALSE,
+       fix.range=TRUE,
+       main=paste("KDE at month", i))
+)
+```
+
+```{r}
+fire_yday_ppp <- fire_sf %>%
+  select(DayofYear) %>%
+  as.ppp()
+```
+
+```{r}
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+```
+
+```{r}
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+```
+
+```{r}
+plot(kde_yday)
+```
+
+Explore the animation
