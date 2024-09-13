@@ -1,0 +1,248 @@
+---
+title: "Hands_on Exercise 4"
+author: "Xu Haiyang"
+date: "9 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## **Overview**
+
+A spatio-temporal point process (also known as a space-time or spatial-temporal point process) is a random collection of points where each point represents the time and location of an event. These events can include disease outbreaks, sightings or births of species, or occurrences of natural disasters like fires, earthquakes, and volcanic eruptions.
+
+With the growing availability of geographically and temporally indexed data, analyzing spatio-temporal point patterns has become increasingly important in various fields. In this chapter, I will demonstrate how to use different R packages to run spatio-temporal point pattern analyses. The example will focus on forest fire events in Kepulauan Bangka Belitung, Indonesia, from January 1, 2023, to December 31, 2023.
+
+## **The Data**
+
+For this exercise, I will use two datasets:
+
+1.  **forestfires**: A CSV file containing the locations of forest fires detected by the MODIS sensor. The data is available from the [Fire Information for Resource Management System](https://firms.modaps.eosdis.nasa.gov/download/). I will only use the forest fires within Kepulauan Bangka Belitung.
+
+2.  **Kepulauan_Bangka_Belitung**: An ESRI shapefile containing sub-district boundaries (kelurahan) of Kepulauan Bangka Belitung. The data was downloaded from the [Indonesia Geospatial Portal](https://www.indonesia-geospasial.com/2023/05/download-shapefile-batas-administrasi.html). This shapefile originally covers all of Indonesia, but I will extract only the relevant sub-districts.
+
+## **Installing and Loading the R Packages**
+
+To begin, I installed and loaded the necessary packages:
+
+```{r}
+pacman::p_load(sf, raster, spatstat, sparr, tmap, tidyverse, ggplot2, gganimate, gifski)
+```
+
+-   **`pacman::p_load()`**: This function ensures that the required packages are installed and loaded if not already available. The key packages used here include:
+
+    -   **`sf`**: For spatial vector data manipulation.
+
+    -   **`raster`**: For raster data manipulation.
+
+    -   **`spatstat`**: For spatial point pattern analysis.
+
+    -   **`sparr`**: For spatio-temporal point pattern analysis.
+
+    -   **`tmap`**: For thematic mapping.
+
+    -   **`tidyverse`**: For data manipulation.
+
+## **Importing and Preparing Study Area**
+
+I imported the shapefile for Kepulauan Bangka Belitung and prepared it for analysis:
+
+```{r}
+#| eval: false
+kbb <- st_read(dsn = "data/rawdata", layer = "Kepulauan_Bangka_Belitung")
+```
+
+```{r}
+kbb_sf <- st_read(dsn = "data/rawdata", layer = "Kepulauan_Bangka_Belitung") %>%
+  st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+```
+
+-   **Why**: I unioned and transformed the spatial data into the appropriate coordinate reference system (EPSG: 32748) to ensure consistency with the fire data.
+
+-   **Functions**:
+
+    -   **`st_union()`**: Combines geometries into a single geometry.
+
+    -   **`st_zm()`**: Removes Z (elevation) and M (measure) dimensions if present.
+
+    -   **`st_transform()`**: Projects the spatial data to the specified CRS.
+
+Next, I converted the spatial data into an observation window for further analysis:
+
+```{r}
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+```
+
+```{r}
+class(kbb_owin)
+```
+
+-   **Why**: Converting the shapefile into an `owin` object allows it to be used in point pattern analysis.
+
+-   **Functions**:
+
+    -   **`as.owin()`**: Converts the spatial object into a window object for use with the `spatstat` package.
+
+## **Importing and Preparing Forest Fire Data**
+
+I imported the forest fire data from a CSV file and transformed it into an `sf` object:
+
+```{r}
+fire_sf <- read_csv("data/rawdata/forestfires.csv") %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(crs = 32748)
+```
+
+-   **Why**: The forest fire data is converted into an `sf` object for spatial analysis and then projected to the same CRS as the study area.
+
+-   **Functions**:
+
+    -   **`read_csv()`**: Reads CSV data into a data frame.
+
+    -   **`st_as_sf()`**: Converts the data frame into an `sf` object using the longitude and latitude columns as coordinates.
+
+### Handling Date Data
+
+I extracted additional information from the date column:
+
+```{r}
+fire_sf <- fire_sf %>%
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date, label = TRUE, abbr = FALSE))
+```
+
+-   **Why**: I extracted the day of the year and month from the acquisition date to facilitate monthly and day-based analysis.
+
+-   **Functions**:
+
+    -   **`yday()`**: Extracts the day of the year from a date.
+
+    -   **`month()`**: Extracts the month from a date, with an option for labeled months.
+
+## **Visualizing the Fire Points**
+
+To visualize the fire points over the study area:
+
+```{r}
+tm_shape(kbb_sf) + tm_polygons() + tm_shape(fire_sf) + tm_dots()
+```
+
+-   **Why**: This basic visualization helps confirm that the fire points are correctly aligned with the study area.
+
+Next, I created a faceted map showing the fire points by month:
+
+```{r}
+tm_shape(kbb_sf) + tm_polygons() + tm_shape(fire_sf) + tm_dots(size = 0.1) + tm_facets(by = "Month_fac", free.coords = FALSE, drop.units = TRUE)
+```
+
+-   **Why**: Faceted maps display fire points month by month, revealing temporal patterns in the fire events.
+
+## **Extracting and Creating Point Pattern Object**
+
+I extracted the fire events by month:
+
+```{r}
+fire_month <- fire_sf %>%
+  select(Month_num)
+```
+
+Then, I created a point pattern object (`ppp`) for the fire events:
+
+```{r}
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+```
+
+```{r}
+summary(fire_month_ppp)
+```
+
+-   **Why**: Creating a `ppp` object allows me to analyze the fire events using spatial point pattern methods.
+
+-   **Functions**:
+
+    -   **`as.ppp()`**: Converts an `sf` object into a point pattern object.
+
+    -   **`summary()`**: Provides a summary of the point pattern object, including the number of points and window properties.
+
+Checking for duplicate points:
+
+```{r}
+any(duplicated(fire_month_ppp))
+```
+
+Including the observation window:
+
+```{r}
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+```
+
+```{r}
+plot(fire_month_owin)
+```
+
+## **Computing Spatio-Temporal KDE**
+
+I computed the spatio-temporal kernel density estimation (STKDE) for the fire events:
+
+```{r}
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+```
+
+-   **Why**: STKDE estimates the intensity of fire events over time and space, revealing spatio-temporal patterns in the data.
+
+-   **Functions**:
+
+    -   **`spattemp.density()`**: Computes spatio-temporal kernel density estimation.
+
+### Plotting the Spatio-Temporal KDE Object
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tims <- c(7,8,9,10,11,12)
+par(mfcol = c(2,3))
+for(i in tims)(
+  plot(st_kde, i,
+       override.par=FALSE,
+       fix.range=TRUE,
+       main=paste("KDE at month", i))
+)
+```
+
+-   **Why**: This loop plots the STKDE results for selected months, helping to visualize the intensity of fire events across different time periods.
+
+## **Computing STKDE by Day of Year**
+
+I repeated the STKDE analysis by day of the year:
+
+```{r}
+fire_yday_ppp <- fire_sf %>%
+  select(DayofYear) %>%
+  as.ppp()
+```
+
+```{r}
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+```
+
+```{r}
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+```
+
+-   **Why**: This analysis provides a finer temporal resolution of the fire events, revealing how fire intensity changes throughout the year.
+
+```{r}
+plot(kde_yday)
+```
