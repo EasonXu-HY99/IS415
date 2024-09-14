@@ -28,7 +28,7 @@ For this exercise, I will use two datasets:
 To begin, I installed and loaded the necessary packages:
 
 ```{r}
-pacman::p_load(sf, raster, spatstat, sparr, tmap, tidyverse, ggplot2, gganimate, gifski)
+pacman::p_load(sf, raster, spatstat, sparr, tmap, tidyverse, animation, magick)
 ```
 
 -   **`pacman::p_load()`**: This function ensures that the required packages are installed and loaded if not already available. The key packages used here include:
@@ -244,5 +244,13 @@ summary(kde_yday)
 -   **Why**: This analysis provides a finer temporal resolution of the fire events, revealing how fire intensity changes throughout the year.
 
 ```{r}
-plot(kde_yday)
+saveGIF({
+  for (i in 10:352) {  
+    plot(kde_yday, tselect = i)  
+  }
+}, movie.name = "kde_yday.gif", interval = 0.1)
+
+gif <- image_read("kde_yday.gif")
+
+print(gif)
 ```
