@@ -1,0 +1,105 @@
+---
+title: "In-class Exercise 5"
+author: "Xu Haiyang"
+date: "16 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+```{r}
+#| eval: false
+hunan = st_read(dsn = "data/geospatial", layer = "Hunan")
+```
+
+```{r}
+#| eval: false
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+```{r}
+#| eval: false
+hunan <- left_join(hunan,hunan2012)%>%
+  select(1:3, 7, 15, 16, 31, 32)
+```
+
+```{r}
+#| eval: false
+write_rds(hunan, "data/rds/hunan.rds")
+```
+
+```{r}
+#| echo: false
+hunan <- read_rds("data/rds/hunan.rds")
+```
+
+```{r}
+hunan_sp <- hunan %>%
+  as_Spatial()
+```
+
+```{r}
+bw_AIC <- bw.gwr(GDPPC ~1,
+                 data = hunan_sp,
+                 approach = "AIC",
+                 adaptive = TRUE,
+                 kernel = "bisquare",
+                 longlat = T)
+bw_AIC
+```
+
+```{r}
+bw_CV <- bw.gwr(GDPPC ~ 1,
+                 data = hunan_sp,
+                 approach = "CV",
+                 adaptive = TRUE,
+                 kernel = "bisquare",
+                 longlat = T)
+bw_CV
+```
+
+```{r}
+#| eval: false
+bw_CV <- bw.gwr(GDPPC ~ 1,
+                 data = hunan_sp,
+                 approach = "CV",
+                 adaptive = FALSE,
+                 kernel = "bisquare",
+                 longlat = T)
+bw_CV
+```
+
+```{r}
+gwstat <- gwss(data = hunan_sp,
+               vars = "GDPPC",
+               bw = bw_AIC,
+               kernel = "bisquare",
+               adaptive = TRUE,
+               longlat = T)
+```
+
+```{r}
+gwstat_df <- as.data.frame(gwstat$SDF)
+```
+
+```{r}
+hunan_gstat <- cbind(hunan, gwstat_df)
+```
+
+```{r}
+tm_shape(hunan_gstat) + tm_fill("GDPPC_LM", n = 5, style = "quantile") + 
+  tm_borders(alpha = 0.5) + 
+  tm_layout(main.title = "Distribution of geographically weighted mean",
+            main.title.position = "center",
+            main.title.size = 2.0,
+            legend.text.size = 1.2,
+            legend.height = 1.50,
+            legend.width = 1.50,
+            frame = TRUE)
+```

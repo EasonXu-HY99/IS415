@@ -52,7 +52,11 @@ In this section, I focus on loading and understanding both geospatial and aspati
 I start by loading the Myanmar administrative boundary data using the `sf` package. The data is stored in three levels: state/region (admin1), district (admin2), and township (admin3).
 
 ```{r}
+pacman::p_load(sf, tidyverse)
 
+admin1 = st_read(dsn = "data/geospatial/admin1", layer = "mmr_polbnda2_adm1_250k_mimu_1")
+admin2 = st_read(dsn = "data/geospatial/admin2", layer = "mmr_polbnda_adm2_250k_mimu")
+admin3 = st_read(dsn = "data/geospatial/admin3", layer = "mmr_polbnda_adm3_250k_mimu_1")
 ```
 
 ### **Aspatial Data**
@@ -60,7 +64,7 @@ I start by loading the Myanmar administrative boundary data using the `sf` packa
 Next, I load the aspatial armed conflict data from ACLED, ensuring that I correctly filter the event types I am focusing on.
 
 ```{r}
-
+ACLED <- read_csv("data/aspatial/ACLED_Myanmar.csv")
 ```
 
 ### **Data Preprocessing**
