@@ -52,7 +52,7 @@ In this section, I focus on loading and understanding both geospatial and aspati
 I start by loading the Myanmar administrative boundary data using the `sf` package. The data is stored in three levels: state/region (admin1), district (admin2), and township (admin3).
 
 ```{r}
-pacman::p_load(sf, tidyverse)
+pacman::p_load(sf, tidyverse, lubridate, spatstat, tmap)
 
 admin1 = st_read(dsn = "data/geospatial/admin1", layer = "mmr_polbnda2_adm1_250k_mimu_1")
 admin2 = st_read(dsn = "data/geospatial/admin2", layer = "mmr_polbnda_adm2_250k_mimu")
@@ -72,7 +72,64 @@ ACLED <- read_csv("data/aspatial/ACLED_Myanmar.csv")
 I clean and prepare both the geospatial and aspatial data for further analysis. It's crucial to ensure consistency in projections (CRS) across datasets.
 
 ```{r}
+ACLED_cut <- ACLED %>%
+  select(-iso, -region, -country) %>%
+  mutate(
+    event_date = dmy(event_date), 
+    timestamp = as_datetime(timestamp)
+  )
+```
 
+```{r}
+st_crs(admin1)
+```
+
+```{r}
+st_geometry(admin1)
+```
+
+```{r}
+ACLED_sf <- st_as_sf(ACLED_cut, coords = c("longitude", "latitude"), crs = 4326)
+
+glimpse(ACLED_sf)
+```
+
+```{r}
+ACLED_sf <- ACLED_sf %>%
+  mutate(quarter = floor_date(event_date, "quarter"))
+
+quarterly_groups <- ACLED_sf %>%
+  group_split(quarter)
+```
+
+```{r}
+perform_kde <- function(data) {
+  points <- st_coordinates(data)
+  ppp_object <- ppp(points[, 1], points[, 2], window = owin(c(min(points[, 1]), max(points[, 1])), 
+                                                             c(min(points[, 2]), max(points[, 2]))))
+  
+  kde <- density(ppp_object, sigma = 0.05)
+  
+  return(kde)
+}
+
+kde_layers <- lapply(quarterly_groups, perform_kde)
+```
+
+```{r}
+convert_kde_to_raster <- function(kde) {
+  # Convert the im object to a raster
+  raster_kde <- raster(kde)
+  return(raster_kde)
+}
+
+kde_rasters <- lapply(kde_layers, function(kde) {
+  if (!is.null(kde)) {
+    convert_kde_to_raster(kde)
+  } else {
+    return(NULL)
+  }
+})
 ```
 
 ### **Data Size Management**
