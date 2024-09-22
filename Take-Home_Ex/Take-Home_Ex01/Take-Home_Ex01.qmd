@@ -9,15 +9,15 @@ execute:
   freeze: true
 ---
 
-## **Context**
+## **1. Context**
 
 Millions of lives are devastated every year by armed conflicts, as wars continue to leave communities shattered. While the 1990s and early 2000s saw a decline in global conflict, the situation has deteriorated significantly since 2012. This new wave of conflict was sparked by the Arab uprisings in 2011, leading to wars in Libya, Syria, and Yemen. The instability in Libya further contributed to a prolonged crisis in the Sahel region. Subsequent major confrontations include the 2020 Azerbaijani-Armenian war over Nagorno-Karabakh and the brutal fighting in Ethiopia's Tigray region. Myanmar’s military coup in 2021 and Russia’s 2022 invasion of Ukraine further escalated global violence. More recently, Sudan and Gaza have been devastated by conflict in 2023. As a result, more people today are being displaced, killed, and driven into humanitarian crises than at any time in recent decades.
 
-### **Introduction**
+### **1.1 Introduction**
 
 Geospatial analytics provides powerful tools to understand and address the complex societal problems driven by armed conflict. Through spatial point pattern analysis, researchers can gain deeper insights into the distribution of conflict events and their impact over time and space. This study focuses on Myanmar, a nation that has experienced escalating violence since the 2021 military coup. By applying spatial and spatio-temporal point pattern analysis techniques, this study aims to uncover patterns in the geographical distribution of armed conflict in Myanmar between 2021 and mid-2024.
 
-### **Objectives**
+### **1.2 Objectives**
 
 The primary objective of this analysis is to utilize geospatial methodologies to examine the spatial and temporal trends of armed conflict in Myanmar. Specifically, this study will:
 
@@ -27,495 +27,1100 @@ The primary objective of this analysis is to utilize geospatial methodologies to
 
 -   Apply spatial and spatio-temporal point pattern techniques to identify and map hotspots and clusters of conflict activity.
 
-### **Data**
+### **1.3 Data**
 
 -   **Armed Conflict Data:** The data used in this analysis is derived from the **Armed Conflict Location & Event Data Project (ACLED)**, an internationally recognized source of data on violent conflict and protests worldwide. The dataset spans from January 2021 to June 2024, focusing on specific types of events in Myanmar.
 
--   **GIS Data:** The geographical boundaries for analysis are based on geospatial data from the **Myanmar Information Management Unit (MIMU)**. The dataset includes administrative boundaries at three levels: states and regions (admin1), districts (admin2), and townships (admin3), which will be integrated with the ACLED conflict data for spatial analysis.
+-   **GIS Data:** The geographical boundaries for analysis are based on geospatial data from the **Myanmar Information Management Unit (MIMU)**. The dataset includes administrative boundaries at three levels: states and regions (admin1), districts (admin2), which will be integrated with the ACLED conflict data for spatial analysis.
 
-### **Limitation**
-
-Several limitations are inherent in this analysis:
-
--   **Data Incompleteness:** Due to reporting biases, some conflict events may be underrepresented, especially in remote areas where data collection is challenging.
-
--   **Temporal Precision:** The temporal resolution of the data is constrained to quarterly intervals, which may limit the granularity of time-series analysis.
-
--   **Geospatial Accuracy:** While the data provides geographic coordinates, varying levels of precision in these coordinates may affect the accuracy of spatial analysis at the finer administrative levels.
-
-## **Data**
+## **2. Data**
 
 In this section, I focus on loading and understanding both geospatial and aspatial data required for the analysis.
 
-### **Geospatial Data**
+### **2.1 Geospatial Data**
 
-I start by loading the Myanmar administrative boundary data using the `sf` package. The data is stored in three levels: state/region (admin1), district (admin2), and township (admin3).
+I begin by loading the Myanmar administrative boundary data using the `sf` package. This data includes two administrative levels: state/region (admin1) and district (admin2). These boundaries are crucial for analyzing the geographical distribution of armed conflict events across Myanmar at different levels of granularity.
 
 ```{r}
-pacman::p_load(sf, tidyverse, lubridate, spatstat, tmap)
-
-admin1 = st_read(dsn = "data/geospatial/admin1", layer = "mmr_polbnda2_adm1_250k_mimu_1")
-admin2 = st_read(dsn = "data/geospatial/admin2", layer = "mmr_polbnda_adm2_250k_mimu")
-admin3 = st_read(dsn = "data/geospatial/admin3", layer = "mmr_polbnda_adm3_250k_mimu_1")
+pacman::p_load(sf, tidyverse, lubridate, spatstat, tmap, animation, magick, ggplot2, sparr)
 ```
 
-### **Aspatial Data**
+-   **`sf`**: I used `sf` to handle geospatial data, specifically reading and manipulating shapefiles for Myanmar’s administrative boundaries. This package simplifies working with spatial data by integrating it with data frames and providing a set of tools for spatial analysis and visualization.
 
-Next, I load the aspatial armed conflict data from ACLED, ensuring that I correctly filter the event types I am focusing on.
+-   **`tidyverse`**: I included `tidyverse` to facilitate data manipulation and visualization. Its tools, like `dplyr` for data wrangling and `ggplot2` for plotting, are essential for efficiently processing both spatial and non-spatial data.
+
+-   **`lubridate`**: This package is loaded to handle date and time information in future steps. It simplifies parsing and manipulating timestamps, which will be important when analyzing the temporal aspects of the armed conflict data.
+
+-   **`spatstat`**: I used `spatstat` for spatial point pattern analysis. It provides advanced tools for detecting clustering or dispersion of events within the spatial data, which is crucial for understanding the distribution of conflict points.
+
+-   **`tmap`**: I loaded `tmap` for creating high-quality thematic maps. This package allows both static and interactive visualizations of spatial data, offering more customization than the basic `plot()` function.
+
+-   **`animation` & `magick`**: These packages are included to create animations and handle image processing. They will be useful later for generating dynamic visualizations or exporting images of the spatial data for reports and presentations.
+
+-   **`ggplot2`**: As part of `tidyverse`, `ggplot2` is used to create static visualizations. It provides powerful customization options for plotting spatial and non-spatial data, ensuring clear and detailed graphics for analysis.
+
+-   **`sparr`**: I included `sparr` for density estimation and relative risk analysis. It is essential for identifying geographical hotspots and understanding spatial risk, which is critical when analyzing conflict patterns.
+
+Next, I load the administrative boundary data for the state/region (admin1) and district (admin2) levels:
+
+```{r}
+admin1 = st_read(dsn = "data/geospatial/admin1", layer = "mmr_polbnda2_adm1_250k_mimu_1")
+admin2 = st_read(dsn = "data/geospatial/admin2", layer = "mmr_polbnda_adm2_250k_mimu")
+```
+
+To explore the geometrical data for both layers:
+
+```{r}
+st_geometry(admin1)
+st_geometry(admin2)
+```
+
+I then examine the structure of the datasets using `glimpse()`:
+
+```{r}
+glimpse(admin1)
+glimpse(admin2)
+```
+
+Finally, I generate quick visualizations of the state/region and district boundaries:
+
+```{r}
+par(mfrow = c(1, 2))
+
+plot(admin1["ST"], main = "State/Region")
+plot(admin2["ST"], main = "District")
+```
+
+### **2.2 Aspatial Data**
+
+Next, I load the aspatial armed conflict data from ACLED, which contains detailed event information about conflicts in Myanmar. This dataset will be used alongside the geospatial data to analyze the distribution of these events.
 
 ```{r}
 ACLED <- read_csv("data/aspatial/ACLED_Myanmar.csv")
 ```
 
-### **Data Preprocessing**
-
-I clean and prepare both the geospatial and aspatial data for further analysis. It's crucial to ensure consistency in projections (CRS) across datasets.
+The dataset is read into R using the `read_csv()` function, which imports it as a data frame for further processing.
 
 ```{r}
-ACLED_cut <- ACLED %>%
-  select(-iso, -region, -country) %>%
-  mutate(
-    event_date = dmy(event_date), 
-    timestamp = as_datetime(timestamp)
-  )
+list(ACLED)
 ```
+
+I inspect the structure of the dataset using `list()`, ensuring that it contains the expected columns, such as event dates, event types, and geographical information (longitude and latitude).
+
+### **2.3 Data Preprocessing**
+
+To begin, I check the coordinate reference system (CRS) of the `admin1` and `admin2` layers to confirm the data uses an appropriate spatial projection. This ensures the data aligns correctly during analysis.
 
 ```{r}
 st_crs(admin1)
+st_crs(admin2)
 ```
 
+The function `st_crs()` retrieves the CRS for both datasets. Ensuring consistency in the CRS is critical for accurate spatial analysis.
+
 ```{r}
-st_geometry(admin1)
+admin1_utm <- st_transform(admin1, 32647)
+admin2_utm <- st_transform(admin2, 32647)
 ```
 
-```{r}
-ACLED_sf <- st_as_sf(ACLED_cut, coords = c("longitude", "latitude"), crs = 4326)
+Both layers are transformed to UTM Zone 47N (EPSG: 32647), a projection suitable for regional analysis. The `st_transform()` function reprojects the spatial data to ensure all layers are compatible during further analysis.
 
+```{r}
+st_crs(admin1_utm)
+st_crs(admin2_utm)
+```
+
+After the transformation, I check the CRS of the transformed data to confirm the projection has been applied successfully.
+
+Next, I convert the aspatial ACLED data into a spatial object by assigning longitude and latitude coordinates and transforming it to match the same UTM Zone 47N projection as the administrative boundary layers.
+
+```{r}
+ACLED_sf <- st_as_sf(ACLED,
+                     coords = c("longitude", "latitude"),
+                     crs = 4326) %>%
+  st_transform(crs = 32647)
+```
+
+Using `st_as_sf()`, I convert the aspatial ACLED data into a simple feature (sf) object, specifying the longitude and latitude columns as coordinates. The initial CRS is set to EPSG: 4326 (WGS84), which is commonly used for geographic coordinates, and is then transformed to UTM 47N to match the boundary layers.
+
+```{r}
 glimpse(ACLED_sf)
+```
+
+To streamline the dataset, I select only the necessary columns for analysis, such as event dates, event types, actor information, location, and fatalities.
+
+```{r}
+ACLED_sf <- ACLED_sf %>%
+  select(event_date, year, event_type, actor1, actor2, interaction, admin1, admin2, source_scale, fatalities, timestamp)
 ```
 
 ```{r}
 ACLED_sf <- ACLED_sf %>%
-  mutate(quarter = floor_date(event_date, "quarter"))
+  mutate(event_date = as.Date(event_date, format = "%d %B %Y")) 
+```
 
-quarterly_groups <- ACLED_sf %>%
-  group_split(quarter)
+Next, I format the `event_date` column into a proper `Date` object using `mutate()` and `as.Date()`. This ensures that the date column is correctly interpreted and can be used for temporal filtering and analysis.
+
+```{r}
+ACLED_sf <- ACLED_sf %>%
+  filter(event_type %in% c("Battles", 
+                           "Explosions/Remote violence", 
+                           "Strategic developments", 
+                           "Violence against civilians"))
+```
+
+I filter the dataset to focus on specific types of conflict events that are most relevant to the analysis: Battles, Explosions/Remote violence, Strategic developments, and Violence against civilians. This step reduces noise in the data and ensures the analysis is targeted at the most critical event types.
+
+```{r}
+head(ACLED_sf)
 ```
 
 ```{r}
-perform_kde <- function(data) {
-  points <- st_coordinates(data)
-  ppp_object <- ppp(points[, 1], points[, 2], window = owin(c(min(points[, 1]), max(points[, 1])), 
-                                                             c(min(points[, 2]), max(points[, 2]))))
-  
-  kde <- density(ppp_object, sigma = 0.05)
-  
-  return(kde)
-}
-
-kde_layers <- lapply(quarterly_groups, perform_kde)
+tmap_mode("plot")
 ```
 
 ```{r}
-convert_kde_to_raster <- function(kde) {
-  # Convert the im object to a raster
-  raster_kde <- raster(kde)
-  return(raster_kde)
-}
+tm_shape(admin1_utm) +
+  tm_polygons(col = "grey", border.col = "black") +
+tm_shape(ACLED_sf) +
+  tm_dots(col = "black", size = 0.01)
+```
 
-kde_rasters <- lapply(kde_layers, function(kde) {
-  if (!is.null(kde)) {
-    convert_kde_to_raster(kde)
-  } else {
-    return(NULL)
+I create a static map showing the state boundaries from the `admin1_utm` dataset and the conflict event locations from `ACLED_sf`. Using `tm_shape()` and `tm_polygons()`, I plot the state boundaries in grey, and with `tm_dots()`, I overlay the conflict event points in black. This map provides a clear visual representation of the geographical distribution of conflict events across Myanmar.
+
+To narrow down the focus of the analysis, I decided to identify the state with the highest number of conflict events. This allows for a more detailed examination of conflict patterns in a specific region.
+
+I first calculated the total number of events per administrative area (admin1) and visualized the distribution using a histogram. This provides an overview of the event counts across different regions, helping to identify the area with the most activity.
+
+```{r}
+event_counts_by_admin1 <- ACLED_sf %>%
+  group_by(admin1) %>%
+  summarize(event_count = n()) %>%
+  arrange(desc(event_count))  
+```
+
+Using `group_by()` and `summarize()`, I calculated the number of events in each admin1 area, then arranged the areas in descending order to highlight the regions with the highest number of events.
+
+```{r}
+ggplot(event_counts_by_admin1, aes(x = reorder(admin1, -event_count), y = event_count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +  
+  labs(title = "Number of Events by Admin1 Area",
+       x = "Admin1 Area",
+       y = "Number of Events") +
+  theme_minimal()
+```
+
+I used `ggplot2` to create a bar plot that visually represents the number of conflict events by admin1 area. The `coord_flip()` function was used to rotate the plot for better readability, and the bars are ordered by event count. The color scheme and minimal theme improve clarity, with labels clearly indicating the focus of the plot.
+
+After reviewing the histogram, I chose to focus on the **Sagaing** area, as it had the highest number of events. To filter the dataset, I selected only the events that occurred in Sagaing.
+
+```{r}
+ACLED_sf <- ACLED_sf %>%
+  filter(admin1 == "Sagaing")
+```
+
+I applied the `filter()` function to retain only the conflict events within Sagaing, reducing the dataset to focus on this specific region. This will allow for a more granular analysis of conflict events in Sagaing.
+
+```{r}
+head(ACLED_sf)
+```
+
+Next, I filtered the `admin2_utm` layer to isolate the district boundaries for Sagaing. This will allow me to visualize the conflict events within the context of Sagaing’s district divisions.
+
+```{r}
+sagaing <- admin2_utm %>% filter(ST == "Sagaing")
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+I set the `tmap` mode to static plotting to create a visual representation of the conflict events in Sagaing.
+
+```{r}
+tm_shape(sagaing) +
+  tm_polygons(col = "grey", border.col = "black") +
+tm_shape(ACLED_sf) +
+  tm_dots(col = "black", size = 0.01) +
+tm_layout(title = "Events in Sagaing Area", legend.outside = TRUE)
+```
+
+I used `tmap` to create a map showing the district boundaries of Sagaing and overlaid the conflict events as black dots. The grey polygons represent the districts, while the event points are plotted in black. The map is titled "Events in Sagaing Area," and the layout includes an external legend to enhance clarity.
+
+## **3. Quarterly Kernel Density Estimation (KDE)**
+
+To understand the spatial distribution of conflict events over time, I perform a Kernel Density Estimation (KDE) on a quarterly basis. This allows for the identification of patterns and hotspots in different quarters of the year.
+
+First, I create a new variable that represents the quarter of each event, combining the event year and quarter number.
+
+```{r}
+ACLED_sf <- ACLED_sf %>%
+  mutate(quarter = paste0(year(event_date), "-Q", quarter(event_date)))
+```
+
+The `mutate()` function is used here to generate a `quarter` column, combining the year and quarter extracted from the `event_date` field using the `year()` and `quarter()` functions from the `lubridate` package. This step ensures that each event is categorized by the quarter in which it occurred.
+
+```{r}
+head(ACLED_sf$quarter)
+```
+
+I then inspect the first few values of the `quarter` column to verify that the new variable has been created correctly.
+
+```{r}
+unique(ACLED_sf$quarter)
+```
+
+Next, I check the unique quarter values to ensure all expected quarters are present, confirming that the data spans multiple time periods and is ready for quarterly analysis.
+
+To perform the KDE for each quarter, I split the dataset into separate data frames based on the `quarter` variable.
+
+```{r}
+quarterly_data <- split(ACLED_sf, ACLED_sf$quarter)
+```
+
+The `split()` function divides the dataset into a list of data frames, where each element corresponds to the events from a specific quarter. This allows for the independent analysis of each quarter's event data.
+
+Next, I convert the spatial boundaries of Sagaing into an `owin` object, which is required for KDE using the `spatstat` package. The `owin` object represents the observation window for the spatial point pattern.
+
+```{r}
+sagaing_owin <- as.owin(sagaing)
+```
+
+The `as.owin()` function transforms the Sagaing boundary (in `sf` format) into a `spatstat`-compatible `owin` object. This step is crucial as it defines the study area within which the Kernel Density Estimation will be conducted.
+
+### 3.1 ACLED (all events)
+
+In this section, I generate a Kernel Density Estimation (KDE) for all conflict events in Sagaing, categorized by quarter. This allows me to visualize the density of events over time, identifying areas of higher conflict concentration for each quarter.
+
+```{r}
+saveGIF({
+  for (q in names(quarterly_data)) {
+    
+    quarter_data <- quarterly_data[[q]]
+    
+    ACLED_ppp <- as.ppp(st_coordinates(quarter_data), W = sagaing_owin)
+    
+    ACLED_ppp <- rjitter(ACLED_ppp, 
+                         retry = TRUE,
+                         nsim = 1,
+                         drop = TRUE)
+    
+    ACLEDmm_ppp.km <- rescale(ACLED_ppp, 1000, "km")
+    
+    kde_ACLEDmm_bw <- density(ACLEDmm_ppp.km,
+                              sigma = bw.ppl,
+                              edge = TRUE,
+                              kernel = "gaussian")
+    
+    plot(kde_ACLEDmm_bw, main = paste("KDE for", q))
+    
   }
-})
+}, movie.name = "kde_ACLED.gif", interval = 0.5, ani.width = 800, ani.height = 600)
 ```
 
-### **Data Size Management**
+I begin by looping through the quarterly data, converting each quarter’s conflict events into a spatial point pattern object (`ppp`) using the `as.ppp()` function. I apply jittering using `rjitter()` to handle points that overlap or are too close, reducing visual artifacts. The points are then rescaled to kilometers using `rescale()` to ensure spatial units are consistent.
 
-If the dataset is too large, I can manage it by subsetting it for specific regions or periods, or by summarizing it to reduce the size.
+For each quarter, I compute the Kernel Density Estimation using the `density()` function, which applies a Gaussian kernel with bandwidth selected by the `bw.ppl` method. The results are plotted to visually inspect how conflict event densities evolve over each quarter.
 
 ```{r}
+ACLED_gif <- image_read("kde_ACLED.gif")
 
+print(ACLED_gif)
 ```
 
-### **Creating a Simple Feature Data Frame from an Aspatial Data Frame**
+After generating the KDE plots for each quarter, I save them as a GIF using `saveGIF()` and load the resulting animation using `image_read()`. This provides a dynamic view of conflict density changes over time.
 
-I have already created an `sf` object from the aspatial ACLED data using `st_as_sf()`. Now, I proceed by integrating this with the administrative boundaries for spatial analysis.
+***Observation***
+
+| The Kernel Density Estimation (KDE) animation for ACLED events across all quarters reveals significant temporal and spatial variations in conflict activity within the Sagaing region. Throughout the animation, several recurring hotspots are observed in the southern part of Sagaing, with varying intensities across quarters. These areas consistently exhibit higher densities of conflict events, as indicated by the warm colors in the heatmap. Smaller, less intense hotspots are intermittently visible in the central and western parts of the region, but their presence and intensity fluctuate over time. The dynamic nature of the KDE highlights how conflict activity is concentrated in certain areas and time periods, while large portions of Sagaing remain relatively inactive. Overall, the animation provides a comprehensive view of the shifting landscape of conflict hotspots within the region.
+
+### **3.2 "Battles" event**
+
+Next, I repeat the KDE analysis, but this time focusing exclusively on events categorized as "Battles." This allows for a more specific analysis of how battle-related conflict events are distributed over time and space in the Sagaing region.
 
 ```{r}
-
+saveGIF({
+  for (q in names(quarterly_data)) {
+    
+    quarter_data <- quarterly_data[[q]]
+    battles_data <- quarter_data[quarter_data$event_type == "Battles", ]
+    
+    ACLED_ppp <- as.ppp(st_coordinates(battles_data), W = sagaing_owin)
+    
+    ACLED_ppp <- rjitter(ACLED_ppp, 
+                         retry = TRUE,
+                         nsim = 1,
+                         drop = TRUE)
+    
+    ACLEDmm_ppp.km <- rescale(ACLED_ppp, 1000, "km")
+    
+    kde_ACLEDmm_bw <- density(ACLEDmm_ppp.km,
+                              sigma = bw.ppl,
+                              edge = TRUE,
+                              kernel = "gaussian")
+    
+    plot(kde_ACLEDmm_bw, main = paste("KDE (Battles) for", q))
+    
+  }
+}, movie.name = "kde_battles.gif", interval = 0.5, ani.width = 800, ani.height = 600)
 ```
 
-### **Preparation for Spatial Point Patterns Analysis**
-
-Before conducting spatial point pattern analysis, I ensure the spatial data is ready for conversion into the `spatstat` package's `ppp` format.
+Similar to the previous KDE analysis, I split the quarterly data and filter it to focus solely on the "Battles" events. The same process of creating a spatial point pattern (`ppp`), jittering, rescaling, and computing the Kernel Density Estimation is applied for each quarter.
 
 ```{r}
+Battles_gif <- image_read("kde_battles.gif")
 
+print(Battles_gif)
+```
+
+***Observation***
+
+| The Kernel Density Estimation (KDE) for **"Battle" events** from **2021-Q1 to 2024-Q2** reveals dynamic shifts in conflict intensity across the Sagaing region over time. Throughout the quarters, the southwestern area consistently emerges as a hotspot for battle activity, with varying intensities as shown by the recurrent warm yellow and red areas. Over the course of the analysis, smaller clusters appear and disappear in the central and southeastern parts of Sagaing, indicating occasional battle flare-ups. The northern region remains largely inactive in terms of battle events, maintaining low density throughout the observed period. The overall pattern suggests that while battle activity is geographically concentrated in certain regions, there are fluctuations in intensity and spread over the course of the years. This provides a temporal perspective on the evolving conflict landscape in Sagaing, with the southern regions being most consistently affected by battle events.
+
+### **3.3 "Explosions/Remote violence" event**
+
+In this section, I generate a Kernel Density Estimation (KDE) specifically for events categorized as "Explosions/Remote violence" in Sagaing, allowing for a focused analysis of how these events are distributed spatially across different quarters.
+
+```{r}
+saveGIF({
+  for (q in names(quarterly_data)) {
+    
+    quarter_data <- quarterly_data[[q]]
+    er_data <- quarter_data[quarter_data$event_type == "Explosions/Remote violence", ]
+    
+    ACLED_ppp <- as.ppp(st_coordinates(er_data), W = sagaing_owin)
+    
+    ACLED_ppp <- rjitter(ACLED_ppp, 
+                         retry = TRUE,
+                         nsim = 1,
+                         drop = TRUE)
+    
+    ACLEDmm_ppp.km <- rescale(ACLED_ppp, 1000, "km")
+    
+    kde_ACLEDmm_bw <- density(ACLEDmm_ppp.km,
+                              sigma = bw.ppl,
+                              edge = TRUE,
+                              kernel = "gaussian")
+    
+    plot(kde_ACLEDmm_bw, main = paste("KDE (Explosion/Remote violence) for", q))
+    
+  }
+}, movie.name = "kde_er.gif", interval = 0.5, ani.width = 800, ani.height = 600)
 ```
 
 ```{r}
+ER_gif <- image_read("kde_er.gif")
 
+print(ER_gif)
 ```
 
-### **Converting sf Format into spatstat’s ppp Format**
+***Observation***
 
-I convert the `sf` format to the `ppp` (planar point pattern) format, required for spatial analysis in the `spatstat` package.
+| The Kernel Density Estimation (KDE) animation for **Explosion/Remote violence** events from **2021-Q1 to 2024-Q2** reveals a concentrated and persistent hotspot in the central region of Sagaing. In **2021-Q1**, the intensity of explosion-related events is highly localized, as indicated by the bright red-yellow area, with minimal activity elsewhere in the region. As the animation progresses, the central hotspot remains the primary area of conflict activity, showing fluctuations in intensity over time but consistently being the focal point for these types of events. The surrounding areas remain largely inactive, reflecting the spatially concentrated nature of these violent incidents. This temporal stability of the hotspot suggests a long-standing area of tension where explosion/remote violence events are concentrated.
+
+### **3.4 "Strategic developments" event**
+
+This section focuses on KDE analysis for events categorized as "Strategic developments," providing insight into how these events are spatially distributed in Sagaing over time.
 
 ```{r}
-
+saveGIF({
+  for (q in names(quarterly_data)) {
+    
+    quarter_data <- quarterly_data[[q]]
+    sd_data <- quarter_data[quarter_data$event_type == "Strategic developments", ]
+    
+    ACLED_ppp <- as.ppp(st_coordinates(sd_data), W = sagaing_owin)
+    
+    ACLED_ppp <- rjitter(ACLED_ppp, 
+                         retry = TRUE,
+                         nsim = 1,
+                         drop = TRUE)
+    
+    ACLEDmm_ppp.km <- rescale(ACLED_ppp, 1000, "km")
+    
+    kde_ACLEDmm_bw <- density(ACLEDmm_ppp.km,
+                              sigma = bw.ppl,
+                              edge = TRUE,
+                              kernel = "gaussian")
+    
+    plot(kde_ACLEDmm_bw, main = paste("KDE (Strategic developments) for", q))
+    
+  }
+}, movie.name = "kde_sd.gif", interval = 0.5, ani.width = 800, ani.height = 600)
 ```
-
-### **Creating owin Object**
-
-I create an `owin` object, which defines the region (or observation window) in which the points exist.
 
 ```{r}
+SD_gif <- image_read("kde_sd.gif")
 
+print(SD_gif)
 ```
 
-### **Combining Point Events Object and owin Object**
+***Observation***
 
-Lastly, I combine the point pattern (`ppp` object) with the observation window (`owin` object) to conduct the spatial analysis.
+| The Kernel Density Estimation (KDE) for **Strategic developments** from **2021-Q1 to 2024-Q2** reveals a strong concentration of activity in the southern part of the Sagaing region. The hotspot, which is evident from the bright yellow and red areas, persists throughout the quarters, indicating that strategic developments are primarily localized in the southern region. Over time, the intensity of these events fluctuates but remains concentrated in the same geographical area, suggesting that this part of Sagaing consistently experiences significant strategic activities. The central and northern parts of the region show little to no activity, reflecting the highly localized nature of strategic developments. This pattern suggests a focused area of strategic importance within the southern zone of Sagaing, which could be linked to political or military operations in this region.
+
+### **3.5 "Violence against civilians" event**
+
+In this section, I perform a Kernel Density Estimation (KDE) for events categorized as "Violence against civilians." This analysis aims to identify where and when these types of events occurred with the highest intensity within the Sagaing region, visualized across different quarters.
 
 ```{r}
-
+saveGIF({
+  for (q in names(quarterly_data)) {
+    
+    quarter_data <- quarterly_data[[q]]
+    vac_data <- quarter_data[quarter_data$event_type == "Violence against civilians" , ]
+    
+    ACLED_ppp <- as.ppp(st_coordinates(vac_data), W = sagaing_owin)
+    
+    ACLED_ppp <- rjitter(ACLED_ppp, 
+                         retry = TRUE,
+                         nsim = 1,
+                         drop = TRUE)
+    
+    ACLEDmm_ppp.km <- rescale(ACLED_ppp, 1000, "km")
+    
+    kde_ACLEDmm_bw <- density(ACLEDmm_ppp.km,
+                              sigma = bw.ppl,
+                              edge = TRUE,
+                              kernel = "gaussian")
+    
+    plot(kde_ACLEDmm_bw, main = paste("KDE (Violence against civilians) for", q))
+    
+  }
+}, movie.name = "kde_vac.gif", interval = 0.5, ani.width = 800, ani.height = 600)
 ```
-
-### **Deriving Quarterly Kernel Density Estimation (KDE) Layers**
-
-#### **Objective:**
-
-In this step, I will analyze the spatial distribution of armed conflict events by applying **Kernel Density Estimation (KDE)**. The goal is to generate **quarterly KDE layers** for the time period between January 2021 and June 2024. These KDE layers will help reveal areas of high conflict intensity, or "hotspots," and track how these change over time.
-
-KDE is a smoothing technique used to estimate the density of spatial events over an area. For this task, I will use the armed conflict event data, grouped by quarter, to create a continuous density surface for each quarter. This analysis will enable me to visualize how the density of conflict evolves across Myanmar.
-
-#### **Step 1: Prepare Data for Quarterly Analysis**
-
-Since the data is already within the relevant time frame, I directly proceed to create a new column indicating the **quarter** in which each event occurred. I will also summarize the number of conflict events per quarter to ensure the data is well-structured for KDE analysis.
 
 ```{r}
+VAC_gif <- image_read("kde_vac.gif")
 
+print(VAC_gif)
 ```
 
-#### **Step 2: Convert Data to `ppp` Format for KDE**
+***Observation***
 
-To perform KDE, the data needs to be converted to a **planar point pattern (`ppp`) object**, which is compatible with the `spatstat` package. I will also create an observation window (`owin`) object based on Myanmar’s administrative boundaries to define the region over which KDE is calculated.
+| The Kernel Density Estimation (KDE) for **Violence against civilians** from **2021-Q1 to 2024-Q2** shows a prominent concentration of violence in the southern part of the Sagaing region. The heatmap reveals a consistent and persistent hotspot in this area, as indicated by the bright yellow and red colors. The central and northern parts of Sagaing experience significantly lower levels of violence, with the KDE remaining mostly blue, signifying low or no event density. Over time, the intensity in the southern region fluctuates but remains the primary area of violence against civilians. The steady presence of violence in this specific area suggests that it is a focal point for civilian-targeted conflicts, highlighting a potentially significant humanitarian issue concentrated in the southern part of Sagaing over the observed period.
+
+## **4. 2nd-Order Spatial Point Patterns Analysis**
+
+In this section, I begin by analyzing the number of events by district within the Sagaing region to identify the areas with the highest concentration of conflict events. This helps in narrowing down the focus to specific districts for further spatial analysis.
+
+First, I calculate and visualize the event counts by district (admin2) within Sagaing:
 
 ```{r}
-
+event_counts_by_admin2 <- ACLED_sf %>%
+  filter(admin1 == "Sagaing") %>% 
+  group_by(admin2) %>% 
+  summarize(event_count = n()) %>% 
+  arrange(desc(event_count))
 ```
 
-#### **Step 3: Calculate Quarterly KDE Layers**
-
-In this step, I loop through each unique quarter in the dataset and compute the **KDE** for each quarter. The KDE calculation will use a smoothing parameter (`sigma`) to control the level of smoothing applied to the density surface. The resulting density layers will be stored for later visualization.
+Here, I filter the dataset to only include events in Sagaing, then group by districts (admin2), and count the number of events in each district. This provides the basis for identifying which districts have the highest event numbers.
 
 ```{r}
-
+ggplot(event_counts_by_admin2, aes(x = reorder(admin2, -event_count), y = event_count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +  
+  labs(title = "Number of Events by District (Admin2) in Sagaing",
+       x = "District (Admin2)",
+       y = "Number of Events") +
+  theme_minimal()
 ```
 
-#### **Step 4: Visualize KDE Layers on a Map**
+Using `ggplot2`, I create a bar chart to visualize the number of events in each district. The `reorder()` function orders the districts by event count, and `coord_flip()` rotates the axes for improved readability. The plot clearly highlights the districts with the highest conflict event numbers.
 
-To effectively communicate the results, I will visualize the KDE layers on top of a basemap of Myanmar. Using the `tmap` package, I overlay the KDE results with administrative boundaries, showing the intensity of conflict events for a particular quarter.
+Based on the histogram, I observe that "Shwebo" and "Yinmarbin" have the top 2 highest event numbers, both exceeding 1,250 events. I will now focus my analysis on these two districts.
+
+I begin by extracting the boundaries for Shwebo and Yinmarbin:
 
 ```{r}
-
+sh <- sagaing %>%
+  filter(DT == "Shwebo")
+yi <- sagaing %>%
+  filter(DT == "Yinmarbin")
 ```
 
-### **Performing 2nd-Order Spatial Point Patterns Analysis**
-
-#### **Objective:**
-
-In this task, I will perform a **2nd-Order Spatial Point Patterns Analysis** using the conflict event data to assess the level of clustering, dispersion, or randomness in the spatial distribution of conflict events. Second-order spatial analysis focuses on how the distribution of points changes with distance, providing insights into whether conflict events tend to cluster or disperse at certain spatial scales.
-
-Specifically, I will use:
-
--   **Ripley’s K-function** and **L-function** (a transformed version of the K-function) to quantify the spatial relationships between conflict events at varying distances.
-
--   **spatstat** package for calculating these metrics and visualizing the results.
-
-#### **Step 1: Understanding Ripley's K-Function and L-Function**
-
--   **Ripley’s K-Function:** This function measures the number of points (conflict events) within a given distance of any random point in the study area. It helps to detect clustering or dispersion at different spatial scales.
-
-    -   If K(d)K(d)K(d) is greater than the expected number for a random distribution, it indicates **clustering** at distance ddd.
-
-    -   If K(d)K(d)K(d) is less than expected, it indicates **dispersion** at distance ddd.
-
--   **L-Function:** This is a normalized version of the K-function that makes it easier to interpret. Values greater than zero indicate clustering, while values less than zero indicate dispersion.
-
-#### **Step 2: Preparing the Data for 2nd-Order Spatial Analysis**
-
-I will use the already converted **ppp** object (`acled_ppp_window`), which contains the conflict event data and the spatial window (Myanmar administrative boundaries). This object will be used for 2nd-order analysis.
-
-#### **Step 3: Performing 2nd-Order Spatial Point Patterns Analysis Using Ripley’s K-Function and L-Function**
-
-I will calculate the K-function and L-function to assess the spatial structure of the conflict events.
+This step isolates the spatial polygons for Shwebo and Yinmarbin districts within the Sagaing region, allowing for a more focused spatial analysis in these two districts.
 
 ```{r}
-
+sh_owin = as.owin(sh)
+yi_owin = as.owin(yi)
 ```
 
-#### **Step 4: Visualizing the L-Function**
+Next, I convert the district boundaries into `owin` objects using the `as.owin()` function, which allows these spatial areas to be used in subsequent point pattern analyses.
 
-To improve the interpretation, I will transform the K-function into the L-function, which normalizes the results and helps in identifying clustering or dispersion.
+I then prepare the conflict event data for point pattern analysis by converting the `ACLED_sf` data into a point pattern (`ppp`) object and applying jittering to handle any overlapping points.
 
 ```{r}
-
+ACLED_ppp <- as.ppp(ACLED_sf)
+ACLED_ppp <- rjitter(ACLED_ppp, 
+                       retry = TRUE,
+                       nsim = 1,
+                       drop = TRUE)
 ```
 
-#### **Step 5: Interpreting the Results**
-
--   **K-function Interpretation:**
-
-    -   If the observed K-function line is **above** the theoretical K-function (dashed line), this suggests clustering at certain distances.
-
-    -   If the observed K-function line is **below** the theoretical line, this suggests dispersion.
-
--   **L-function Interpretation:**
-
-    -   A **positive** L-function value indicates clustering, while a **negative** value indicates dispersion at a given distance.
-
-    -   The horizontal line at 0 serves as the benchmark for randomness. Values above this line indicate clustering, and values below indicate dispersion.
-
-#### **Step 6: Applying Confidence Intervals for Significance Testing**
-
-To assess whether the observed clustering or dispersion is statistically significant, I will perform Monte Carlo simulations and add confidence intervals to the K-function and L-function plots.
+I subset the point pattern object to focus only on the events within the Shwebo and Yinmarbin districts:
 
 ```{r}
-
+ACLED_sh_ppp = ACLED_ppp[sh_owin]
+ACLED_yi_ppp = ACLED_ppp[yi_owin]
 ```
 
-The shaded area represents the confidence envelope, which shows the range of K values expected under a random distribution of points. If the observed K-function falls outside this envelope, the clustering or dispersion is statistically significant.
+Using the `owin` objects for Shwebo and Yinmarbin, I extract the conflict events that occurred specifically within the boundaries of these two districts. This prepares the data for detailed spatial point pattern analysis in Shwebo and Yinmarbin, allowing for further examination of spatial interactions, clustering, or dispersion within these key districts.
 
-### **Deriving Quarterly Spatio-Temporal Kernel Density Estimation (KDE) Layers**
+### **4.1 G-Function Analysis**
 
-#### **Objective:**
+The G-function, or nearest-neighbor function, is a second-order spatial point pattern statistic that helps analyze the distribution of distances between points. It is useful for identifying clustering or dispersion tendencies within the spatial point pattern. In this section, I apply the G-function to both the Shwebo and Yinmarbin districts.
 
-The goal of this task is to extend the previously performed spatial KDE to include a **temporal component**, thereby creating **spatio-temporal KDE layers** for each quarter. By doing this, I will not only analyze the spatial concentration of conflict events but also observe how this density evolves over time across Myanmar between January 2021 and June 2024.
-
-In this task, I will use:
-
--   **3D KDE (space and time)** to capture both spatial and temporal density changes.
-
--   **stars** or **spatstat** package to handle the spatio-temporal KDE.
-
-#### **Step 1: Understanding Spatio-Temporal KDE**
-
-Spatio-temporal KDE is a smoothing technique that estimates the density of events over both space and time. This will allow me to capture **hotspots** of conflict events that are not just spatially concentrated but also occur within specific time windows.
-
--   **Spatial KDE:** Estimates the density of conflict events in a spatial area (as we did in the earlier KDE task).
-
--   **Temporal KDE:** Incorporates time as an additional dimension, allowing the analysis to show how conflict density evolves over time.
-
-#### **Step 2: Prepare the Data for Spatio-Temporal KDE**
-
-I will first organize the conflict event data by quarter and ensure that the temporal dimension is properly structured.
+#### 4.1.1 Shwebo area
 
 ```{r}
-
+G_SH = Gest(ACLED_sh_ppp, correction = "border")
+plot(G_SH, xlim = c(0,500))
 ```
 
-#### **Step 3: Prepare Data for Spatio-Temporal Analysis**
-
-I need to include both spatial and temporal coordinates in my analysis. I will create a new temporal dimension that treats time as a continuous variable.
+I begin by computing the G-function for the Shwebo area using the `Gest()` function. The `correction = "border"` option is applied to adjust for edge effects that can bias the results when points near the boundary have fewer neighbors. The plot shows the empirical G-function, providing insight into the spatial distribution of points up to 500 meters.
 
 ```{r}
-
+G_SH.csr <- envelope(ACLED_sh_ppp, Gest, nsim = 999)
 ```
 
-#### **Step 4: Creating a Spatio-Temporal KDE Using `spatstat`**
-
-Using the `spatstat` package, I will now calculate the spatio-temporal KDE for each quarter. This involves smoothing the event density across both the spatial and temporal dimensions.
+Next, I compute an envelope of the G-function under Complete Spatial Randomness (CSR) using 999 simulations. This helps compare the observed spatial pattern with what would be expected if the events were randomly distributed.
 
 ```{r}
-
+plot(G_SH.csr)
 ```
 
-#### **Step 5: Visualizing the Spatio-Temporal KDE Layers**
+***Observation***
 
-I will visualize the KDE results for different quarters, showing how conflict density evolves over both space and time.
+| The **G-function (G_SH.csr)** plot for the Shwebo area reveals the spatial distribution of conflict events relative to a Complete Spatial Randomness (CSR) model. The black line represents the observed G-function, while the grey lines represent the CSR envelope generated through simulations. The observed G-function rises above the CSR envelope for distances between approximately 50 to 150 meters, indicating significant clustering of events at these spatial scales. Beyond 150 meters, the observed G-function gradually approaches the CSR envelope, suggesting a decrease in clustering. This indicates that conflict events in Shwebo are not randomly distributed but instead exhibit spatial clustering, particularly at shorter distances, reflecting localized groupings of events within this area.
+
+#### 4.1.2 Yinmarbin area
 
 ```{r}
-
+G_YI = Gest(ACLED_yi_ppp, correction = "best")
+plot(G_YI)
 ```
 
-If I need to visualize this data over time (using animations or time slices), I can also animate or plot the KDE for different quarters.
-
-### **Performing 2nd-Order Spatio-Temporal Point Patterns Analysis**
-
-#### **Objective:**
-
-In this task, I will extend the 2nd-order spatial point pattern analysis to include a **temporal dimension**, allowing me to analyze how the spatial relationships between conflict events evolve over time. Specifically, I will use **spatio-temporal K-function analysis**, which extends Ripley’s K-function to account for both space and time, helping to detect clustering or dispersion of conflict events not just spatially, but also temporally.
-
-In this analysis, I aim to:
-
--   Measure the spatio-temporal clustering or dispersion of conflict events.
-
--   Determine whether conflict events are more likely to cluster within specific spatial and temporal ranges.
-
-#### **Step 1: Understanding the Spatio-Temporal K-Function**
-
--   **Spatio-Temporal K-Function**: This function calculates how many events are within a given spatial distance **and** temporal range of any random event. It is a generalization of the spatial K-function, incorporating time.
-
-    -   **Clustering in space and time**: If the spatio-temporal K-function is greater than expected, it suggests clustering in both space and time.
-
-    -   **Dispersion**: If the K-function is lower than expected, it indicates dispersion across space and time.
-
-#### **Step 2: Prepare the Data for Spatio-Temporal Point Patterns Analysis**
-
-Before performing the analysis, I will ensure the data includes both spatial and temporal dimensions and convert it into a **spatio-temporal point pattern** (`ppp3`) object.
+Similarly, I compute the G-function for the Yinmarbin area, this time using the "best" correction to optimize the adjustment for edge effects. The plot shows the empirical G-function for the district.
 
 ```{r}
-
+G_YI.csr <- envelope(ACLED_yi_ppp, Gest, correction = "all", nsim = 999)
 ```
 
-#### **Step 3: Perform 2nd-Order Spatio-Temporal Point Pattern Analysis Using the K-Function**
-
-Now, I will calculate the **spatio-temporal K-function** using the `spatstat` package, which allows me to detect spatio-temporal clustering and dispersion.
+The CSR envelope for Yinmarbin is generated with 999 simulations and includes all possible corrections to improve the accuracy of the comparison.
 
 ```{r}
-
+plot(G_YI.csr)
 ```
 
-#### **Step 4: Visualize and Interpret the Results**
+***Observation***
 
-The K-function output provides insight into clustering or dispersion of events across space and time. I will plot the results and interpret whether conflict events tend to cluster in both space and time.
+| The **G-function (G_YI.csr)** plot for the Yinmarbin area shows the spatial distribution of conflict events in relation to the Complete Spatial Randomness (CSR) model. The observed G-function (black line) rises sharply and exceeds the CSR envelope (grey dashed lines) for distances up to around 150 meters, indicating significant clustering of conflict events at this scale. After 150 meters, the G-function flattens and remains above the CSR envelope, which suggests that clustering is persistent across larger distances, though less pronounced compared to shorter ranges. The spatial pattern of conflict events in Yinmarbin is clearly non-random, with a high degree of clustering evident particularly at short distances, suggesting localized concentrations of conflict within this region.
+
+### **4.2 F-Function Analysis**
+
+The F-function, or empty-space function, measures the distribution of distances from arbitrary locations in space to the nearest event. It provides an alternative way to assess the spatial distribution of events, complementing the G-function by focusing on the "gaps" between points.
+
+#### 4.2.1 Shwebo area
 
 ```{r}
-
+F_SH = Fest(ACLED_sh_ppp)
+plot(F_SH)
 ```
 
--   **Interpretation:**
-
-    -   If the observed K-function is **above** the theoretical K-function, this suggests **clustering** in both space and time.
-
-    -   If the observed K-function is **below** the theoretical K-function, it indicates **dispersion**.
-
-    -   The results will show how clustering or dispersion changes at varying spatial and temporal distances.
-
-#### **Step 5: Add Confidence Intervals for Statistical Significance**
-
-To determine whether the observed spatio-temporal clustering or dispersion is statistically significant, I will generate confidence intervals using Monte Carlo simulations.
+The F-function for Shwebo is computed using the `Fest()` function. This plot shows the distance distribution between random points in the area and the nearest conflict events, helping to identify whether the event points are clustered or dispersed.
 
 ```{r}
-
+F_SH.csr <- envelope(ACLED_sh_ppp, Fest, nsim = 999)
 ```
 
--   **Interpretation with Confidence Envelopes:**
-
-    -   If the observed K-function lies **outside** the confidence envelope, the clustering or dispersion is statistically significant.
-
-    -   If the K-function remains **within** the envelope, the spatial and temporal patterns are not significantly different from random distribution.
-
-#### **Step 6: Explore Clustering at Specific Spatio-Temporal Distances**
-
-To further explore clustering or dispersion at specific combinations of spatial and temporal distances, I can examine slices of the K-function.
+Similar to the G-function, I generate a CSR envelope for the F-function using 999 simulations to compare the observed spatial pattern with random expectations.
 
 ```{r}
-
+plot(F_SH.csr)
 ```
 
-This will allow me to investigate clustering patterns at short and long distances, and at different time intervals (e.g., how close events occur in space and within a few days of each other).
+***Observation***
 
-### **Displaying the KDE and Spatio-Temporal KDE Layers on OpenStreetMap of Myanmar Using `tmap`**
+| The **F-function (F_SH.csr)** plot for the Shwebo area compares the spatial distribution of distances from random points to the nearest conflict event, relative to the Complete Spatial Randomness (CSR) model. The observed F-function (black line) remains below the CSR envelope (grey dashed lines) across most distances, particularly for distances under 1500 meters. This indicates that events are more dispersed than expected under CSR, with larger empty spaces between conflict events and random points in Shwebo. The observed pattern suggests a spatial regularity or inhibition effect, meaning that events are not densely clustered but instead spaced out across the region, with relatively few close neighbors.
 
-#### **Objective:**
-
-In this task, I will visualize the results of both the **spatial KDE** and **spatio-temporal KDE** analyses by overlaying the KDE layers onto an OpenStreetMap of Myanmar. The visualization will help to clearly communicate where conflict events are concentrated spatially (and temporally for spatio-temporal KDE). The `tmap` package will be used to create map visualizations, which can be easily customized for publication or presentations.
-
-#### **Step 2: Fetch and Prepare the OpenStreetMap Base Layer**
-
-Using `tmaptools::read_osm()`, I will fetch a base layer from OpenStreetMap for Myanmar. This will serve as the background map over which the KDE layers will be displayed.
+#### 4.2.2 Yinmarbin area
 
 ```{r}
-
+F_YI = Fest(ACLED_yi_ppp, correction = "best")
+plot(F_YI)
 ```
 
-#### **Step 3: Display the Spatial KDE Layers on OpenStreetMap**
-
-I will now overlay the **spatial KDE** layer onto the OpenStreetMap basemap. The KDE layer shows the density of conflict events for a specific quarter.
+For Yinmarbin, I compute the F-function using the "best" correction to account for edge effects. This plot reveals the distribution of distances from random locations to the nearest conflict events.
 
 ```{r}
-
+F_YI.csr <- envelope(ACLED_yi_ppp, Fest, correction = "all", nsim = 999)
 ```
 
-#### **Step 4: Display the Spatio-Temporal KDE Layers on OpenStreetMap**
-
-For the **spatio-temporal KDE**, I will visualize the KDE layers for specific quarters, showing how conflict density evolves over time. If available, I can display KDE layers for different time slices.
+An envelope of the F-function under CSR is generated with 999 simulations and all available corrections, ensuring robust comparison.
 
 ```{r}
-
+plot(F_YI.csr)
 ```
 
-#### **Step 5: Visualize Multiple KDE Layers Across Quarters (Optional)**
+***Observation***
 
-If I need to visualize multiple KDE layers (one for each quarter) on the same map for comparison, I can use faceted maps to show how the density changes over time.
+| The **F-function (F_YI.csr)** plot for the Yinmarbin area indicates the distribution of distances from random points to the nearest conflict event compared to a Complete Spatial Randomness (CSR) model. The observed F-function (black line) lies below the CSR envelope (grey dashed lines) across most distances, particularly up to around 1500 meters. This suggests that events are more regularly spaced than would be expected under random distribution, indicating a lower likelihood of clustering in the immediate surroundings of conflict events. The results point to spatial dispersion or inhibition, with relatively large gaps between conflict events and random points across the Yinmarbin area. This indicates that conflict events are more evenly spaced rather than concentrated in close proximity to one another.
+
+### **4.3 K-Function Analysis**
+
+The K-function is a second-order spatial point pattern statistic that analyzes the spatial dependence between points at different distances. It helps detect clustering or regularity over varying scales, which is especially useful for understanding how events are distributed over space. Below is the analysis for both the Shwebo and Yinmarbin areas using the K-function.
+
+#### 4.3.1 Shwebo area
 
 ```{r}
-
+K_SH = Kest(ACLED_sh_ppp, correction = "Ripley")
+plot(K_SH, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
 ```
 
-### **Describing the Spatial Patterns Revealed by the KDE and Spatio-Temporal KDE Maps**
+The K-function for the Shwebo area is computed using `Kest()` with Ripley's edge correction to account for boundary effects. The plot of `K(d)-r` shows the deviation from Complete Spatial Randomness (CSR) at different distances `d`. This helps identify whether the events are clustered (above the line) or regularly spaced (below the line) over varying spatial scales.
 
-#### **Objective:**
+```{r}
+K_SH.csr <-envelope(ACLED_sh_ppp, Kest, nsim = 9, rank = 10, glocal = TRUE)
+```
 
-In this task, I will describe the spatial patterns of armed conflict events revealed by both the **spatial KDE** and **spatio-temporal KDE** maps. The analysis will focus on identifying significant **hotspots** of conflict, how these hotspots evolve over time, and the implications of the observed patterns for understanding the dynamics of armed conflict in Myanmar.
+To evaluate the results against CSR, I generate an envelope using 9 simulations (`nsim = 9`) with global and local envelope comparisons (`glocal = TRUE`). This allows me to assess whether the observed spatial distribution significantly deviates from randomness.
 
-### **1. Spatial Patterns Revealed by the Spatial KDE Maps**
+```{r}
+plot(K_SH.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
 
-The **spatial KDE** maps provide a clear representation of the intensity and distribution of conflict events across Myanmar. These maps highlight the **concentration of conflict events** in specific geographical areas. Below are some key observations based on the spatial KDE layers:
+***Observation***
 
-#### **Hotspot Identification:**
+| The **K-function (K_SH.csr)** plot for the Shwebo area reveals significant clustering of conflict events over various spatial scales when compared to the Complete Spatial Randomness (CSR) model. The observed K-function (black line) consistently rises above the CSR envelope (grey dashed lines) across the distance range. This deviation indicates that conflict events are more clustered than expected under randomness, particularly over larger distances. As the distance `d` increases, the clustering effect becomes more pronounced, signifying that conflict events in Shwebo tend to occur in closer proximity to each other over a broad spatial range. This pattern suggests that conflict events in Shwebo are spatially aggregated, with noticeable clustering extending over considerable distances.
 
--   **Major Conflict Hotspots:** The spatial KDE maps reveal distinct **hotspots** in key regions of Myanmar, particularly in areas like **Mandalay**, **Rakhine State**, and parts of **Kachin State**. These areas show a higher density of conflict events, indicating that they have been the focal points of violence and instability during the study period.
+#### 4.3.2 Yinmarbin area
 
--   **Clustering Around Urban Areas:** Several **urban centers**, such as **Mandalay** and **Yangon**, exhibit noticeable clustering of conflict events. These clusters may be driven by political tensions, protests, or military activity in these highly populated regions.
+```{r}
+K_YI = Kest(ACLED_yi_ppp, correction = "Ripley")
+plot(K_YI, . -r ~ r, 
+     ylab= "K(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
 
-#### **Spatial Dispersion:**
+The K-function for Yinmarbin is similarly computed using `Kest()` with Ripley's correction. The plot of `K(d)-r` shows the spatial dependency between conflict events over increasing distances, with `d` representing the distance in meters. I also restrict the plot to a maximum distance of 1000 meters for more focused analysis.
 
--   **Peripheral Regions:** In contrast to the dense clusters seen in the central regions, peripheral regions like **Shan State** and **Chin State** exhibit more dispersed conflict events. The events in these areas are fewer and more spread out, suggesting sporadic but impactful violence, potentially related to insurgent activities in these rural regions.
+```{r}
+K_YI.csr <- envelope(ACLED_yi_ppp, Kest, nsim = 9, rank = 10, glocal=TRUE)
+```
 
--   **Regional Differences:** There are clear regional differences in the intensity of conflict. For example, the northern regions, such as **Kachin** and **Shan States**, show evidence of **armed clashes** between ethnic groups and the military, whereas the central regions, such as **Mandalay**, display a combination of **violent protests** and **military crackdowns**.
+An envelope for the K-function is generated for Yinmarbin, allowing for a comparison of the observed spatial pattern against the null hypothesis of CSR, using 9 simulations.
 
-#### **Concentration Near Borders:**
+```{r}
+plot(K_YI.csr, . - r ~ r, 
+     xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
 
--   **Border Conflicts:** The KDE maps also reveal conflict concentrations near the **Bangladesh-Myanmar** and **Thailand-Myanmar** borders. These areas are known for cross-border violence and displacement, particularly in Rakhine State, where ethnic conflicts and military operations have intensified.
+***Observation***
 
-### **2. Spatio-Temporal Patterns Revealed by the Spatio-Temporal KDE Maps**
+| The **K-function (K_YI.csr)** plot for the Yinmarbin area indicates clustering of conflict events at various spatial scales. The observed K-function (black line) lies above the CSR envelope (grey dashed lines) for distances up to approximately 250 meters, suggesting significant clustering of events at these smaller spatial scales. Beyond 250 meters, the observed K-function approaches the CSR envelope, indicating that the clustering effect diminishes at larger distances. However, within the first 250 meters, the clustering of events is evident, meaning that conflict events in Yinmarbin are more likely to occur close to each other than would be expected under a random distribution.
 
-The **spatio-temporal KDE** analysis adds a dynamic layer to the spatial KDE maps by illustrating how conflict intensity evolves over time. This allows me to track not just where conflicts are occurring, but when they intensify or spread. Key spatio-temporal patterns include:
+### **4.4 L-Function Analysis**
 
-#### **Conflict Escalation Over Time:**
+The L-function is a variance-stabilized version of the K-function, which linearizes the results to make deviations from CSR easier to interpret. This section presents the L-function analysis for both the Shwebo and Yinmarbin areas.
 
--   **Temporal Intensification:** Certain regions experience **intensified conflict** during specific quarters. For instance, **Mandalay** and **Rakhine State** show significant increases in conflict density during 2021 and 2022, corresponding to the **military coup** in February 2021 and subsequent protests and crackdowns.
+#### 4.4.1 Shwebo area
 
--   **Quarterly Variations:** The spatio-temporal KDE maps reveal **fluctuations** in conflict intensity across quarters. For example, **early 2021** (Q1-Q2) saw widespread protests and violent crackdowns, leading to dense clusters in urban areas like **Yangon**. In **late 2022** (Q3-Q4), conflict hotspots shifted more toward the border regions, possibly due to ethnic insurgencies and military campaigns in those areas.
+```{r}
+L_SH = Lest(ACLED_sh_ppp, correction = "Ripley")
+plot(L_SH, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+```
 
-#### **Shifting Hotspots:**
+I compute the L-function for Shwebo using `Lest()`, with Ripley's correction applied. The plot of `L(d)-r` shows how the spatial point pattern compares to CSR over varying distances `d`. Values above zero indicate clustering, while values below zero suggest regularity.
 
--   **Dynamic Hotspots:** Over time, conflict hotspots appear to **shift** geographically. For example, during the **early quarters of 2021**, conflict is heavily concentrated in the **central regions** (Mandalay and Yangon). However, in the **later quarters of 2022 and early 2023**, the **northern regions** and **border areas** (Kachin, Rakhine) see increased conflict density, reflecting the evolving nature of Myanmar’s civil conflicts.
+```{r}
+L_SH.csr <- envelope(ACLED_sh_ppp, Lest, nsim = 9, rank = 10, glocal=TRUE)
+```
 
--   **Temporary Lulls and Resurgence:** Some regions exhibit periods of **relative calm**, followed by **resurgent violence**. For example, **Rakhine State** shows a temporary decline in conflict events during mid-2022, followed by a resurgence later in the year, potentially reflecting a lull in military operations and subsequent flare-ups.
+The CSR envelope is calculated with 9 simulations, enabling a comparison between the observed spatial pattern and the expected pattern under randomness.
 
-#### **Temporal Clustering:**
+```{r}
+plot(L_SH.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```
 
--   **Seasonal or Political Factors:** The spatio-temporal KDE maps reveal potential **seasonal or politically driven clustering**. For example, quarters surrounding national elections, military operations, or political unrest (e.g., the **2021 military coup**) tend to exhibit higher densities of conflict events in specific regions, indicating the influence of political events on conflict dynamics.
+***Observation***
 
-#### **Prolonged Conflict in Key Areas:**
+| The **L-function (L_SH.csr)** plot for the Shwebo area shows significant deviations from the Complete Spatial Randomness (CSR) model, as indicated by the observed L-function (black line) consistently remaining above the CSR envelope (grey dashed lines). The fact that the observed L-function is well above the CSR line across the distance range suggests that conflict events in the Shwebo area exhibit strong spatial clustering, particularly at larger distances. The clustering effect becomes more pronounced beyond 15,000 meters, where the L-function increases sharply. This indicates that conflict events are not randomly distributed but are instead aggregated over large spatial scales, pointing to concentrated zones of conflict activity in the Shwebo region.
 
--   **Sustained Conflict Hotspots:** Certain regions, particularly **Mandalay**, **Rakhine**, and parts of **Kachin**, show **persistent conflict density** over multiple quarters, suggesting long-term instability and ongoing armed confrontations in these areas. These regions may represent the focal points of enduring conflicts involving military forces, ethnic insurgent groups, and civilian protests.
+#### 4.4.2 Yinmarbin area
 
-### **3. Implications of the Observed Patterns**
+The L-function analysis for Yinmarbin follows a similar approach to Shwebo, allowing for direct comparison of the two areas.
 
--   **Conflict Concentration in Strategic Areas:** The KDE and spatio-temporal KDE maps show that conflict events are not randomly distributed but tend to concentrate in strategic and politically significant areas, such as urban centers and border regions. This may indicate the importance of these regions in the broader political and military landscape of Myanmar.
+```{r}
+L_YI = Lest(ACLED_yi_ppp, correction = "Ripley")
+plot(L_YI, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
 
--   **Evolving Nature of Conflict:** The **shifting and fluctuating hotspots** observed in the spatio-temporal KDE maps suggest that the nature of conflict in Myanmar is dynamic, responding to political events, military strategies, and ethnic tensions. The temporal dimension highlights the importance of tracking conflicts not just geographically but also over time to understand their evolving patterns.
+The L-function for Yinmarbin is computed and plotted, with the `L(d)-r` graph showing how the events are distributed spatially up to 1000 meters. This provides insight into clustering or dispersion patterns at different scales.
 
--   **Policy and Humanitarian Considerations:** The identification of persistent and emerging conflict hotspots can inform **humanitarian interventions**, **security policies**, and **conflict mitigation efforts**. Regions experiencing sustained violence may require long-term humanitarian aid, while areas showing new spikes in conflict may need urgent attention to prevent escalation.
+```{r}
+L_YI.csr <- envelope(ACLED_yi_ppp, Lest, nsim = 9, rank = 10, glocal=TRUE)
+```
 
-### **Conclusion:**
+I generate the CSR envelope for the L-function with 9 simulations, allowing for robust comparisons between the observed event distribution and the CSR model.
 
-The spatial KDE and spatio-temporal KDE maps provide valuable insights into the **distribution** and **evolution** of conflict events across Myanmar. By identifying key hotspots, tracking their shifts over time, and analyzing clustering patterns, I can better understand the dynamics of armed conflict in the region. These insights are crucial for policymakers, humanitarian organizations, and researchers seeking to address the complex challenges posed by ongoing violence in Myanmar.
+```{r}
+plot(L_YI.csr, . - r ~ r, 
+     xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
+
+***Observation***
+
+| The **L-function (L_YI.csr)** plot for the Yinmarbin area shows the observed L-function (black line) lying above the Complete Spatial Randomness (CSR) envelope (grey dashed lines), particularly at smaller spatial distances up to around 500 meters. This indicates significant clustering of conflict events at short spatial scales. As the distance increases, the L-function continues to rise, further confirming the clustering behavior of events within Yinmarbin. The consistent deviation from the CSR model implies that conflict events are spatially aggregated rather than randomly distributed, with strong clustering occurring over shorter distances and continuing as distances increase.
+
+## **5. Quarterly Spatio-Temporal Kernel Density Estimation (KDE)**
+
+In this section, I perform a Spatio-Temporal Kernel Density Estimation (KDE) to analyze how conflict events evolve across both space and time. This approach provides insights into the spatial patterns of conflict over different quarters, offering a comprehensive view of how the intensity and distribution of events change throughout the period from January 2021 to June 2024.
+
+First, I create a `quarter` variable in the dataset, representing the combination of the event year and quarter. This is important for structuring the spatio-temporal analysis.
+
+```{r}
+ACLED_sf$quarter <- paste0(year(ymd(ACLED_sf$event_date)), "-Q", quarter(ymd(ACLED_sf$event_date)))
+```
+
+Next, I generate a sequence of unique quarter labels, ensuring all quarters within the specified date range are accounted for. These labels are based on the date range from January 2021 to June 2024.
+
+```{r}
+unique_quarters <- seq(from = as.Date("2021-01-01"), to = as.Date("2024-06-30"), by = "quarter")
+quarter_labels <- paste0(year(unique_quarters), "-Q", quarter(unique_quarters))
+```
+
+I then convert the `quarter` variable into a numeric factor to facilitate its integration into the spatio-temporal KDE. Each quarter is assigned a unique numeric identifier.
+
+```{r}
+ACLED_sf$quarter <- as.numeric(factor(ACLED_sf$quarter, levels = quarter_labels))
+```
+
+I select the `quarter` variable from the dataset, preparing it for use in the spatio-temporal point pattern analysis.
+
+```{r}
+ACLED_quarter <- ACLED_sf %>%
+  select(quarter)
+```
+
+Next, I convert the `ACLED_quarter` data into a spatial point pattern object (`ppp`), which is essential for performing KDE in a spatio-temporal context.
+
+```{r}
+ACLED_quarter_ppp <- as.ppp(ACLED_quarter)
+ACLED_quarter_ppp
+```
+
+Using the `as.ppp()` function, I create the point pattern object based on the conflict event quarters. This object contains the spatial coordinates and the temporal information (quarters) of the events.
+
+I subset the spatial point pattern to focus only on events within the Sagaing region, using the spatial window (`owin`) of Sagaing. This ensures that the KDE is calculated only for the specific region of interest.
+
+```{r}
+ACLED_quarter_owin <- ACLED_quarter_ppp[sagaing_owin]
+summary(ACLED_quarter_owin)
+```
+
+I plot the spatio-temporal point pattern, which provides a visual representation of how conflict events are distributed across both space and time in the Sagaing region. This plot helps to visualize the spatial evolution of conflict across different quarters.
+
+```{r}
+plot(ACLED_quarter_owin)
+```
+
+Next, I calculate the KDE for conflict events within the Sagaing region across multiple quarters. This allows me to observe the density and distribution of conflict events both spatially and temporally.
+
+I begin by computing the spatio-temporal KDE using the `spattemp.density()` function:
+
+```{r}
+st_kde_ACLED <- spattemp.density(ACLED_quarter_owin)
+```
+
+Here, I apply the `spattemp.density()` function to the spatio-temporal point pattern object `ACLED_quarter_owin`, which represents the conflict events restricted to Sagaing. This function calculates the KDE over both space and time, producing a density estimate that shows how conflict intensity varies spatially across different quarters.
+
+Next, I create a mapping between the numeric quarter values and the actual quarter labels (e.g., "2021-Q1"). This allows for clear labeling in the plots.
+
+```{r}
+quarter_numbers <- 1:length(quarter_labels)
+
+quarter_map <- setNames(quarter_labels, quarter_numbers)
+
+tims <- seq(1, 14, by = 1)
+```
+
+Here, `quarter_numbers` generates a sequence for each quarter, while `quarter_map` associates each number with its corresponding quarter label. The sequence `tims` defines the range of quarters to be plotted, from Q1 2021 to Q2 2024.
+
+I set up a plotting environment to display two KDE plots at a time, side by side. This allows for easy comparison between different quarters.
+
+```{r}
+par(mfcol = c(1, 2), mar = c(4, 4, 4, 4))
+```
+
+Finally, I loop through the defined quarters, generating KDE plots for each one. These plots represent the spatial distribution of conflict events at each quarter.
+
+```{r}
+for (i in tims) {
+  plot(st_kde_ACLED, i, 
+       override.par = FALSE, 
+       fix.range = TRUE, 
+       main = paste("STKDE at Quarter", quarter_map[i]))
+}
+```
+
+***Observation***
+
+| The KDE plots from **2021-Q1 to 2024-Q2** reveal temporal shifts and spatial patterns of conflict intensity in the Sagaing region. Over the observed quarters, there are consistent hotspots of activity, primarily in the southern part of the region. The intensity of these hotspots, shown in red and yellow, fluctuates over time but remains focused on similar areas. Central and northern parts of Sagaing see occasional but less intense activity, indicated by the blue and pink regions. Notably, from **2021-Q4** onward, the density of events in the southern region grows more concentrated, highlighting persistent conflict in this area. The pattern suggests that while conflict is somewhat spread across the region, specific areas experience a higher and more consistent intensity of events over time.
+
+## **6. 2nd-Order Spatio-temporal Point Patterns Analysis**
+
+In this section, I perform 2nd-order spatio-temporal point pattern analysis for conflict events in the Sagaing region. Specifically, I apply the G-function and K-function to each quarter, comparing the spatial distribution of events to a Complete Spatial Randomness (CSR) model. This analysis helps identify spatial clustering or regularity of conflict events over time.
+
+I begin by extracting the unique quarters from the dataset, which will be used to loop through each quarter for analysis.
+
+```{r}
+quarters <- unique(ACLED_sf$quarter)
+```
+
+This ensures that each quarter is analyzed individually, focusing on how conflict events are distributed spatially within each time period.
+
+### **6.1 G-Function**
+
+For each quarter, I compute the G-function to evaluate the spatial distribution of events and compare it to the CSR model using an envelope.
+
+```{r}
+quarter_labels <- c("2021-Q1", "2021-Q2", "2021-Q3", "2021-Q4", 
+                    "2022-Q1", "2022-Q2", "2022-Q3", "2022-Q4", 
+                    "2023-Q1", "2023-Q2", "2023-Q3", "2023-Q4",
+                    "2024-Q1", "2024-Q2")
+```
+
+```{r}
+for (q in quarters) {
+  
+  quarter_data <- ACLED_sf[ACLED_sf$quarter == q, ]
+  
+  spatial_points <- st_coordinates(quarter_data)
+  time_points <- quarter_data$timestamp 
+  
+  time_points <- as.numeric(na.omit(time_points))
+  
+  if (length(time_points) <= 1) {
+    warning(paste("Not enough valid time points for quarter", q))
+    next
+  }
+  
+  spatial_ppp <- ppp(x = spatial_points[,1], 
+                     y = spatial_points[,2], 
+                     window = as.owin(sagaing_owin))  
+  
+  spatial_ppp <- rjitter(spatial_ppp, retry = TRUE, nsim = 1, drop = TRUE)
+  
+  G_spatial <- tryCatch(Gest(spatial_ppp, correction = "border"),
+                        error = function(e) {
+                          warning(paste("Error in Gest for quarter", q, ":", e$message))
+                          return(NULL)
+                        })
+  
+  if (!is.null(G_spatial)) {
+    plot(G_spatial, main = paste("Spatial G-function for Quarter", q), xlim = c(0, 500))
+  
+    G_env <- tryCatch(envelope(spatial_ppp, Gest, nsim = 999, correction = "border"),
+                      error = function(e) {
+                        warning(paste("Error in envelope for quarter", q, ":", e$message))
+                        return(NULL)
+                      })
+    
+    if (!is.null(G_env)) {
+      plot(G_env, main = paste("G-function with CSR Envelope for", quarter_labels[q]))
+    }
+  }
+
+}
+```
+
+In this loop:
+
+1.  **Extract Quarter Data**: The dataset is filtered to include only the events corresponding to the current quarter (`q`). The spatial coordinates (`st_coordinates()`) and time points (`timestamp`) for the events are extracted.
+
+2.  **Check Time Points**: If the quarter has fewer than two valid time points, the loop moves to the next quarter as it’s not possible to compute meaningful statistics.
+
+3.  **Create Point Pattern Object**: The spatial coordinates are converted into a point pattern object (`ppp`) using the `ppp()` function, and jittering (`rjitter()`) is applied to avoid overlapping points.
+
+4.  **G-Function Calculation**: The G-function is computed using the `Gest()` function with a "border" correction to adjust for edge effects. If an error occurs during this calculation, the error is caught and a warning is issued.
+
+5.  **Plot G-Function**: If the G-function is successfully computed, it is plotted to show the spatial distribution of events for the current quarter. Quarter 14 refers to "2024-Q2", quarter 13 refers to "2024-Q1", and so on.
+
+6.  **Envelope with CSR**: A CSR envelope is generated using `envelope()` with 999 simulations. This envelope helps compare the observed event distribution with a random spatial distribution. If the envelope is successfully computed, it is plotted alongside the G-function.
+
+## **7. Explore**
+
+In this section, I explore key aspects of the conflict events data, including the distribution of event types, source scales for "Strategic developments," and fatalities by event type. The analysis also focuses on the top actors involved in "Strategic developments" at the national level.
+
+### **7.1 Event Type Distribution**
+
+First, I summarize the number and percentage of each event type in the dataset:
+
+```{r}
+event_summary <- ACLED_sf %>%
+  group_by(event_type) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100) 
+```
+
+This step calculates the total number of events for each event type and computes the percentage share of each type relative to the total number of events.
+
+```{r}
+ggplot(event_summary, aes(x = "", y = percentage, fill = event_type)) +
+  geom_bar(width = 1, stat = "identity") + 
+  coord_polar("y", start = 0) + 
+  theme_void() + 
+  labs(fill = "Event Type", title = "Percentage of Each Event Type") +
+  theme(legend.position = "right") + 
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5)) 
+```
+
+***Observation***
+
+| The pie chart illustrates the distribution of conflict events by type in the Sagaing region. **Strategic developments** account for the largest portion of events, representing **31.7%** of the total. Both **Explosions/Remote violence** and **Violence against civilians** each constitute **26.8%** of the events, indicating their significant presence in the region. Meanwhile, **Battles** make up the smallest portion, at **14.8%** of all recorded events. This distribution highlights the prominence of strategic and violence-related events, with battles being comparatively less frequent.
+
+### **7.2 Source Scale for "Strategic Developments"**
+
+Next, I filter the dataset to focus on "Strategic developments" and analyze the source scale for these events.
+
+```{r}
+strategic_data <- ACLED_sf %>%
+  filter(event_type == "Strategic developments")
+```
+
+I then calculate the distribution of source scales for these events:
+
+```{r}
+source_summary_strategic <- strategic_data %>%
+  group_by(source_scale) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count / sum(count) * 100)
+```
+
+The following plot displays the percentage breakdown of the source scale for "Strategic developments."
+
+```{r}
+ggplot(source_summary_strategic, aes(x = "", y = percentage, fill = source_scale)) +
+  geom_bar(width = 1, stat = "identity") + 
+  coord_polar("y", start = 0) + 
+  theme_void() +
+  labs(fill = "Source Scale", title = "Source Scale for Strategic Developments") +
+  theme(legend.position = "right") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5)) 
+```
+
+***Observation***
+
+| The pie chart shows that the majority of **Strategic developments** events are sourced at the **National** level, accounting for **62.7%** of the total. Smaller portions are reported at the **International** scale (**7.1%**) and the **Regional** scale (**4.7%**), with other categories such as **National-International**, **Subnational**, and **New media** each contributing less than 5%. This distribution indicates that most strategic events are driven by national-level sources, with limited involvement from international or subnational media outlets.
+
+### **7.3 Distribution of Fatalities by Event Type**
+
+I explore the distribution of fatalities across different event types using a histogram.
+
+```{r}
+ggplot(ACLED_sf, aes(x = fatalities)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") + 
+  facet_wrap(~ event_type, scales = "free") + 
+  labs(title = "Distribution of Fatalities by Event Type", 
+       x = "Number of Fatalities", 
+       y = "Count") +
+  theme_minimal()
+```
+
+This faceted histogram shows how fatalities are distributed across each event type, allowing for a clear comparison of the severity of each type of event.
+
+***Observation***
+
+| The histogram plots show the distribution of fatalities across different conflict event types. The majority of **Battles** and **Explosions/Remote violence** events result in fewer than 10 fatalities, with only a few extreme cases involving a higher number of deaths. **Strategic developments**, on the other hand, typically result in no fatalities, as evidenced by the large count at zero fatalities. **Violence against civilians** displays a wider range of fatalities, though most incidents also lead to fewer than 10 fatalities. These distributions suggest that while violence against civilians and explosions can sometimes cause more significant loss of life, fatalities remain relatively low across most events.
+
+### **7.4 Actors in "Strategic Developments" (National)**
+
+Since "Strategic developments" are the most frequent event type, with a large percentage attributed to "National" sources, I explore the top actors involved in these events.
+
+```{r}
+strategic_data_national <- ACLED_sf %>%
+  filter(event_type == "Strategic developments", source_scale == "National")
+```
+
+I summarize the top 5 actors involved in these events for both Actor1 and Actor2:
+
+```{r}
+actor1_top5 <- strategic_data_national %>%
+  group_by(actor1) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(5, count) %>%
+  mutate(percentage = count / sum(count) * 100)
+```
+
+```{r}
+actor2_top5 <- strategic_data_national %>%
+  group_by(actor2) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(5, count) %>%
+  mutate(percentage = count / sum(count) * 100)
+```
+
+Finally, I visualize the top 5 actors for both Actor1 and Actor2:
+
+```{r}
+ggplot(actor1_top5, aes(x = "", y = percentage, fill = actor1)) +
+  geom_bar(width = 1, stat = "identity") + 
+  coord_polar("y", start = 0) +  
+  theme_void() +  
+  labs(fill = "Actor1", title = "Top 5 Actor1 in Strategic Developments (National)") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5)) 
+```
+
+```{r}
+ggplot(actor2_top5, aes(x = "", y = percentage, fill = actor2)) +
+  geom_bar(width = 1, stat = "identity") + 
+  coord_polar("y", start = 0) + 
+  theme_void() + 
+  labs(fill = "Actor2", title = "Top 5 Actor2 in Strategic Developments (National)") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5)) 
+```
+
+***Observation***
+
+1.  **Top 5 Actor1 in Strategic Developments**:
+
+    -   The **Military Forces of Myanmar (2021-)** dominate **Actor1**, representing **87.3%** of all strategic development events. Other actors, such as the **Police Forces of Myanmar** and **Civilians (Myanmar)**, play minor roles, each accounting for less than 8% of the events.
+
+2.  **Top 5 Actor2 in Strategic Developments**:
+
+    -   **Civilians (Myanmar)** account for **79.4%** of all Actor2 interactions, indicating that they are often on the receiving end of strategic development actions. **Unidentified Armed Groups** and **Military Forces of Myanmar (2021-)** are also present, but to a much lesser extent.
+
+3.  Given that the **Military Forces of Myanmar (2021-)** appear as the dominant **Actor1** and **Civilians (Myanmar)** make up a substantial portion of **Actor2**, it is likely that strategic developments primarily involve military actions directed toward civilians. This suggests a potential power imbalance where the military is engaging in activities that impact civilians, possibly in the context of enforcement, control, or conflict management. The high representation of civilians in the Actor2 category could indicate that they are frequently affected by military operations, either as targets of enforcement or in situations involving military governance or conflict suppression.
+
+### 7.5 Research
+
+I have found out that the **displacement crisis in central Myanmar**, especially in **Sagaing**, has escalated due to military actions following the coup. The burning of homes and civilian infrastructure by military forces has led to widespread displacement, with estimates of **one million to over two million internally displaced persons (IDPs)** in Sagaing, an area that had no prior reports of displacement. The **National Unity Government (NUG)** and grassroots networks, such as the **Sagaing Forum**, are coordinating aid deliveries to address this humanitarian crisis.
+
+In my findings, **Strategic developments** events, where the **Military Forces of Myanmar (2021-)** are the dominant Actor1, align with the reported destruction in Sagaing. The military's role in strategic activities, accounting for **87.3% of Actor1**, is closely linked to civilian suffering, as **Civilians (Myanmar)** constitute **79.4% of Actor2**. This supports the research that highlights the military's actions as a key driver of displacement.
+
+Additionally, the **KDE plots** show concentrated conflict activity in southern Sagaing, corroborating reports that Sagaing has become a hotspot for conflict, displacement, and resistance efforts. Resistance groups such as the **Kalay Civil Army (KCA)**, formed in response to brutal military crackdowns, have armed themselves with traditional weapons like **tumi guns** and, in some cases, modern firearms to fight back. Sagaing has seen intense confrontations, particularly in towns like **Kalay**, **Monywa**, and **Tamu**, where resistance movements have organized against the military.
+
+The **March 27 massacre** and the subsequent resistance in Kalay, where protesters even conducted prisoner swaps and held the protest camp for over 10 days, demonstrate the strong opposition to military rule. These efforts have been replicated in other townships, contributing to the **armed resistance** in Sagaing. The region’s history of pro-democracy protests, dating back to the **1988 uprising** and the **Saffron Revolution in 2007**, further explains why Sagaing has become a focal point of both resistance and military crackdown.
+
+In conclusion, I have found out that the **conflict intensity**, **displacement**, and **armed resistance** in Sagaing are closely tied to the military’s strategic operations. My findings indicate a direct impact of military actions on civilians, through both displacement and violent confrontations, as seen in the **KDE plots** and the dominance of military forces in strategic developments. The resistance efforts, including the use of traditional and modern weaponry by groups like the KCA, underscore the region’s determination to oppose the military, even as displacement and violence escalate.
+
+## 8. Reference & Declaration
+
+I hereby declare that part of the phrasing and explanation in this report has been generated and/or assisted by the use of OpenAI's ChatGPT, which provided assistance in structuring and summarizing the content, as well as offering insights based on the information I provided. The analysis and conclusions drawn in this report, however, are based on my research, data analysis, and interpretation of findings.
+
+<https://myanmar.iiss.org/analysis/humanitarian>
+
+<https://www.frontiermyanmar.net/en/the-tumi-revolution-protesters-fight-back-in-sagaing-region/>
+
+<https://www.frontiermyanmar.net/en/conscription-or-conflict-dry-zone-draft-dodgers-come-home/>
