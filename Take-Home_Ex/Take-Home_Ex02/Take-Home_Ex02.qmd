@@ -1,0 +1,100 @@
+---
+title: "Take-Home Exercise 2"
+author: "Xu Haiyang"
+date: "23 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+### Steps Breakdown:
+
+#### 1. **Data Wrangling (Geospatial Data Preparation)**
+
+-   **Importing the data**: Use `sf` and `tidyverse` packages to import and prepare your data. For instance, you can use `st_read()` for reading geospatial data and `read_csv()` or `read_excel()` for the drug abuse dataset.
+
+-   **Preparing the study area**: Use the Thailand subnational boundaries dataset and filter it to the province level, including Bangkok. You may use `dplyr` functions like `filter()` to get the relevant provinces.
+
+-   **Drug abuse indicators layer**: Merge the drug abuse dataset (e.g., by province) with the province boundaries. Ensure the format is in `sf` polygon features, using `st_join()` or `left_join()` for spatial merging.
+
+#### 2. **Global Spatial Autocorrelation Analysis**
+
+-   Use the **`sfdep`** package to calculate global spatial autocorrelation. Specifically, you will be using:
+
+    -   **Global Moran’s I**: Measures spatial autocorrelation globally. You can calculate it using `moran()` from the `sfdep` package, checking whether drug abuse cases are spatially clustered.
+
+-   Key steps involve defining the neighbors (using `st_knn()` or `st_contiguity()`) and setting the weights for spatial autocorrelation.
+
+#### 3. **Local Spatial Autocorrelation Analysis**
+
+-   **Local Moran's I (LISA)**: This will help identify local clusters or outliers. You can use the `local_moran()` function to detect spatial clusters and outliers.
+
+-   **Hotspots**: You can use `Getis-Ord Gi*` to determine the hotspot analysis in the local spatial autocorrelation analysis.
+
+#### 4. **Geovisualisation**
+
+-   Visualize the global and local autocorrelation results using `ggplot2` and `tmap`. For example, choropleth maps showing Moran’s I values or LISA clusters can communicate the findings clearly.
+
+-   You can also create time-lapse maps, as in the image you've shared, to illustrate the evolution of drug use cases between 2017 and 2022.
+
+#### 5. **Reproducibility**
+
+-   Ensure all your steps are well-documented in a Quarto document, explaining the purpose of each function and providing the R code chunks.
+
+#### 6. **Exploration Beyond Scope**
+
+-   For the bonus marks, consider additional analyses or techniques, like exploring **spatiotemporal clustering**, advanced **hotspot detection methods**, or visualizing trends over time using an animation.
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, tidyverse, tmap, dplyr, sfdep)
+```
+
+```{r}
+Drug <- read_csv("data/thai_drug_offenses_2017_2022.csv")
+```
+
+```{r}
+thai_geo = st_read(dsn = "data/tha_adm_rtsd_itos_20210121", layer = "tha_admbnda_adm1_rtsd_20220121")
+```
+
+```{r}
+Drug <- Drug %>%
+  select(fiscal_year, types_of_drug_offenses, no_cases, province_en)
+
+thai_geo <- thai_geo %>%
+  select(ADM1_EN, ADM1_PCODE, geometry)
+```
+
+```{r}
+thai_drug <- thai_geo %>%
+  left_join(Drug, by = c("ADM1_EN" = "province_en"))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(thai_drug) +
+  tm_polygons("total_cases", style = "quantile", palette = "Blues", title = "Drug Cases") +
+  tm_facets(by = "fiscal_year")
+```
+
+```{r}
+# Create a spatial weights object based on contiguity (provinces sharing a border)
+neighbors <- st_contiguity(thai_drug)
+
+# Create spatial weights for Moran's I
+weights <- st_weights(neighbors)
+```
+
+```{r}
+neighbors_knn <- st_knn(thai_drug, k = 5)
+weights_knn <- st_weights(neighbors_knn)
+```
+
+```{r}
+moran_test <- moran(thai_drug$total_cases, neighbors, weights)
+
+# Print the results
+print(moran_test)
+```

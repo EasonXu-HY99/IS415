@@ -1,0 +1,14 @@
+---
+title: "In-class Exercise 7"
+author: "Xu Haiyang"
+date: "30 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+Why do we use Shiny?
+
+Why do we need a server for Shiny?
