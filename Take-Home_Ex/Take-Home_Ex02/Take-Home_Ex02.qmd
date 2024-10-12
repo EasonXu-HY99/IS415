@@ -163,6 +163,8 @@ merged_data <- left_join(
     no_cases,
     geometry
   )
+
+rm(Drug, thai_geo, thai_geo_projected)
 ```
 
 ## **5.1 Exploring the Data**
