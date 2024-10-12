@@ -22,7 +22,6 @@ Geospatial Analytics involves the analysis and interpretation of data related to
 
 This website showcases all my R coding exercises, each illustrating various aspects of geospatial analysis, from data collection to visualization.
 
-
 ## Research
 
 My research in this course focuses on various applications of geospatial analytics. Below, you can find my in-depth research projects.
