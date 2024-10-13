@@ -68,9 +68,6 @@ drug_use_cases_data <- merged_data %>%
 ```
 
 ```{r}
-suspects_in_drug_use_cases_data <- merged_data %>%
-  filter(fiscal_year == "2021", types_of_drug_offenses == "suspects_in_drug_use_cases")
-
 rm(merged_data)
 ```
 
@@ -89,24 +86,9 @@ neighbors_drug_use <- st_knn(centroids_drug_use, k = 5)
 weights_drug_use <- st_weights(neighbors_drug_use, style = "W")
 ```
 
-```{r}
-neighbors_suspect <- st_contiguity(suspects_in_drug_use_cases_data, queen = TRUE)
-summary(neighbors_suspect)
-```
-
-```{r}
-centroids_suspects <- st_centroid(suspects_in_drug_use_cases_data)
-  
-neighbors_suspect <- st_knn(centroids_suspects, k = 5)
-```
-
-```{r}
-weights_suspect <- st_weights(neighbors_suspect, style = "W")
-```
-
 # **8. Local Moran’s I Test**
 
-I tried to compute the **Local Moran's I** statistic for both drug use cases and suspects in drug use cases, which allows for the identification of local clusters and spatial outliers. While the **Global Moran’s I** test examines overall spatial autocorrelation, **Local Moran’s I** focuses on the spatial dependence within smaller areas, helping to identify **hotspots**, **coldspots**, and potential outliers in specific provinces.
+I tried to compute the **Local Moran's I** statistic for drug use cases, which allows for the identification of local clusters and spatial outliers. While the **Global Moran’s I** test examines overall spatial autocorrelation, **Local Moran’s I** focuses on the spatial dependence within smaller areas, helping to identify **hotspots**, **coldspots**, and potential outliers in specific provinces.
 
 ## **8.1 Calculating Local Moran’s I for Drug Use Cases**
 
@@ -124,27 +106,11 @@ lisa_drug_use <- drug_use_cases_data %>%
 lisa_drug_use
 ```
 
-## **8.2 Calculating Local Moran’s I for Suspects in Drug Use Cases**
+## **8.2 Visualizing Local Moran’s I Results**
 
-Similarly, I calculated Local Moran’s I for suspects in drug use cases using the same method as for drug use cases.
+I tried to visualize the **Local Moran’s I values** for drug use cases. This visualization helps to understand the spatial clustering and identify potential hotspots or coldspots.
 
-```{r}
-lisa_suspect <- suspects_in_drug_use_cases_data %>% 
-  mutate(local_moran = local_moran(
-    no_cases,
-    neighbors_suspect,
-    weights_suspect, 
-    nsim = 99),
-    .before = 1) %>%
-  unnest(local_moran)
-lisa_suspect
-```
-
-## **8.3 Visualizing Local Moran’s I Results**
-
-I tried to visualize the **Local Moran’s I values** for both drug use cases and suspects in drug use cases. This visualization helps to understand the spatial clustering and identify potential hotspots or coldspots.
-
-### **8.3.1 Visualizing Local Moran’s I for Drug Use Cases**
+### **8.2.1 Visualizing Local Moran’s I for Drug Use Cases**
 
 The following map shows the Local Moran’s I values for drug use cases, highlighting areas of high or low spatial autocorrelation. Provinces with significant spatial clusters or outliers are emphasized using a color palette ranging from blue (low) to red (high).
 
@@ -189,58 +155,11 @@ In the map showing **Local Moran's I** results for drug use cases across Thailan
 
 The **north-south** divide in spatial autocorrelation is apparent, with more clustering of high drug use in the northern and northeastern regions and lower clustering in the southern regions. This map highlights where spatial patterns of drug use are concentrated, which could inform targeted interventions or policies.
 
-4o
+## **8.3 Visualizing the Statistical Significance of Local Moran’s I p-values**
 
-### **8.3.2 Visualizing Local Moran’s I for Suspects in Drug Use Cases**
+In addition to visualizing the Local Moran’s I values, I also tried to map the **p-values** for the drug use cases. This helps identify areas where the spatial autocorrelation is statistically significant, providing more context on how likely it is that observed clustering occurred by chance.
 
-Similarly, the map below visualizes the spatial autocorrelation of suspects in drug use cases.
-
-```{r}
-tmap_mode("plot")
-
-tm_shape(lisa_suspect) +
-  tm_fill(
-    "ii", 
-    palette = c("#b7dce9", "#e1ecbb", "#f5f3a6", "#f8d887", "#ec9a64", "#d21b1c"), 
-    title = "Local Moran's I",
-    midpoint = NA,
-    legend.hist = TRUE,
-    legend.is.portrait = TRUE,
-    legend.hist.z = 0.1
-  ) +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_layout(
-    main.title = "Spatial Autocorrelation of Suspects in Drug Use Cases (Local Moran's I)",
-    main.title.position = "center",
-    main.title.size = 1.7,
-    main.title.fontface = "bold",
-    legend.title.size = 1.8,
-    legend.text.size = 1.3,
-    frame = TRUE
-  ) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(
-    type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")
-  ) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-```
-
-In the map showing **Local Moran's I** results for **suspects in drug use cases** across Thailand, regions are again color-coded to reflect spatial clustering. The color gradient ranges from **blue** (indicating negative spatial autocorrelation or coldspots) to **red** (indicating positive spatial autocorrelation or hotspots):
-
--   **Red regions** (notably in the northeast and parts of the east) indicate **hotspots**, where provinces have a high number of suspects in drug use cases, and their neighboring provinces also exhibit similarly high values. These areas show significant clustering of higher numbers of suspects.
-
--   **Orange and yellow regions** indicate areas where there is less significant spatial clustering, suggesting more random spatial patterns of drug-related arrests or fewer suspects overall.
-
--   **Blue regions** represent **coldspots**, likely in the southern part of Thailand, where the number of suspects is low, and nearby provinces also have low numbers of suspects.
-
-This map highlights where the highest concentrations of drug use suspects are located, particularly in the northern and northeastern provinces. These clusters could suggest areas that require more focused law enforcement or intervention efforts to manage drug-related issues. The spatial distribution provides valuable insights for resource allocation and policy-making in combating drug use.
-
-## **8.4 Visualizing the Statistical Significance of Local Moran’s I p-values**
-
-In addition to visualizing the Local Moran’s I values, I also tried to map the **p-values** for the drug use cases and suspects in drug use cases. This helps identify areas where the spatial autocorrelation is statistically significant, providing more context on how likely it is that observed clustering occurred by chance.
-
-### **8.4.1 p-value Visualization for Drug Use Cases**
+### **8.3.1 p-value Visualization for Drug Use Cases**
 
 The map below visualizes the statistical significance of Local Moran’s I for drug use cases, where lower p-values indicate more significant clustering.
 
@@ -271,63 +190,21 @@ tm_shape(lisa_drug_use) +
   tm_grid(labels.size = 1, alpha = 0.2)
 ```
 
-In this map, representing the **p-values** for the **Local Moran's I** test on **suspects in drug use cases**, the regions are color-coded based on the statistical significance of their spatial autocorrelation. The **p-value** indicates the likelihood that the observed spatial pattern is due to random chance, with lower values signifying greater statistical significance:
+In this map, representing the **p-values** for the **Local Moran's I** test on **drug use cases**, the regions are color-coded based on the statistical significance of their spatial autocorrelation. The **p-value** indicates the likelihood that the observed spatial pattern is due to random chance, with lower values signifying greater statistical significance:
 
--   **Red areas** indicate regions where the p-value is very low (close to zero), suggesting that the spatial clustering of suspects is statistically significant and not due to chance. These regions are likely **hotspots** with a high number of suspects in close proximity to other high-suspect areas.
+-   **Red areas** indicate regions where the p-value is very low (close to zero), suggesting that the spatial clustering of cases is statistically significant and not due to chance. These regions are likely **hotspots** with a high number of cases in close proximity to other high-suspect areas.
 
--   **Blue areas** represent higher p-values (closer to 1), indicating regions where the spatial pattern is less statistically significant or random, meaning no strong spatial clustering of suspects.
+-   **Blue areas** represent higher p-values (closer to 1), indicating regions where the spatial pattern is less statistically significant or random, meaning no strong spatial clustering of cases.
 
 -   **Yellow and light orange regions** fall somewhere in between, showing moderate significance.
 
-This map helps to identify areas where the spatial clustering of suspects in drug use cases is most statistically significant, especially in the northern and central provinces. These regions may require more attention for addressing drug-related issues, as the spatial patterns are unlikely to be random.
+This map helps to identify areas where the spatial clustering of drug use cases is most statistically significant, especially in the northern and central provinces. These regions may require more attention for addressing drug-related issues, as the spatial patterns are unlikely to be random.
 
-### **8.4.2 p-value Visualization for Suspects in Drug Use Cases**
+## **8.4 Visualising Statistically Significant Local Spatial Autocorrelation**
 
-A similar map shows the statistical significance for the **suspects in drug use cases**:
+In this section, I tried to filter and visualize only the statistically significant spatial clusters (p \< 0.05) from the Local Moran’s I analysis for drug use cases. This provides a more focused view of the provinces where significant clustering occurs, allowing us to pinpoint areas of interest.
 
-```{r}
-tm_shape(lisa_suspect) +
-  tm_fill(
-    "p_ii_sim", 
-    palette = c("#b7dce9", "#c9e3d2", "#f5f3a6", "#ec9a64", "#d21b1c"), 
-    title = "p-value",
-    midpoint = NA,
-    legend.hist = TRUE, 
-    legend.is.portrait = TRUE,
-    legend.hist.z = 0.1
-  ) +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_layout(
-    main.title = "Statistical Significance of Spatial Autocorrelation\nof Suspects in Drug Use Cases",
-    main.title.position = "center",
-    main.title.size = 1.7,
-    main.title.fontface = "bold",
-    legend.title.size = 1.8,
-    legend.text.size = 1.3,
-    frame = TRUE
-  ) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-
-```
-
-In this map, depicting **p-values** for the **Local Moran's I test** on **suspects in drug use cases**, the regions are color-coded to show the statistical significance of spatial autocorrelation. The colors correspond to the **p-value ranges**, indicating where clustering is more or less likely to be due to random chance:
-
--   **Red regions** represent areas with very low **p-values** (closer to 0), indicating that these regions have statistically significant clustering of suspects in drug use cases. These areas are identified as **hotspots** where high numbers of suspects are found near other high-suspect regions.
-
--   **Blue regions** correspond to high **p-values**, suggesting that any clustering in these areas is likely due to random chance, with no significant spatial autocorrelation.
-
--   **Yellow and orange regions** indicate moderate **p-values**, meaning that clustering in these areas is somewhat significant, though not as strong as in the red areas.
-
-This map emphasizes where the clustering of suspects is statistically meaningful, particularly in the **northern and northeastern regions**, signaling potential areas of concern that may require focused law enforcement or policy interventions to manage drug-related activities. The **blue areas**, indicating no significant clustering, might need less immediate attention.
-
-## **8.5 Visualising Statistically Significant Local Spatial Autocorrelation**
-
-In this section, I tried to filter and visualize only the statistically significant spatial clusters (p \< 0.05) from the Local Moran’s I analysis for both drug use cases and suspects in drug use cases. This provides a more focused view of the provinces where significant clustering occurs, allowing us to pinpoint areas of interest.
-
-### **8.5.1 Statistically Significant Spatial Autocorrelation of Drug Use Cases**
+### **8.4.1 Statistically Significant Spatial Autocorrelation of Drug Use Cases**
 
 First, I filtered the **lisa_drug_use** data to include only those provinces where the p-value of Local Moran's I is less than 0.05, indicating significant local spatial autocorrelation. The map highlights these provinces and provides insight into the spatial patterns for drug use cases.
 
@@ -361,45 +238,11 @@ tm_shape(lisa_sig_drug_use) +
   tm_grid(labels.size = 1, alpha = 0.2)
 ```
 
-### **8.5.2 Statistically Significant Spatial Autocorrelation of Suspects in Drug Use Cases**
+## **8.5 LISA Classification**
 
-Similarly, I filtered the **lisa_suspect** data to include only the statistically significant provinces for suspects in drug use cases and mapped these areas.
+I tried to classify the spatial autocorrelation patterns using **Local Indicators of Spatial Association (LISA)**. This classification helps identify specific areas that show significant spatial relationships, including **high-high** (hotspots), **low-low** (coldspots), **high-low**, or **low-high** outlier patterns. These categories highlight areas where the spatial clustering of drug use cases is statistically significant.
 
-```{r}
-lisa_sig_suspect <- lisa_suspect %>%
-  filter(p_ii_sim < 0.05) %>%
-  mutate(label = paste(ADM1_EN))
-
-tm_shape(lisa_suspect) +
-  tm_polygons() +
-  tm_borders(col = "black", alpha = 0.6) +
-tm_shape(lisa_sig_suspect) +
-  tm_fill("ii", 
-          palette = c("#b7dce9", "#e1ecbb", "#f5f3a6", "#f8d887", "#ec9a64", "#d21b1c"),
-          title = "Local Moran's I (p < 0.05)",
-          midpoint = NA,
-          legend.hist = TRUE, 
-          legend.is.portrait = TRUE,
-          legend.hist.z = 0.1) +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Suspects in Drug Use Cases",
-            main.title.position = "center",
-            main.title.size = 1.7,
-            main.title.fontface = "bold",
-            legend.title.size = 1.8,
-            legend.text.size = 1.3,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-```
-
-## **8.6 LISA Classification**
-
-I tried to classify the spatial autocorrelation patterns using **Local Indicators of Spatial Association (LISA)**. This classification helps identify specific areas that show significant spatial relationships, including **high-high** (hotspots), **low-low** (coldspots), **high-low**, or **low-high** outlier patterns. These categories highlight areas where the spatial clustering of drug use cases or suspects in drug use cases is statistically significant.
-
-### **8.6.1 Visualising LISA Classification for Drug Use Cases**
+### **8.5.1 Visualising LISA Classification for Drug Use Cases**
 
 The LISA map classifies provinces based on their spatial autocorrelation categories. It uses different color codes to represent **high-high** (areas with high values surrounded by high values), **low-low** (areas with low values surrounded by low values), **high-low**, and **low-high** spatial relationships. This classification provides a clearer view of the spatial structure of drug use cases across provinces.
 
@@ -484,77 +327,11 @@ From the LISA classification map, I observed that several provinces showed a **l
 
 These areas can be considered **coldspots** for drug use cases.
 
-### **8.6.2 Visualising LISA Classification for Suspects in Drug Use Cases**
-
-A similar LISA classification was conducted for the suspects in drug use cases dataset. This map provides a clearer understanding of where clustering or outlier patterns exist for suspects involved in drug use.
-
-```{r}
-tmap_mode("plot")
-
-study_area_lisa_suspect <- tm_shape(lisa_suspect) +
-  tm_polygons() +
-  tm_borders(col = "black", alpha = 0.6) +
-tm_shape(lisa_sig_suspect) +
-  tm_fill("mean", 
-          palette = c("#b7dce9", "#ec9a64", "#e1ecbb", "#d21b1c"),
-          title = "LISA class",
-          midpoint = NA,
-          legend.hist = TRUE, 
-          legend.is.portrait = TRUE,
-          legend.hist.z = 0.1) +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_layout(main.title = "Village-Level LISA Map of Suspects in Drug Use Cases",
-            main.title.position = "center",
-            main.title.size = 1.7,
-            main.title.fontface = "bold",
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            legend.title.size = 1.8,
-            legend.text.size = 1.3,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-
-study_area_lisa_suspect
-
-```
-
-I also provided an interactive view for the suspects data:
-
-```{r}
-tmap_mode("view")
-
-tm_shape(lisa_suspect) +
-  tm_polygons(id = "label") +
-  tm_borders(col = "black", alpha = 0.6) +
-tm_shape(lisa_sig_suspect) +
-  tm_fill(
-    "mean", 
-    palette = c("#b7dce9", "#ec9a64", "#e1ecbb", "#d21b1c"),
-    title = "LISA class",
-    midpoint = NA,
-    id = "label"
-  ) +
-  tm_borders(col = "black", alpha = 0.6)
-```
-
-**Key Observations from the Suspects in Drug Use Cases LISA Map**
-
-For the suspects dataset, the following patterns were observed:
-
--   **Low-Low Clusters**: Provinces such as **Kamphaeng Phet**, **Nakhon Sawan**, **Uthai Thani**, **Chai Nat**, **Lop Buri**, **Sing Buri**, **Suphan Buri**, **Kanchanaburi**, **Ratchaburi**, **Phetchaburi**, and **Prachuap Khiri Khan** exhibited low values for suspects in drug use cases and were surrounded by other provinces with similarly low values.
-
--   **Low-High Outlier**: The province of **Krabi** displayed a **low-high** pattern, meaning that it has low values for suspects in drug use cases but is surrounded by provinces with higher values. This indicates that Krabi is an outlier in terms of lower involvement in drug use cases compared to its neighbors.
-
--   **High-High Cluster**: Provinces such as **Amnat Charoen** and **Si Sa Ket** showed significant **high-high** clustering, indicating that these provinces have higher-than-expected values of suspects in drug use cases and are surrounded by provinces with similarly high values. These areas can be considered **hotspots** for suspects in drug use cases.
-
 # **9. Emerging Hot Spots Analysis (EHSA)**
 
 ## **9.1 Local Getis-Ord** Gi\* for **Hot Spot and Cold Spot Area Analysis**
 
-I tried to analyze the **spatial clustering** of drug use cases and suspects in drug use cases using the **Local Getis-Ord Gi\*** statistic. This analysis identifies specific areas that are statistically significant **hotspots** or **coldspots**, representing areas of unusually high or low concentrations of the phenomena.
+I tried to analyze the **spatial clustering** of drug use cases using the **Local Getis-Ord Gi\*** statistic. This analysis identifies specific areas that are statistically significant **hotspots** or **coldspots**, representing areas of unusually high or low concentrations of the phenomena.
 
 ### **9.1.1 Hotspot and Coldspot Analysis for Drug Use Cases**
 
@@ -700,150 +477,9 @@ tm_shape(HCSA_three_coldspots_drug_use) +
   tm_grid(labels.size = 1, alpha = 0.2)
 ```
 
-### **9.2.1 Hotspot and Coldspot Analysis for Suspects in Drug Use Cases**
-
-Next, I moved on to analyzing hotspots and coldspots for **suspects in drug use cases**. The process for suspects follows the same methodology as the analysis of drug use cases.
-
-First, I calculated the spatial weights using the **st_contiguity()** and **st_inverse_distance()** functions, and then applied the **Local Getis-Ord Gi\*** test to identify statistically significant clustering.
-
-```{r}
-wm_idw_suspect <- lisa_suspect %>%
-  mutate(nb = include_self(st_contiguity(geometry)),
-         wt = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),
-         .before = 1)
-```
-
-```{r}
-HCSA_suspect <- wm_idw_suspect %>% 
-  mutate(local_Gi_star = local_gstar_perm(no_cases, nb, wt, nsim = 99),
-         .before = 1) %>%
-  unnest(local_Gi_star, names_sep = "_") %>%
-  mutate(label = paste(ADM1_EN))
-```
-
-### **9.2.2 Visualizing Hotspots and Coldspots for Suspects in Drug Use Cases**
-
-The map below shows the hotspots (red) and coldspots (blue) for suspects in drug use cases, highlighting regions where clustering is significant.
-
-```{r}
-tmap_mode("plot")  
-tm_shape(HCSA_suspect) +
-  tm_fill("local_Gi_star_gi_star", 
-          palette = c("#57bfc0", "#7977f3", "#f8d673", "#f8b675", "#f67774"),
-          title = "Gi*",
-          midpoint = 0) +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_layout(main.title = "Hotspots & Coldspots of Suspects in Drug Use Cases",
-            main.title.position = "center",
-            main.title.size = 1.7,
-            main.title.fontface = "bold",
-            legend.title.size = 1.8,
-            legend.text.size = 1.3,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-```
-
-#### **9.2.2.1 Filtering Significant Hotspots and Coldspots for Suspects**
-
-I filtered for the statistically significant hotspots and coldspots for suspects (p \< 0.05).
-
-```{r}
-HCSA_sig_suspect <- HCSA_suspect %>% filter(p_ii_sim < 0.05)
-```
-
-```{r}
-tmap_mode("view")
-tm_shape(HCSA_suspect) +
-  tm_polygons(id = "label") +
-tm_shape(HCSA_sig_suspect) +
-  tm_fill("local_Gi_star_gi_star", 
-          palette = c("#57bfc0", "#7977f3", "#f8d673", "#f8b675", "#f67774"),
-          title = "Gi*",
-          midpoint = 0,
-          id = "label") +
-  tm_borders(col = "black", alpha = 0.6)
-```
-
-#### **9.2.2.2 Identifying the Most Significant Hotspots and Coldspots for Suspects**
-
-I identified the **three most significant hotspots** and **three most significant coldspots** based on their Gi\* values:
-
-```{r}
-set.seed(123)
-three_hotspots_suspect <- head(HCSA_sig_suspect[HCSA_sig_suspect$local_Gi_star_gi_star > -1.5, ], 3)$label
-three_coldspots_suspect <- head(HCSA_sig_suspect[HCSA_sig_suspect$local_Gi_star_gi_star < -2, ], 3)$label
-```
-
-The three most significant **hotspots** are:
-
-```{r}
-three_hotspots_suspect
-```
-
-The three most significant **coldspots** are:
-
-```{r}
-three_coldspots_suspect
-```
-
-```{r}
-HCSA_three_hotspots_suspect <- HCSA_sig_suspect %>% filter(label %in% three_hotspots_suspect)
-HCSA_three_coldspots_suspect <- HCSA_sig_suspect %>% filter(label %in% three_coldspots_suspect)
-```
-
-#### **9.2.2.3 Visualizing Hotspots**
-
-The map below shows the three most significant hotspots for suspects in drug use cases:
-
-```{r}
-tmap_mode("plot")
-tm_shape(HCSA_suspect) +
-  tm_polygons() +
-tm_shape(HCSA_three_hotspots_suspect) +
-  tm_fill("local_Gi_star_gi_star", palette = "#f67774") +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_text("label", auto.placement = TRUE) +
-  tm_layout(main.title = "Three Most Significant Hotspots of Suspects in Drug Use Cases",
-            main.title.position = "center",
-            main.title.size = 1.7,
-            main.title.fontface = "bold",
-            legend.show = FALSE,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-```
-
-#### **9.2.2.4 Visualizing Coldspots**
-
-Similarly, I visualized the three most significant coldspots for suspects in drug use cases:
-
-```{r}
-tm_shape(HCSA_suspect) +
-  tm_polygons() +
-tm_shape(HCSA_three_coldspots_suspect) +
-  tm_fill("local_Gi_star_gi_star", palette = "#57bfc0") +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_text("label", auto.placement = TRUE) +
-  tm_layout(main.title = "Three Most Significant Coldspots of Suspects in Drug Use Cases",
-            main.title.position = "center",
-            main.title.size = 1.7,
-            main.title.fontface = "bold",
-            legend.show = FALSE,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 1.5, size = 3, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1.2) +
-  tm_grid(labels.size = 1, alpha = 0.2)
-```
-
 # **10. Analysis Summary and Conclusions**
 
-This study has employed a comprehensive suite of spatial autocorrelation and clustering techniques to investigate the geographic patterns of drug use cases and suspects in drug use cases across provinces in Thailand. These methods provide critical insights into the spatial dynamics of drug-related activities, revealing significant clusters, outliers, and emerging trends.
+This study has employed a comprehensive suite of spatial autocorrelation and clustering techniques to investigate the geographic patterns of drug use cases across provinces in Thailand. These methods provide critical insights into the spatial dynamics of drug-related activities, revealing significant clusters, outliers, and emerging trends.
 
 ## **Global Spatial Autocorrelation Analysis**
 
@@ -855,9 +491,9 @@ The global measures of spatial autocorrelation, including **Moran’s I** and **
 
 ## **Local Spatial Autocorrelation (LISA) and Hotspot Analysis**
 
-The **Local Moran’s I (LISA) analysis** provided a more granular view, revealing specific provinces where clustering of drug use cases and suspects in drug use cases is statistically significant. Through LISA, we classified provinces into high-high clusters (hotspots), low-low clusters (coldspots), and identified outliers where low values are surrounded by high values (low-high) and vice versa (high-low).
+The **Local Moran’s I (LISA) analysis** provided a more granular view, revealing specific provinces where clustering of drug use cases is statistically significant. Through LISA, we classified provinces into high-high clusters (hotspots), low-low clusters (coldspots), and identified outliers where low values are surrounded by high values (low-high) and vice versa (high-low).
 
--   **Hotspots**: Provinces such as **Amnat Charoen** and **Si Sa Ket** were identified as high-high clusters for both drug use cases and suspects, indicating regions where the incidence of drug-related activities is highly concentrated. These areas could be prioritized for targeted interventions or resources.
+-   **Hotspots**: Provinces such as **Amnat Charoen** and **Si Sa Ket** were identified as high-high clusters for both drug use cases, indicating regions where the incidence of drug-related activities is highly concentrated. These areas could be prioritized for targeted interventions or resources.
 
 -   **Coldspots**: Provinces like **Kamphaeng Phet** and **Nakhon Sawan** formed low-low clusters, indicating regions where drug-related activities are significantly less concentrated. This might suggest successful prevention strategies or simply less drug-related activity in these regions.
 
@@ -871,12 +507,6 @@ The **Local Getis-Ord Gi\*** statistic provided additional insights into cluster
 
 -   **Coldspots for Drug Use Cases**: Conversely, provinces like **Kamphaeng Phet** and **Nakhon Sawan** were highlighted as the two most significant coldspots, showcasing areas with significantly low levels of drug use cases.
 
-For suspects in drug use cases, a similar pattern emerged:
-
--   **Hotspots for Suspects**: Provinces such as **Amnat Charoen** and **Ubon Ratchathani** emerged as key hotspots, suggesting that the incidence of suspects in drug-related activities is significantly clustered in these regions.
-
--   **Coldspots for Suspects**: Provinces like **Phetchaburi** and **Suphan Buri** were identified as coldspots, reflecting areas with low concentrations of suspects involved in drug use cases.
-
 **Key Findings and Policy Implications**
 
 1.  **Concentration of Drug-Related Activity in Specific Regions**: The consistent identification of provinces such as **Amnat Charoen**, **Si Sa Ket**, and **Ubon Ratchathani** as hotspots suggests that these areas are major centers of drug-related activities. These provinces should be prioritized for targeted interventions such as increased law enforcement presence, drug prevention programs, and community outreach initiatives.
@@ -884,8 +514,6 @@ For suspects in drug use cases, a similar pattern emerged:
 2.  **Need for Tailored Strategies in Coldspot Regions**: The low-low clusters and coldspots, such as **Kamphaeng Phet** and **Nakhon Sawan**, indicate regions with lower levels of drug-related activity. While these areas may not require immediate intervention, understanding the factors that contribute to their low rates could inform successful drug prevention strategies in other parts of the country.
 
 3.  **Emerging Trends in Outlier Regions**: The presence of spatial outliers, particularly provinces like **Krabi** (low-high pattern), underscores the importance of localized factors that may influence drug use patterns. Understanding these outliers can help develop tailored strategies that address unique local conditions, such as regional socioeconomic factors, infrastructure, or law enforcement practices.
-
-4.  **Spatial Clustering of Suspects in Drug Use Cases**: The results from the suspects in drug use cases analysis revealed similar patterns of clustering, suggesting that areas with high levels of drug use cases also tend to have high numbers of suspects. This correlation highlights the need for joint strategies that target both users and suspects to address the broader drug ecosystem in these regions.
 
 ## **Conclusion**
 
