@@ -1,0 +1,232 @@
+---
+title: "Hands On Exercise 7"
+author: "Xu Haiyang"
+date: "10 October, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+# **Overview Explanation**
+
+In this hands-on exercise, I gained practical experience in delineating homogeneous regions using geographically referenced multivariate data. The analysis consists of two main techniques: hierarchical cluster analysis and spatially constrained cluster analysis.
+
+### **Learning Outcome Explanation**
+
+By completing this exercise, I learned how to:
+
+-   Convert GIS polygon data into an R simple feature `data.frame` using appropriate functions from the `sf` package.
+
+-   Transform the simple feature `data.frame` into an R `SpatialPolygonDataFrame` object using relevant functions from the `sf` package.
+
+-   Perform cluster analysis using `hclust()` from Base R.
+
+-   Execute spatially constrained cluster analysis with `skater()` from Base R.
+
+-   Visualize the analysis output through the `ggplot2` and `tmap` packages.
+
+### **Getting Started Explanation**
+
+#### **Analytical Question**
+
+In spatial policy and geobusiness, it is common to divide markets or planning areas into homogeneous regions using multivariate data. In this exercise, I focused on dividing Shan State in Myanmar into homogeneous regions using several Information and Communication Technology (ICT) indicators, including Radio, Television, Landline Phone, Mobile Phone, Computer, and Internet at home.
+
+### **Installing and Loading R Packages Explanation**
+
+In the code provided, I installed and loaded several R packages using `pacman::p_load()`, which efficiently manages package installation and loading:
+
+```{r}
+pacman::p_load(spdep, tmap, sf, ClustGeo, 
+               ggpubr, cluster, factoextra, NbClust,
+               heatmaply, corrplot, psych, tidyverse, GGally)
+```
+
+## **Data Import and Preparation Explanation**
+
+#### **Importing Geospatial Data into R Environment**
+
+I used the `st_read()` function from the `sf` package to read geospatial data for Myanmar township boundaries. I filtered the data to only include three regions of Shan State (East, North, and South) and selected columns 2 to 7. The resultant geospatial data was stored in `shan_sf`:
+
+```{r}
+shan_sf <- st_read(dsn = "data/geospatial", 
+                   layer = "myanmar_township_boundaries") %>%
+  filter(ST %in% c("Shan (East)", "Shan (North)", "Shan (South)")) %>%
+  select(c(2:7))
+```
+
+The dataset is then displayed using the following functions:
+
+```{r}
+shan_sf
+```
+
+```{r}
+glimpse(shan_sf)
+```
+
+#### **Importing Aspatial Data into R Environment**
+
+The aspatial dataset, which contains ICT-related data for Shan State, is imported using `read_csv()`:
+
+```{r}
+ict <- read_csv ("data/aspatial/Shan-ICT.csv")
+```
+
+```{r}
+summary(ict)
+```
+
+#### **Deriving New Variables Using dplyr Package**
+
+I created new variables using `mutate()`, calculating the proportion of households with each ICT service (per 1000 households) for Radio, Television, Landline Phone, Mobile Phone, Computer, and Internet:
+
+```{r}
+ict_derived <- ict %>%
+  mutate(`RADIO_PR` = `Radio`/`Total households`*1000) %>%
+  mutate(`TV_PR` = `Television`/`Total households`*1000) %>%
+  mutate(`LLPHONE_PR` = `Land line phone`/`Total households`*1000) %>%
+  mutate(`MPHONE_PR` = `Mobile phone`/`Total households`*1000) %>%
+  mutate(`COMPUTER_PR` = `Computer`/`Total households`*1000) %>%
+  mutate(`INTERNET_PR` = `Internet at home`/`Total households`*1000) %>%
+  rename(`DT_PCODE` =`District Pcode`,`DT`=`District Name`,
+         `TS_PCODE`=`Township Pcode`, `TS`=`Township Name`,
+         `TT_HOUSEHOLDS`=`Total households`,
+         `RADIO`=`Radio`, `TV`=`Television`, 
+         `LLPHONE`=`Land line phone`, `MPHONE`=`Mobile phone`,
+         `COMPUTER`=`Computer`, `INTERNET`=`Internet at home`) 
+```
+
+```{r}
+summary(ict_derived)
+```
+
+## **Exploratory Data Analysis (EDA) Explanation**
+
+#### **Statistical Graphics**
+
+I used histograms and boxplots to visualize the distribution of the ICT indicators across the regions. For example, I generated a histogram for radio ownership per household:
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+```
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO`)) +
+  geom_boxplot(color="black", 
+               fill="light blue")
+```
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+```
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO_PR`)) +
+  geom_boxplot(color="black", 
+               fill="light blue")
+```
+
+```{r}
+radio <- ggplot(data=ict_derived, 
+             aes(x= `RADIO_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+
+tv <- ggplot(data=ict_derived, 
+             aes(x= `TV_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+
+llphone <- ggplot(data=ict_derived, 
+             aes(x= `LLPHONE_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+
+mphone <- ggplot(data=ict_derived, 
+             aes(x= `MPHONE_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+
+computer <- ggplot(data=ict_derived, 
+             aes(x= `COMPUTER_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+
+internet <- ggplot(data=ict_derived, 
+             aes(x= `INTERNET_PR`)) +
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue")
+```
+
+```{r}
+ggarrange(radio, tv, llphone, mphone, computer, internet, 
+          ncol = 3, 
+          nrow = 2)
+```
+
+I applied a similar approach to plot the boxplots and histograms for other ICT indicators.
+
+#### **Choropleth Map Creation**
+
+I created a choropleth map by merging the spatial data (`shan_sf`) with the aspatial ICT data (`ict_derived`) using the `left_join()` function, and then wrote the updated `shan_sf` object to an RDS file:
+
+```{r}
+shan_sf <- left_join(shan_sf, 
+                     ict_derived, by=c("TS_PCODE"="TS_PCODE"))
+  
+write_rds(shan_sf, "data/rds/shan_sf.rds")
+```
+
+```{r}
+shan_sf <- read_rds("data/rds/shan_sf.rds")
+```
+
+```{r}
+qtm(shan_sf, "RADIO_PR")
+```
+
+```{r}
+TT_HOUSEHOLDS.map <- tm_shape(shan_sf) + 
+  tm_fill(col = "TT_HOUSEHOLDS",
+          n = 5,
+          style = "jenks", 
+          title = "Total households") + 
+  tm_borders(alpha = 0.5) 
+
+RADIO.map <- tm_shape(shan_sf) + 
+  tm_fill(col = "RADIO",
+          n = 5,
+          style = "jenks",
+          title = "Number Radio ") + 
+  tm_borders(alpha = 0.5) 
+
+tmap_arrange(TT_HOUSEHOLDS.map, RADIO.map,
+             asp=NA, ncol=2)
+```
+
+```{r}
+tm_shape(shan_sf) +
+    tm_polygons(c("TT_HOUSEHOLDS", "RADIO_PR"),
+                style="jenks") +
+    tm_facets(sync = TRUE, ncol = 2) +
+  tm_legend(legend.position = c("right", "bottom"))+
+  tm_layout(outer.margins=0, asp=0)
+```

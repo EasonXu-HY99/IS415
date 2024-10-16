@@ -706,9 +706,8 @@ tmap_arrange(gdppc,
 
 -   The map visualizes the spatial distribution of the Gi statistics, where red indicates hot spots (clusters of high values) and blue indicates cold spots (clusters of low values).
 
-```{=html}
 <!-- -->
-```
+
 -   I arranged the original GDPPC map alongside the Gi map for comparison, which allows us to see how GDP per capita values correspond to spatial clustering patterns identified by the Gi statistic.
 
 **Question: What statistical observation can you draw from the Gi map above?**
