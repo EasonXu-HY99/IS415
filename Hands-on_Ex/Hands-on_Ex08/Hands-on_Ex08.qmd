@@ -78,13 +78,17 @@ ict <- read_csv ("data/aspatial/Shan-ICT.csv")
 summary(ict)
 ```
 
-## **Spatially Constrained Clustering: SKATER approach**
+### **Spatially Constrained Clustering: SKATER Approach**
+
+In this section, I applied the **SKATER (Spatial 'K'luster Analysis by Tree Edge Removal)** approach to perform spatially constrained clustering. I started by converting the `shan_sf` spatial data into an `as_Spatial()` format, which is necessary for certain spatial clustering methods.
 
 ```{r}
 shan_sp <- as_Spatial(shan_sf)
 ```
 
-### **Computing Neighbour List**
+### **Computing Neighbour ListComputing Neighbour List**
+
+I created a neighbor list using the `poly2nb()` function, which identifies which polygons (townships) in `shan_sp` share borders. The neighbor relationships are crucial for defining the spatial structure of the data, and I summarized the neighbor list to understand its characteristics.
 
 ```{r}
 shan.nb <- poly2nb(shan_sp)
@@ -105,9 +109,11 @@ plot(shan.nb,
      add=TRUE)
 ```
 
-### **Computing minimum spanning tree**
+### **Computing Minimum Spanning Tree (MST)**
 
-#### Calculating edge costs
+#### **Calculating Edge Costs**
+
+I calculated the edge costs for the minimum spanning tree based on the ICT variables. First, I prepared the `ict_derived` dataset by calculating the proportion of households with each ICT service and merged this dataset with the `shan_sf` spatial data.
 
 ```{r}
 ict_derived <- ict %>%
@@ -165,7 +171,9 @@ shan.w <- nb2listw(shan.nb,
 summary(shan.w)
 ```
 
-### **Computing minimum spanning tree**
+### **Constructing the Minimum Spanning Tree**
+
+I computed the minimum spanning tree (MST) from the list-weight object using the `mstree()` function.
 
 ```{r}
 shan.mst <- mstree(shan.w)
@@ -194,7 +202,11 @@ plot.mst(shan.mst,
          add=TRUE)
 ```
 
-### **Computing spatially constrained clusters using SKATER method**
+### **Computing Spatially Constrained Clusters Using the SKATER Method**
+
+I performed spatially constrained clustering using the **SKATER** method. The SKATER algorithm removes edges from the minimum spanning tree to create clusters based on both spatial proximity and similarity in ICT indicators.
+
+I used the `spdep::skater()` function to compute 6 clusters (by making 5 cuts) based on the MST (Minimum Spanning Tree) and the ICT indicators.
 
 ```{r}
 clust6 <- spdep::skater(edges = shan.mst[,1:2], 
@@ -227,7 +239,9 @@ plot(clust6,
      add=TRUE)
 ```
 
-### **Visualising the clusters in choropleth map**
+### **Visualizing the Clusters in a Choropleth Map**
+
+To visualize the clusters further, I computed a distance matrix using the Euclidean method and applied hierarchical clustering (`hclust`) to compare it with the SKATER clusters. I also created a choropleth map to display both sets of clusters side by side.
 
 ```{r}
 proxmat <- dist(shan_ict, method = 'euclidean')
@@ -266,17 +280,17 @@ tmap_arrange(hclust.map, shclust.map,
              asp=NA, ncol=2)
 ```
 
-## **Spatially Constrained Clustering: ClustGeo Method**
+## **Spatially Constrained Clustering Using the ClustGeo Method**
 
-### **A short note about ClustGeo package**
+#### **A Short Note About ClustGeo Package**
 
-[**ClustGeo**](https://cran.r-project.org/web/packages/ClustGeo/) package is an R package specially designed to support the need of performing spatially constrained cluster analysis. More specifically, it provides a Ward-like hierarchical clustering algorithm called `hclustgeo()` including spatial/geographical constraints.
+The `ClustGeo` package allows me to perform spatially constrained cluster analysis by combining attribute-based dissimilarity and spatial/geographical constraints. It offers a Ward-like hierarchical clustering algorithm (`hclustgeo()`) that accounts for both data attributes and spatial relationships.
 
-In the nutshell, the algorithm uses two dissimilarity matrices D0 and D1 along with a mixing parameter alpha, whereby the value of alpha must be a real number between \[0, 1\]. D0 can be non-Euclidean and the weights of the observations can be non-uniform. It gives the dissimilarities in the **attribute/clustering variable space**. D1, on the other hand, gives the dissimilarities in the **constraint space**. The criterion minimised at each stage is a convex combination of the homogeneity criterion calculated with D0 and the homogeneity criterion calculated with D1.
+I used two dissimilarity matrices: `D0` for attributes (such as ICT variables) and `D1` for spatial constraints. The goal is to find a balance between the two by using a mixing parameter, alpha. This parameter influences how much weight is given to spatial proximity when forming clusters.
 
-The idea is then to determine a value of alpha which increases the spatial contiguity without deteriorating too much the quality of the solution based on the variables of interest. This need is supported by a function called `choicealpha()`.
+### **Ward-Like Hierarchical Clustering Using ClustGeo**
 
-### **Ward-like hierarchical clustering: ClustGeo**
+I began by performing standard hierarchical clustering using `hclustgeo()` based on the attribute dissimilarity matrix (`proxmat`).
 
 ```{r}
 nongeo_cluster <- hclustgeo(proxmat)
@@ -302,6 +316,8 @@ qtm(shan_sf_ngeo_cluster, "CLUSTER")
 ```
 
 ### **Spatially Constrained Hierarchical Clustering**
+
+To introduce spatial constraints, I computed the distance matrix between townships using `st_distance()` and then used the `choicealpha()` function to find an optimal value for alpha that balances spatial contiguity and clustering quality.
 
 ```{r}
 dist <- st_distance(shan_sf, shan_sf)
@@ -332,4 +348,42 @@ shan_sf_Gcluster <- cbind(shan_sf, as.matrix(groups)) %>%
 
 ```{r}
 qtm(shan_sf_Gcluster, "CLUSTER")
+```
+
+## **Visual Interpretation of Clusters**
+
+#### **Visualizing Individual Clustering Variables**
+
+I created boxplots to explore how the values of individual ICT indicators vary across the clusters formed.
+
+```{r}
+ggplot(data = shan_sf_ngeo_cluster,
+       aes(x = CLUSTER, y = RADIO_PR)) +
+  geom_boxplot()
+```
+
+#### **Multivariate Visualization**
+
+I used parallel coordinate plots to visualize the multivariate relationships between ICT variables across the clusters.
+
+```{r}
+ggparcoord(data = shan_sf_ngeo_cluster, 
+           columns = c(17:21), 
+           scale = "globalminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE, 
+           title = "Multiple Parallel Coordinates Plots of ICT Variables by Cluster") +
+  facet_grid(~ CLUSTER) + 
+  theme(axis.text.x = element_text(angle = 30))
+```
+
+```{r}
+shan_sf_ngeo_cluster %>% 
+  st_set_geometry(NULL) %>%
+  group_by(CLUSTER) %>%
+  summarise(mean_RADIO_PR = mean(RADIO_PR),
+            mean_TV_PR = mean(TV_PR),
+            mean_LLPHONE_PR = mean(LLPHONE_PR),
+            mean_MPHONE_PR = mean(MPHONE_PR),
+            mean_COMPUTER_PR = mean(COMPUTER_PR))
 ```

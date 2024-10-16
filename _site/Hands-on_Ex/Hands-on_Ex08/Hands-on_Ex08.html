@@ -240,21 +240,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#learning-outcome-explanation" id="toc-learning-outcome-explanation" class="nav-link" data-scroll-target="#learning-outcome-explanation"><strong>Learning Outcome Explanation</strong></a></li>
   <li><a href="#getting-started-explanation" id="toc-getting-started-explanation" class="nav-link" data-scroll-target="#getting-started-explanation"><strong>Getting Started Explanation</strong></a></li>
   <li><a href="#installing-and-loading-r-packages-explanation" id="toc-installing-and-loading-r-packages-explanation" class="nav-link" data-scroll-target="#installing-and-loading-r-packages-explanation"><strong>Installing and Loading R Packages Explanation</strong></a></li>
-  <li><a href="#data-import-and-preparation-explanation" id="toc-data-import-and-preparation-explanation" class="nav-link" data-scroll-target="#data-import-and-preparation-explanation"><strong>Data Import and Preparation Explanation</strong></a></li>
-  <li><a href="#spatially-constrained-clustering-skater-approach" id="toc-spatially-constrained-clustering-skater-approach" class="nav-link" data-scroll-target="#spatially-constrained-clustering-skater-approach"><strong>Spatially Constrained Clustering: SKATER approach</strong></a>
+  <li><a href="#data-import-and-preparation-explanation" id="toc-data-import-and-preparation-explanation" class="nav-link" data-scroll-target="#data-import-and-preparation-explanation"><strong>Data Import and Preparation Explanation</strong></a>
   <ul class="collapse">
-  <li><a href="#computing-neighbour-list" id="toc-computing-neighbour-list" class="nav-link" data-scroll-target="#computing-neighbour-list"><strong>Computing Neighbour List</strong></a></li>
-  <li><a href="#computing-minimum-spanning-tree" id="toc-computing-minimum-spanning-tree" class="nav-link" data-scroll-target="#computing-minimum-spanning-tree"><strong>Computing minimum spanning tree</strong></a></li>
-  <li><a href="#computing-minimum-spanning-tree-1" id="toc-computing-minimum-spanning-tree-1" class="nav-link" data-scroll-target="#computing-minimum-spanning-tree-1"><strong>Computing minimum spanning tree</strong></a></li>
-  <li><a href="#computing-spatially-constrained-clusters-using-skater-method" id="toc-computing-spatially-constrained-clusters-using-skater-method" class="nav-link" data-scroll-target="#computing-spatially-constrained-clusters-using-skater-method"><strong>Computing spatially constrained clusters using SKATER method</strong></a></li>
-  <li><a href="#visualising-the-clusters-in-choropleth-map" id="toc-visualising-the-clusters-in-choropleth-map" class="nav-link" data-scroll-target="#visualising-the-clusters-in-choropleth-map"><strong>Visualising the clusters in choropleth map</strong></a></li>
+  <li><a href="#spatially-constrained-clustering-skater-approach" id="toc-spatially-constrained-clustering-skater-approach" class="nav-link" data-scroll-target="#spatially-constrained-clustering-skater-approach"><strong>Spatially Constrained Clustering: SKATER Approach</strong></a></li>
+  <li><a href="#computing-neighbour-listcomputing-neighbour-list" id="toc-computing-neighbour-listcomputing-neighbour-list" class="nav-link" data-scroll-target="#computing-neighbour-listcomputing-neighbour-list"><strong>Computing Neighbour ListComputing Neighbour List</strong></a></li>
+  <li><a href="#computing-minimum-spanning-tree-mst" id="toc-computing-minimum-spanning-tree-mst" class="nav-link" data-scroll-target="#computing-minimum-spanning-tree-mst"><strong>Computing Minimum Spanning Tree (MST)</strong></a></li>
+  <li><a href="#constructing-the-minimum-spanning-tree" id="toc-constructing-the-minimum-spanning-tree" class="nav-link" data-scroll-target="#constructing-the-minimum-spanning-tree"><strong>Constructing the Minimum Spanning Tree</strong></a></li>
+  <li><a href="#computing-spatially-constrained-clusters-using-the-skater-method" id="toc-computing-spatially-constrained-clusters-using-the-skater-method" class="nav-link" data-scroll-target="#computing-spatially-constrained-clusters-using-the-skater-method"><strong>Computing Spatially Constrained Clusters Using the SKATER Method</strong></a></li>
+  <li><a href="#visualizing-the-clusters-in-a-choropleth-map" id="toc-visualizing-the-clusters-in-a-choropleth-map" class="nav-link" data-scroll-target="#visualizing-the-clusters-in-a-choropleth-map"><strong>Visualizing the Clusters in a Choropleth Map</strong></a></li>
   </ul></li>
-  <li><a href="#spatially-constrained-clustering-clustgeo-method" id="toc-spatially-constrained-clustering-clustgeo-method" class="nav-link" data-scroll-target="#spatially-constrained-clustering-clustgeo-method"><strong>Spatially Constrained Clustering: ClustGeo Method</strong></a>
+  <li><a href="#spatially-constrained-clustering-using-the-clustgeo-method" id="toc-spatially-constrained-clustering-using-the-clustgeo-method" class="nav-link" data-scroll-target="#spatially-constrained-clustering-using-the-clustgeo-method"><strong>Spatially Constrained Clustering Using the ClustGeo Method</strong></a>
   <ul class="collapse">
-  <li><a href="#a-short-note-about-clustgeo-package" id="toc-a-short-note-about-clustgeo-package" class="nav-link" data-scroll-target="#a-short-note-about-clustgeo-package"><strong>A short note about ClustGeo package</strong></a></li>
-  <li><a href="#ward-like-hierarchical-clustering-clustgeo" id="toc-ward-like-hierarchical-clustering-clustgeo" class="nav-link" data-scroll-target="#ward-like-hierarchical-clustering-clustgeo"><strong>Ward-like hierarchical clustering: ClustGeo</strong></a></li>
+  <li><a href="#ward-like-hierarchical-clustering-using-clustgeo" id="toc-ward-like-hierarchical-clustering-using-clustgeo" class="nav-link" data-scroll-target="#ward-like-hierarchical-clustering-using-clustgeo"><strong>Ward-Like Hierarchical Clustering Using ClustGeo</strong></a></li>
   <li><a href="#spatially-constrained-hierarchical-clustering" id="toc-spatially-constrained-hierarchical-clustering" class="nav-link" data-scroll-target="#spatially-constrained-hierarchical-clustering"><strong>Spatially Constrained Hierarchical Clustering</strong></a></li>
   </ul></li>
+  <li><a href="#visual-interpretation-of-clusters" id="toc-visual-interpretation-of-clusters" class="nav-link" data-scroll-target="#visual-interpretation-of-clusters"><strong>Visual Interpretation of Clusters</strong></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -442,14 +442,16 @@ dbl (7): Total households, Radio, Television, Land line phone, Mobile phone,...
 </div>
 </div>
 </section>
-</section>
-<section id="spatially-constrained-clustering-skater-approach" class="level2">
-<h2 class="anchored" data-anchor-id="spatially-constrained-clustering-skater-approach"><strong>Spatially Constrained Clustering: SKATER approach</strong></h2>
+<section id="spatially-constrained-clustering-skater-approach" class="level3">
+<h3 class="anchored" data-anchor-id="spatially-constrained-clustering-skater-approach"><strong>Spatially Constrained Clustering: SKATER Approach</strong></h3>
+<p>In this section, I applied the <strong>SKATER (Spatial ’K’luster Analysis by Tree Edge Removal)</strong> approach to perform spatially constrained clustering. I started by converting the <code>shan_sf</code> spatial data into an <code>as_Spatial()</code> format, which is necessary for certain spatial clustering methods.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>shan_sp <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(shan_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="computing-neighbour-list" class="level3">
-<h3 class="anchored" data-anchor-id="computing-neighbour-list"><strong>Computing Neighbour List</strong></h3>
+</section>
+<section id="computing-neighbour-listcomputing-neighbour-list" class="level3">
+<h3 class="anchored" data-anchor-id="computing-neighbour-listcomputing-neighbour-list"><strong>Computing Neighbour ListComputing Neighbour List</strong></h3>
+<p>I created a neighbor list using the <code>poly2nb()</code> function, which identifies which polygons (townships) in <code>shan_sp</code> share borders. The neighbor relationships are crucial for defining the spatial structure of the data, and I summarized the neighbor list to understand its characteristics.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>shan.nb <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(shan_sp)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(shan.nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -489,10 +491,11 @@ Link number distribution:
 </div>
 </div>
 </section>
-<section id="computing-minimum-spanning-tree" class="level3">
-<h3 class="anchored" data-anchor-id="computing-minimum-spanning-tree"><strong>Computing minimum spanning tree</strong></h3>
+<section id="computing-minimum-spanning-tree-mst" class="level3">
+<h3 class="anchored" data-anchor-id="computing-minimum-spanning-tree-mst"><strong>Computing Minimum Spanning Tree (MST)</strong></h3>
 <section id="calculating-edge-costs" class="level4">
-<h4 class="anchored" data-anchor-id="calculating-edge-costs">Calculating edge costs</h4>
+<h4 class="anchored" data-anchor-id="calculating-edge-costs"><strong>Calculating Edge Costs</strong></h4>
+<p>I calculated the edge costs for the minimum spanning tree based on the ICT variables. First, I prepared the <code>ict_derived</code> dataset by calculating the proportion of households with each ICT service and merged this dataset with the <code>shan_sf</code> spatial data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ict_derived <span class="ot">&lt;-</span> ict <span class="sc">%&gt;%</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">RADIO_PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">Radio</span><span class="st">`</span><span class="sc">/</span><span class="st">`</span><span class="at">Total households</span><span class="st">`</span><span class="sc">*</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
@@ -589,8 +592,9 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
 </div>
 </section>
 </section>
-<section id="computing-minimum-spanning-tree-1" class="level3">
-<h3 class="anchored" data-anchor-id="computing-minimum-spanning-tree-1"><strong>Computing minimum spanning tree</strong></h3>
+<section id="constructing-the-minimum-spanning-tree" class="level3">
+<h3 class="anchored" data-anchor-id="constructing-the-minimum-spanning-tree"><strong>Constructing the Minimum Spanning Tree</strong></h3>
+<p>I computed the minimum spanning tree (MST) from the list-weight object using the <code>mstree()</code> function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>shan.mst <span class="ot">&lt;-</span> <span class="fu">mstree</span>(shan.w)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -610,12 +614,12 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(shan.mst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1] [,2]      [,3]
-[1,]   32   43 221.47613
-[2,]   43   38 202.45004
-[3,]   38   51 146.66661
-[4,]   51   30 108.37735
-[5,]   30   27  57.60801
-[6,]   27   41  78.29342</code></pre>
+[1,]   31   25 229.44658
+[2,]   25   10 163.95741
+[3,]   10    1 144.02475
+[4,]   10    9 157.04230
+[5,]    9    8  90.82891
+[6,]    8    6 140.01101</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -636,8 +640,10 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
 </div>
 </div>
 </section>
-<section id="computing-spatially-constrained-clusters-using-skater-method" class="level3">
-<h3 class="anchored" data-anchor-id="computing-spatially-constrained-clusters-using-skater-method"><strong>Computing spatially constrained clusters using SKATER method</strong></h3>
+<section id="computing-spatially-constrained-clusters-using-the-skater-method" class="level3">
+<h3 class="anchored" data-anchor-id="computing-spatially-constrained-clusters-using-the-skater-method"><strong>Computing Spatially Constrained Clusters Using the SKATER Method</strong></h3>
+<p>I performed spatially constrained clustering using the <strong>SKATER</strong> method. The SKATER algorithm removes edges from the minimum spanning tree to create clusters based on both spatial proximity and similarity in ICT indicators.</p>
+<p>I used the <code>spdep::skater()</code> function to compute 6 clusters (by making 5 cuts) based on the MST (Minimum Spanning Tree) and the ICT indicators.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>clust6 <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">skater</span>(<span class="at">edges =</span> shan.mst[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>], </span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> shan_ict, </span>
@@ -651,13 +657,13 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
  $ groups      : num [1:55] 3 3 6 3 3 3 3 3 3 3 ...
  $ edges.groups:List of 6
   ..$ :List of 3
-  .. ..$ node: num [1:18] 47 27 53 43 42 15 41 38 32 51 ...
-  .. ..$ edge: num [1:17, 1:3] 53 15 42 43 41 38 15 27 15 32 ...
-  .. ..$ ssw : num 3759
-  ..$ :List of 3
-  .. ..$ node: num [1:22] 13 48 54 55 45 37 34 16 25 52 ...
-  .. ..$ edge: num [1:21, 1:3] 48 55 54 37 34 16 45 25 13 13 ...
+  .. ..$ node: num [1:22] 13 48 54 55 45 37 34 16 25 31 ...
+  .. ..$ edge: num [1:21, 1:3] 48 55 54 37 34 16 45 31 13 13 ...
   .. ..$ ssw : num 3423
+  ..$ :List of 3
+  .. ..$ node: num [1:18] 47 27 53 38 42 15 41 51 43 32 ...
+  .. ..$ edge: num [1:17, 1:3] 53 15 42 38 41 51 15 27 15 43 ...
+  .. ..$ ssw : num 3759
   ..$ :List of 3
   .. ..$ node: num [1:11] 2 6 8 1 36 4 10 9 46 5 ...
   .. ..$ edge: num [1:10, 1:3] 6 1 8 36 4 6 8 10 10 9 ...
@@ -687,8 +693,8 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>ccs6 <span class="ot">&lt;-</span> clust6<span class="sc">$</span>groups</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>ccs6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 3 3 6 3 3 3 3 3 3 3 1 2 2 2 1 2 2 2 1 4 2 1 5 2 2 2 1 2 1 1 2 1 1 2 2 3 2 1
-[39] 1 1 1 1 1 4 2 3 1 2 2 2 1 2 1 2 2</code></pre>
+<pre><code> [1] 3 3 6 3 3 3 3 3 3 3 2 1 1 1 2 1 1 1 2 4 1 2 5 1 1 1 2 1 2 2 1 2 2 1 1 3 1 2
+[39] 2 2 2 2 2 4 1 3 2 1 1 1 2 1 2 1 1</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -696,7 +702,7 @@ B 55 3025 76267.65 58260785 522016004</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>ccs6
  1  2  3  4  5  6 
-18 22 11  2  1  1 </code></pre>
+22 18 11  2  1  1 </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -727,8 +733,9 @@ Warning in segments(coords[id1, 1], coords[id1, 2], coords[id2, 1], coords[id2,
 </div>
 </div>
 </section>
-<section id="visualising-the-clusters-in-choropleth-map" class="level3">
-<h3 class="anchored" data-anchor-id="visualising-the-clusters-in-choropleth-map"><strong>Visualising the clusters in choropleth map</strong></h3>
+<section id="visualizing-the-clusters-in-a-choropleth-map" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-clusters-in-a-choropleth-map"><strong>Visualizing the Clusters in a Choropleth Map</strong></h3>
+<p>To visualize the clusters further, I computed a distance matrix using the Euclidean method and applied hierarchical clustering (<code>hclust</code>) to compare it with the SKATER clusters. I also created a choropleth map to display both sets of clusters side by side.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>proxmat <span class="ot">&lt;-</span> <span class="fu">dist</span>(shan_ict, <span class="at">method =</span> <span class="st">'euclidean'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -784,16 +791,16 @@ tm_shape prior to each of them).</code></pre>
 </div>
 </section>
 </section>
-<section id="spatially-constrained-clustering-clustgeo-method" class="level2">
-<h2 class="anchored" data-anchor-id="spatially-constrained-clustering-clustgeo-method"><strong>Spatially Constrained Clustering: ClustGeo Method</strong></h2>
-<section id="a-short-note-about-clustgeo-package" class="level3">
-<h3 class="anchored" data-anchor-id="a-short-note-about-clustgeo-package"><strong>A short note about ClustGeo package</strong></h3>
-<p><a href="https://cran.r-project.org/web/packages/ClustGeo/"><strong>ClustGeo</strong></a> package is an R package specially designed to support the need of performing spatially constrained cluster analysis. More specifically, it provides a Ward-like hierarchical clustering algorithm called <code>hclustgeo()</code> including spatial/geographical constraints.</p>
-<p>In the nutshell, the algorithm uses two dissimilarity matrices D0 and D1 along with a mixing parameter alpha, whereby the value of alpha must be a real number between [0, 1]. D0 can be non-Euclidean and the weights of the observations can be non-uniform. It gives the dissimilarities in the <strong>attribute/clustering variable space</strong>. D1, on the other hand, gives the dissimilarities in the <strong>constraint space</strong>. The criterion minimised at each stage is a convex combination of the homogeneity criterion calculated with D0 and the homogeneity criterion calculated with D1.</p>
-<p>The idea is then to determine a value of alpha which increases the spatial contiguity without deteriorating too much the quality of the solution based on the variables of interest. This need is supported by a function called <code>choicealpha()</code>.</p>
+<section id="spatially-constrained-clustering-using-the-clustgeo-method" class="level2">
+<h2 class="anchored" data-anchor-id="spatially-constrained-clustering-using-the-clustgeo-method"><strong>Spatially Constrained Clustering Using the ClustGeo Method</strong></h2>
+<section id="a-short-note-about-clustgeo-package" class="level4">
+<h4 class="anchored" data-anchor-id="a-short-note-about-clustgeo-package"><strong>A Short Note About ClustGeo Package</strong></h4>
+<p>The <code>ClustGeo</code> package allows me to perform spatially constrained cluster analysis by combining attribute-based dissimilarity and spatial/geographical constraints. It offers a Ward-like hierarchical clustering algorithm (<code>hclustgeo()</code>) that accounts for both data attributes and spatial relationships.</p>
+<p>I used two dissimilarity matrices: <code>D0</code> for attributes (such as ICT variables) and <code>D1</code> for spatial constraints. The goal is to find a balance between the two by using a mixing parameter, alpha. This parameter influences how much weight is given to spatial proximity when forming clusters.</p>
 </section>
-<section id="ward-like-hierarchical-clustering-clustgeo" class="level3">
-<h3 class="anchored" data-anchor-id="ward-like-hierarchical-clustering-clustgeo"><strong>Ward-like hierarchical clustering: ClustGeo</strong></h3>
+<section id="ward-like-hierarchical-clustering-using-clustgeo" class="level3">
+<h3 class="anchored" data-anchor-id="ward-like-hierarchical-clustering-using-clustgeo"><strong>Ward-Like Hierarchical Clustering Using ClustGeo</strong></h3>
+<p>I began by performing standard hierarchical clustering using <code>hclustgeo()</code> based on the attribute dissimilarity matrix (<code>proxmat</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>nongeo_cluster <span class="ot">&lt;-</span> <span class="fu">hclustgeo</span>(proxmat)</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(nongeo_cluster, <span class="at">cex =</span> <span class="fl">0.5</span>)</span>
@@ -831,6 +838,7 @@ tm_shape prior to each of them).</code></pre>
 </section>
 <section id="spatially-constrained-hierarchical-clustering" class="level3">
 <h3 class="anchored" data-anchor-id="spatially-constrained-hierarchical-clustering"><strong>Spatially Constrained Hierarchical Clustering</strong></h3>
+<p>To introduce spatial constraints, I computed the distance matrix between townships using <code>st_distance()</code> and then used the <code>choicealpha()</code> function to find an optimal value for alpha that balances spatial contiguity and clustering quality.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(shan_sf, shan_sf)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>distmat <span class="ot">&lt;-</span> <span class="fu">as.dist</span>(dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -874,6 +882,68 @@ tm_shape prior to each of them).</code></pre>
 <p><img src="Hands-on_Ex08_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
+</div>
+</div>
+</section>
+</section>
+<section id="visual-interpretation-of-clusters" class="level2">
+<h2 class="anchored" data-anchor-id="visual-interpretation-of-clusters"><strong>Visual Interpretation of Clusters</strong></h2>
+<section id="visualizing-individual-clustering-variables" class="level4">
+<h4 class="anchored" data-anchor-id="visualizing-individual-clustering-variables"><strong>Visualizing Individual Clustering Variables</strong></h4>
+<p>I created boxplots to explore how the values of individual ICT indicators vary across the clusters formed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> shan_sf_ngeo_cluster,</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> CLUSTER, <span class="at">y =</span> RADIO_PR)) <span class="sc">+</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands-on_Ex08_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="multivariate-visualization" class="level4">
+<h4 class="anchored" data-anchor-id="multivariate-visualization"><strong>Multivariate Visualization</strong></h4>
+<p>I used parallel coordinate plots to visualize the multivariate relationships between ICT variables across the clusters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggparcoord</span>(<span class="at">data =</span> shan_sf_ngeo_cluster, </span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">17</span><span class="sc">:</span><span class="dv">21</span>), </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">scale =</span> <span class="st">"globalminmax"</span>,</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">alphaLines =</span> <span class="fl">0.2</span>,</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">boxplot =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Multiple Parallel Coordinates Plots of ICT Variables by Cluster"</span>) <span class="sc">+</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> CLUSTER) <span class="sc">+</span> </span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">30</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands-on_Ex08_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>shan_sf_ngeo_cluster <span class="sc">%&gt;%</span> </span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(CLUSTER) <span class="sc">%&gt;%</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_RADIO_PR =</span> <span class="fu">mean</span>(RADIO_PR),</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_TV_PR =</span> <span class="fu">mean</span>(TV_PR),</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_LLPHONE_PR =</span> <span class="fu">mean</span>(LLPHONE_PR),</span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_MPHONE_PR =</span> <span class="fu">mean</span>(MPHONE_PR),</span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_COMPUTER_PR =</span> <span class="fu">mean</span>(COMPUTER_PR))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  CLUSTER mean_RADIO_PR mean_TV_PR mean_LLPHONE_PR mean_MPHONE_PR
+  &lt;chr&gt;           &lt;dbl&gt;      &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;
+1 1               221.        521.            44.2           246.
+2 2               237.        402.            23.9           134.
+3 3               300.        611.            52.2           392.
+4 4               196.        744.            99.0           651.
+5 5               124.        224.            38.0           132.
+6 6                98.6       499.            74.5           468.
+# ℹ 1 more variable: mean_COMPUTER_PR &lt;dbl&gt;</code></pre>
 </div>
 </div>
 
