@@ -1,0 +1,170 @@
+---
+title: "In Class Exercise 9"
+author: "Xu Haiyang"
+date: "30 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+---
+title: "In Class Exercise 9"
+author: "Xu Haiyang"
+date: "30 September, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+### **Geographic Segmentation with Spatially Constrained Cluster Analysis**
+
+This section outlines the application of various clustering methods for segmenting geographic regions in Shan State, Myanmar, based on ICT indicators. I utilized packages such as `spdep`, `sf`, `ClustGeo`, and more to perform the analysis and visualize the results.
+
+#### **Loading Required Packages and Data**
+
+First, I loaded the necessary R packages and read the spatial and aspatial datasets that contain the ICT indicators and spatial features.
+
+```{r}
+pacman::p_load(spdep, sp, tmap, sf, ClustGeo, cluster, factoextra, NbClust, tidyverse, GGally)
+```
+
+```{r}
+shan_sf <- read_rds("data/rds/shan_sf.rds") 
+shan_ict <- read_rds("data/rds/shan_ict.rds") 
+shan_sf_cluster <- read_rds("data/rds/shan_sf_cluster.rds")
+```
+
+#### **Performing Hierarchical Clustering**
+
+I calculated the Euclidean distance matrix and applied hierarchical clustering using the Ward method. Six clusters were then identified using `cutree()`.
+
+```{r}
+proxmat <- dist(shan_ict, method = 'euclidean') 
+hclust_ward <- hclust(proxmat, method = 'ward.D') 
+groups <- as.factor(cutree(hclust_ward, k=6))
+```
+
+I added the clustering results to the spatial dataset and renamed the columns accordingly.
+
+```{r}
+shan_sf_cluster <- cbind(shan_sf, as.matrix(groups)) %>% 
+  rename(`CLUSTER` = `as.matrix.groups.`) %>% 
+  select(-c(3:4, 7:9)) %>% 
+  rename(TS = TS.x)
+```
+
+I plotted the dendrogram to visualize the hierarchical clustering results and highlighted the six clusters with different colored rectangles.
+
+```{r}
+plot(hclust_ward, cex = 0.6) 
+rect.hclust(hclust_ward, k = 6, border = 2:5)
+```
+
+#### **Visualizing Clusters on a Map**
+
+Using `qtm()`, I visualized the six clusters on a choropleth map.
+
+```{r}
+qtm(shan_sf_cluster, "CLUSTER")
+```
+
+#### **Computing Spatial Proximity and Neighborhood Information**
+
+I computed the pairwise spatial distances between the townships and created a neighborhood list using `poly2nb()`. The neighborhood relationships were summarized, and the results were plotted along with the township boundaries.
+
+```{r}
+dist <- st_distance(shan_sf, shan_sf) 
+distmat <- as.dist(dist)
+```
+
+```{r}
+shan.nb <- poly2nb(shan_sf) 
+summary(shan.nb)
+```
+
+no need to change shan_sf to shan_sp
+
+```{r}
+plot(st_geometry(shan_sf), border = grey(.5)) 
+pts <- st_coordinates(st_centroid(shan_sf)) 
+plot(shan.nb, pts, col="blue", add=TRUE)
+```
+
+#### **Computing Costs and Constructing Minimum Spanning Tree (MST)**
+
+I computed the edge costs based on the ICT indicators and constructed the MST using the neighborhood list.
+
+```{r}
+lcosts <- nbcosts(shan.nb, shan_ict)
+```
+
+```{r}
+shan.w <- nb2listw(shan.nb, lcosts, style = "B") 
+summary(shan.w)
+```
+
+```{r}
+shan.mst <- mstree(shan.w)
+```
+
+I visualized the MST along with the township boundaries to understand the spatial relationships.
+
+```{r}
+plot(st_geometry(shan_sf), border=grey(.5)) 
+plot.mst(shan.mst, pts, col="blue", cex.lab=0.7, cex.circles=0.005, add=TRUE)
+```
+
+#### **Clustering Using the SKATER Method**
+
+I applied the **SKATER** method for spatially constrained clustering and visualized the resulting clusters on the map.
+
+```{r}
+skater.clust6 <- skater(edges = shan.mst[,1:2], data = shan_ict, method = "euclidean", ncuts = 5)
+```
+
+```{r}
+plot(st_geometry(shan_sf), border=gray(.5)) 
+plot(skater.clust6, pts, cex.lab=.7, groups.colors=c("red","green","blue","brown","pink"), cex.circles=0.005, add=TRUE)
+```
+
+I combined the SKATER clustering results with the spatial dataset and created a new column for the clusters.
+
+```{r}
+groups_mat <- as.matrix((skater.clust6$groups)) 
+shan_sf_spatialcluster <- cbind(shan_sf_cluster, as.factor(groups_mat)) %>% 
+  rename(`skater_CLUSTER` = `as.factor.groups_mat.`) 
+qtm(shan_sf_spatialcluster, "skater_CLUSTER")
+```
+
+#### **Determining the Mixing Parameter (Alpha) for ClustGeo**
+
+I used the `choicealpha()` function to find an optimal value of alpha that balances spatial proximity and attribute-based clustering quality. I then performed spatially constrained clustering using `hclustgeo()` with the chosen alpha value (0.2 in this case).
+
+```{r}
+cr <- choicealpha(proxmat, distmat, range.alpha = seq(0, 1, 0.1), K=6, graph = TRUE)
+```
+
+```{r}
+clustG <- hclustgeo(proxmat, distmat, alpha = 0.2) 
+groups <- as.factor(cutree(clustG, k=6)) 
+shan_sf_clustGeo <- cbind(shan_sf, as.matrix(groups)) %>% 
+  rename(`clustGeo` = `as.matrix.groups.`)
+```
+
+I mapped the results to visualize the ClustGeo clusters.
+
+```{r}
+qtm(shan_sf_clustGeo, "clustGeo")
+```
+
+#### **Visual Interpretation of Clusters**
+
+I used parallel coordinate plots to analyze how the ICT indicators vary across the ClustGeo clusters.
+
+```{r}
+ggparcoord(data = shan_sf_clustGeo, columns = c(17:21), scale = "globalminmax", alphaLines = 0.2, boxplot = TRUE, title = "Multiple Parallel Coordinates Plots of ICT Variables by Cluster") + facet_grid(~ clustGeo) + theme(axis.text.x = element_text(angle = 30))
+```
