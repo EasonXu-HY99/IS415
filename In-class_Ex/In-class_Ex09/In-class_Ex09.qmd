@@ -9,17 +9,6 @@ execute:
   freeze: true
 ---
 
----
-title: "In Class Exercise 9"
-author: "Xu Haiyang"
-date: "30 September, 2024" 
-date-modified: "last-modified"
-execute: 
-  eval: true
-  echo: true
-  freeze: true
----
-
 ### **Geographic Segmentation with Spatially Constrained Cluster Analysis**
 
 This section outlines the application of various clustering methods for segmenting geographic regions in Shan State, Myanmar, based on ICT indicators. I utilized packages such as `spdep`, `sf`, `ClustGeo`, and more to perform the analysis and visualize the results.
