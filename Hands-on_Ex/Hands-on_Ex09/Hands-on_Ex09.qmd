@@ -1,0 +1,384 @@
+---
+title: "Hands-on Exercise 9"
+author: "Xu Haiyang"
+date: "22 October, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## **Overview**
+
+**Geographically weighted regression (GWR)** is a spatial statistical technique that takes non-stationary variables into consideration (e.g., climate; demographic factors; physical environment characteristics) and models the local relationships between these independent variables and an outcome of interest (also known as dependent variable). In this hands-on exercise, you will learn how to build [hedonic pricing](https://www.investopedia.com/terms/h/hedonicpricing.asp) models by using GWR methods. The dependent variable is the resale prices of condominium in 2015. The independent variables are divided into either structural and locational.
+
+## **The Data**
+
+Two data sets will be used in this model building exercise, they are:
+
+-   URA Master Plan subzone boundary in shapefile format (i.e. *MP14_SUBZONE_WEB_PL*)
+
+-   condo_resale_2015 in csv format (i.e. *condo_resale_2015.csv*)
+
+## **Getting Started**
+
+```{r}
+pacman::p_load(olsrr, corrplot, ggpubr, sf, spdep, GWmodel, tmap, tidyverse, gtsummary)
+```
+
+## **A short note about GWmodel**
+
+[**GWmodel**](https://www.jstatsoft.org/article/view/v063i17) package provides a collection of localised spatial statistical methods, namely: GW summary statistics, GW principal components analysis, GW discriminant analysis and various forms of GW regression; some of which are provided in basic and robust (outlier resistant) forms. Commonly, outputs or parameters of the GWmodel are mapped to provide a useful exploratory tool, which can often precede (and direct) a more traditional or sophisticated statistical analysis.
+
+## **Geospatial Data Wrangling**
+
+### **Importing geospatial data**
+
+```{r}
+mpsz = st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+#### **Updating CRS Information**
+
+I transformed the Coordinate Reference System (CRS) of the geospatial data to Singapore’s Svy21 projection (EPSG: 3414) to ensure compatibility with other datasets and consistent spatial analysis.
+
+```{r}
+mpsz_svy21 <- st_transform(mpsz, 3414)
+```
+
+```{r}
+st_crs(mpsz_svy21)
+```
+
+```{r}
+st_bbox(mpsz_svy21)
+```
+
+## **Aspatial Data Wrangling**
+
+#### **Importing the Aspatial Data**
+
+I imported the aspatial data, which contains condo resale transactions for the year 2015, into R. The dataset includes various features such as selling price, area, age of the condo, and proximities to amenities.
+
+```{r}
+condo_resale = read_csv("data/aspatial/Condo_resale_2015.csv")
+```
+
+```{r}
+glimpse(condo_resale)
+```
+
+I checked a few key columns (latitude and longitude) and summarized the dataset to better understand its contents.
+
+```{r}
+head(condo_resale$LONGITUDE) 
+```
+
+```{r}
+head(condo_resale$LATITUDE)
+```
+
+```{r}
+summary(condo_resale)
+```
+
+#### **Converting Aspatial Data Frame into a Spatial (sf) Object**
+
+I converted the `condo_resale` data frame into an `sf` object, using the longitude and latitude columns for spatial coordinates, and then reprojected the data to match the Svy21 CRS (EPSG: 3414).
+
+```{r}
+condo_resale.sf <- st_as_sf(condo_resale,
+                            coords = c("LONGITUDE", "LATITUDE"),
+                            crs=4326) %>%
+  st_transform(crs=3414)
+```
+
+```{r}
+head(condo_resale.sf)
+```
+
+## **Exploratory Data Analysis (EDA)**
+
+#### **Statistical Graphics**
+
+I started the EDA by visualizing the distribution of the selling prices of condos. I used a histogram to show the spread of selling prices.
+
+```{r}
+ggplot(data=condo_resale.sf, aes(x=`SELLING_PRICE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+```
+
+I transformed the selling price variable by taking its logarithm to better understand its distribution, especially when dealing with skewed data.
+
+```{r}
+condo_resale.sf <- condo_resale.sf %>%
+  mutate(`LOG_SELLING_PRICE` = log(SELLING_PRICE))
+```
+
+I plotted the transformed variable (`LOG_SELLING_PRICE`) to see the effect of the transformation on the distribution.
+
+```{r}
+ggplot(data=condo_resale.sf, aes(x=`LOG_SELLING_PRICE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+```
+
+#### **Multiple Histogram Plots for Various Variables**
+
+To get a better sense of the distribution of other variables, I plotted histograms for several condo features, including area, age, and proximities to various amenities like childcare centers, parks, and MRT stations. Each variable was visualized separately.
+
+```{r}
+AREA_SQM <- ggplot(data=condo_resale.sf, aes(x= `AREA_SQM`)) + 
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+AGE <- ggplot(data=condo_resale.sf, aes(x= `AGE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_CBD <- ggplot(data=condo_resale.sf, aes(x= `PROX_CBD`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_CHILDCARE <- ggplot(data=condo_resale.sf, aes(x= `PROX_CHILDCARE`)) + 
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_ELDERLYCARE <- ggplot(data=condo_resale.sf, aes(x= `PROX_ELDERLYCARE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_URA_GROWTH_AREA <- ggplot(data=condo_resale.sf, 
+                               aes(x= `PROX_URA_GROWTH_AREA`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_HAWKER_MARKET <- ggplot(data=condo_resale.sf, aes(x= `PROX_HAWKER_MARKET`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_KINDERGARTEN <- ggplot(data=condo_resale.sf, aes(x= `PROX_KINDERGARTEN`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_MRT <- ggplot(data=condo_resale.sf, aes(x= `PROX_MRT`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_PARK <- ggplot(data=condo_resale.sf, aes(x= `PROX_PARK`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_PRIMARY_SCH <- ggplot(data=condo_resale.sf, aes(x= `PROX_PRIMARY_SCH`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_TOP_PRIMARY_SCH <- ggplot(data=condo_resale.sf, 
+                               aes(x= `PROX_TOP_PRIMARY_SCH`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+ggarrange(AREA_SQM, AGE, PROX_CBD, PROX_CHILDCARE, PROX_ELDERLYCARE, 
+          PROX_URA_GROWTH_AREA, PROX_HAWKER_MARKET, PROX_KINDERGARTEN, PROX_MRT,
+          PROX_PARK, PROX_PRIMARY_SCH, PROX_TOP_PRIMARY_SCH,  
+          ncol = 3, nrow = 4)
+```
+
+### **Drawing Statistical Point Map**
+
+To visualize the spatial distribution of condo resale prices, I used **tmap** to create an interactive map with points representing each condo sale, colored by the selling price. The polygons represent the subzones in Singapore.
+
+First, I switched to "view" mode to enable interactive mapping.
+
+```{r}
+tmap_mode("view")
+```
+
+Next, I plotted the subzone polygons and overlaid the condo resale points, with each point's color representing the selling price. The map's zoom level was constrained for better control.
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+
+tm_shape(mpsz_svy21)+
+  tm_polygons() +
+tm_shape(condo_resale.sf) +  
+  tm_dots(col = "SELLING_PRICE",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11,14))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+## **Hedonic Pricing Modelling in R**
+
+### **Simple Linear Regression Method**
+
+To begin exploring the relationship between condo prices and various features, I started with a **Simple Linear Regression** (SLR) model using the area in square meters (`AREA_SQM`) as the predictor of selling price.
+
+```{r}
+condo.slr <- lm(formula=SELLING_PRICE ~ AREA_SQM, data = condo_resale.sf)
+```
+
+```{r}
+summary(condo.slr)
+```
+
+To visualize this relationship, I plotted the data points and added a regression line to show the fit of the linear model.
+
+```{r}
+ggplot(data=condo_resale.sf,  
+       aes(x=`AREA_SQM`, y=`SELLING_PRICE`)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
+
+### **Multiple Linear Regression Method**
+
+I moved on to a **Multiple Linear Regression** (MLR) model, which considers multiple variables affecting condo prices. To start, I plotted a correlation matrix to explore relationships between variables.
+
+```{r}
+corrplot(cor(condo_resale[, 5:23]), diag = FALSE, order = "AOE",
+         tl.pos = "td", tl.cex = 0.5, method = "number", type = "upper")
+```
+
+#### **Building the Hedonic Pricing Model**
+
+I then built a **hedonic pricing model** using the MLR method. The model includes a wide range of predictors, such as condo size, age, and proximity to amenities like MRT stations and shopping malls.
+
+```{r}
+condo.mlr <- lm(formula = SELLING_PRICE ~ AREA_SQM + AGE    + 
+                  PROX_CBD + PROX_CHILDCARE + PROX_ELDERLYCARE +
+                  PROX_URA_GROWTH_AREA + PROX_HAWKER_MARKET + PROX_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + PROX_PRIMARY_SCH + 
+                  PROX_TOP_PRIMARY_SCH + PROX_SHOPPING_MALL + PROX_SUPERMARKET + 
+                  PROX_BUS_STOP + NO_Of_UNITS + FAMILY_FRIENDLY + FREEHOLD, 
+                data=condo_resale.sf)
+summary(condo.mlr)
+```
+
+### **Preparing Publication Quality Table: olsrr Method**
+
+To present the results in a publication-quality format, I first simplified the model by removing some variables and then used the `olsrr` package to create a high-quality summary table.
+
+```{r}
+condo.mlr1 <- lm(formula = SELLING_PRICE ~ AREA_SQM + AGE + 
+                   PROX_CBD + PROX_CHILDCARE + PROX_ELDERLYCARE +
+                   PROX_URA_GROWTH_AREA + PROX_MRT  + PROX_PARK + 
+                   PROX_PRIMARY_SCH + PROX_SHOPPING_MALL    + PROX_BUS_STOP + 
+                   NO_Of_UNITS + FAMILY_FRIENDLY + FREEHOLD,
+                 data=condo_resale.sf)
+ols_regress(condo.mlr1)
+```
+
+### **Preparing Publication Quality Table: gtsummary Method**
+
+Using the `gtsummary` package, I created a professional-looking regression table, displaying key statistics for the regression model.
+
+```{r}
+tbl_regression(condo.mlr1, intercept = TRUE)
+```
+
+Additionally, I added key statistical measures such as R-squared, adjusted R-squared, AIC, and p-values to the table using the `add_glance_source_note()` function.
+
+```{r}
+tbl_regression(condo.mlr1, 
+               intercept = TRUE) %>% 
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, adj.r.squared, 
+                AIC, statistic,
+                p.value, sigma))
+```
+
+### **Checking for Multicollinearity**
+
+I checked for multicollinearity in the multiple linear regression (MLR) model using the Variance Inflation Factor (VIF) and tolerance values. High VIF values indicate potential multicollinearity issues.
+
+```{r}
+ols_vif_tol(condo.mlr1)
+```
+
+### **Test for Non-Linearity**
+
+To assess the linearity assumption of the model, I plotted the residuals versus the fitted values. Non-linearity would be indicated by patterns or trends in the residuals.
+
+```{r}
+ols_plot_resid_fit(condo.mlr1)
+```
+
+### **Test for Normality Assumption**
+
+I checked if the residuals from the MLR model followed a normal distribution by plotting a histogram of the residuals and performing a formal normality test.
+
+```{r}
+ols_plot_resid_hist(condo.mlr1)
+```
+
+```{r}
+ols_test_normality(condo.mlr1)
+```
+
+### **Testing for Spatial Autocorrelation**
+
+#### **Extracting Residuals**
+
+I extracted the residuals from the MLR model and converted them into a spatial format. This step is necessary to assess whether spatial autocorrelation exists in the residuals.
+
+```{r}
+mlr.output <- as.data.frame(condo.mlr1$residuals)
+```
+
+#### **Converting to Spatial Data**
+
+I converted the `condo_resale.res.sf` dataset (which includes the residuals) into a spatial object using the `as_Spatial()` function.
+
+```{r}
+condo_resale.res.sf <- cbind(condo_resale.sf, 
+                        condo.mlr1$residuals) %>%
+rename(`MLR_RES` = `condo.mlr1.residuals`)
+```
+
+```{r}
+condo_resale.sp <- as_Spatial(condo_resale.res.sf)
+condo_resale.sp
+```
+
+#### **Visualizing Residuals on a Map**
+
+To investigate the spatial distribution of residuals, I plotted them on a map using **tmap** in view mode.
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+tm_shape(mpsz_svy21)+
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons(alpha = 0.4) +
+tm_shape(condo_resale.res.sf) +  
+  tm_dots(col = "MLR_RES",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11,14))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+#### **Constructing Neighbors List**
+
+I created a neighbors list for the condo resale points within a 1500-meter distance, which defines the spatial relationships between points.
+
+```{r}
+nb <- dnearneigh(coordinates(condo_resale.sp), 0, 1500, longlat = FALSE)
+summary(nb)
+```
+
+#### **Calculating Spatial Weights**
+
+Next, I calculated spatial weights based on the neighbor list using the `nb2listw()` function. These weights are necessary for Moran’s I test.
+
+```{r}
+nb_lw <- nb2listw(nb, style = 'W')
+summary(nb_lw)
+```
+
+#### **Testing for Spatial Autocorrelation**
+
+Finally, I applied Moran’s I test to check for spatial autocorrelation in the residuals. Significant spatial autocorrelation would indicate that spatial patterns exist in the model's residuals, potentially suggesting that spatial dependencies were not fully accounted for in the model.
+
+```{r}
+lm.morantest(condo.mlr1, nb_lw)
+```
