@@ -1,0 +1,205 @@
+---
+title: "In Class Exercise 10"
+author: "Xu Haiyang"
+date: "28 October, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## Loading Required Libraries and Data
+
+```{r}
+pacman::p_load(olsrr, ggstatsplot, sf,tmap, tidyverse, gtsummary,performance, see, sfdep)
+```
+
+This code loads all the required R packages using the `pacman` package to streamline the loading of dependencies.
+
+```{r}
+condo_resale <- read_csv("data/aspatial/Condo_resale_2015.csv")
+
+mpsz <- read_rds("data/rds/mpsz.rds")
+
+condo_resale_sf <- read_rds("data/rds/condo_resale_sf.rds")
+```
+
+I loaded the condo resale dataset, subzone geospatial data, and the spatial version of the condo resale data.
+
+### **Correlation Matrix**
+
+```{r}
+ggcorrmat(condo_resale[, 5:23])
+```
+
+This produces a correlation matrix using the `ggcorrmat` function, which helps visualize the relationships between the numerical variables in the `condo_resale` dataset.
+
+### **Multiple Linear Regression (MLR) Model**
+
+```{r}
+condo_mlr <- lm(formula = SELLING_PRICE ~ AREA_SQM + 
+                  AGE   + PROX_CBD + PROX_CHILDCARE + 
+                  PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
+                  PROX_HAWKER_MARKET    + PROX_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + PROX_PRIMARY_SCH + 
+                  PROX_TOP_PRIMARY_SCH + PROX_SHOPPING_MALL + 
+                  PROX_SUPERMARKET + PROX_BUS_STOP + 
+                  NO_Of_UNITS + FAMILY_FRIENDLY + 
+                  FREEHOLD + LEASEHOLD_99YR, 
+                data=condo_resale_sf)
+summary(condo_mlr)
+```
+
+A multiple linear regression model is fitted to predict the `SELLING_PRICE` of condos using a variety of predictors. The summary function outputs coefficients, R-squared, and statistical significance.
+
+### **OLS Regression Summary**
+
+```{r}
+ols_regress(condo_mlr)
+```
+
+Using the `olsrr` package, this function provides detailed diagnostics for the MLR model.
+
+### **Stepwise Regression**
+
+I performed forward, backward, and stepwise selection methods to optimize the MLR model based on p-values.
+
+```{r}
+condo_fw_mlr <- ols_step_forward_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_fw_mlr
+```
+
+```{r}
+plot(condo_fw_mlr)
+```
+
+```{r}
+condo_bw_mlr <- ols_step_backward_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_bw_mlr
+```
+
+```{r}
+condo_sb_mlr <- ols_step_both_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_sb_mlr
+```
+
+Each method is designed to improve the model by selecting the best predictors.
+
+### **Comparing Model Performance**
+
+```{r}
+metric <- compare_performance(condo_mlr, 
+                    condo_fw_mlr$model,
+                    condo_bw_mlr$model,
+                    condo_sb_mlr$model)
+```
+
+```{r}
+metric$Name <- gsub(".*\\\\([a-zA-Z0-9_]+)\\\\, \\\\model\\\\.*", "\\1", metric$Name)
+```
+
+```{r}
+plot(metric)
+```
+
+```{r}
+ggcoefstats(condo_sb_mlr$model,
+            sort = "ascending")
+```
+
+The `compare_performance()` function compares the performance of the initial, forward, backward, and stepwise models. This is useful to determine which method provided the best fit.
+
+### **Collinearity and Model Checks**
+
+```{r}
+check_collinearity(condo_sb_mlr$model)
+```
+
+```{r}
+plot(check_collinearity(condo_sb_mlr$model)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+This checks for multicollinearity in the selected model, which can be problematic if predictors are highly correlated.
+
+```{r}
+out <- plot(check_model(condo_sb_mlr$model, panel = FALSE))
+out[[2]]
+```
+
+```{r}
+plot(check_normality(condo_sb_mlr$model))
+```
+
+Diagnostic plots for model assumptions (normality and linearity) are generated to assess model validity.
+
+### **Checking for Outliers**
+
+```{r}
+outliers <- check_outliers(condo_sb_mlr$model, method = "cook")
+outliers
+```
+
+```{r}
+plot(check_outliers(condo_sb_mlr$model, method = "cook"))
+```
+
+Cook's distance is used to identify influential outliers in the model.
+
+### **Spatial Analysis and Mapping**
+
+#### **Visualizing Residuals on a Map**
+
+```{r}
+mlr_output <- as.data.frame(condo_fw_mlr$model$residuals) %>%
+  rename(`FW_MLR_RES` = `condo_fw_mlr$model$residuals`)
+```
+
+```{r}
+condo_resale_sf <- cbind(condo_resale_sf, mlr_output$FW_MLR_RES) %>%
+  rename(`MLR_RES` = `mlr_output.FW_MLR_RES`)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(mpsz)+
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons(alpha = 0.4) +
+tm_shape(condo_resale_sf) +  
+  tm_dots(col = "MLR_RES",
+          alpha = 0.6,
+          style="quantile") 
+tmap_mode("plot")
+```
+
+This creates an interactive map, visualizing the spatial distribution of the residuals using **tmap**.
+
+#### **Spatial Stationarity Test (Moran's I)**
+
+I performed a spatial stationarity test using Moran's I to check for spatial autocorrelation in the model residuals.
+
+```{r}
+condo_resale_sf <- condo_resale_sf %>%
+  mutate(nb = st_knn(geometry, k=6,longlat = FALSE),
+         wt = st_weights(nb, style = "W"), .before = 1)
+```
+
+```{r}
+global_moran_perm(condo_resale_sf$MLR_RES, 
+                  condo_resale_sf$nb, 
+                  condo_resale_sf$wt, 
+                  alternative = "two.sided", 
+                  nsim = 99)
+```
+
+Moran's I test with permutation is conducted to detect spatial autocorrelation in the residuals. The result shows whether there's significant spatial clustering of model residuals.
