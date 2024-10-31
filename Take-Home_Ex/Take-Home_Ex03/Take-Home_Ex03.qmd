@@ -294,5 +294,291 @@ print(arranged_plot)
 ```
 
 
+This code generates yearly histograms of "Cultivation farms" from 2012 to 2023, arranged in a grid layout. In the Shiny design, I will present these histograms, allowing users to explore the distribution of cultivation farms each year. Users will be able to select different years and compare the frequency distribution of cultivation farm counts over time.
+
+```{r}
+plots_list <- list()
+
+for (year in 2016:2023) {
+  p <- ggplot(enterprise, aes_string(x = paste0("`", year, "`"))) +
+    geom_histogram(fill = "skyblue", color = "black") +
+    ggtitle(paste(year)) +
+    theme_minimal()
+  
+  plots_list[[as.character(year)]] <- p
+}
+
+arranged_plot <- ggarrange(
+  plots_list[["2016"]], plots_list[["2017"]],
+  plots_list[["2018"]], plots_list[["2019"]], plots_list[["2020"]],
+  plots_list[["2021"]], plots_list[["2022"]], plots_list[["2023"]],
+  ncol = 4, nrow = 2
+)
+
+final_plot <- annotate_figure(
+  arranged_plot,
+  top = text_grob("Number of Newly Established Enterprises (2016-2023)", 
+                  face = "bold", size = 14)
+)
+
+print(final_plot)
+```
+
+This code generates histograms for each year from 2016 to 2023, showing the distribution of newly established enterprises. It first iterates through each year, creating a histogram with `ggplot` and saving it in `plots_list`. Each plot represents a single year’s distribution, with a consistent color scheme and minimalist styling.
+
+This enterprise data is displayed alongside the farm histogram to allow comparison between farm and enterprise development over the years, suggesting other avenues of growth. In Shiny, I’ll add enterprise as a selection option, enabling users to toggle between enterprise and farm data and explore shifts in development focus across time. This approach helps users visually assess potential transitions from agriculture to enterprise-based growth in each province.
+
+```{r}
+farms %>%
+  select(`2012 Cultivation farm`, `2013 Cultivation farm`, `2014 Cultivation farm`, 
+         `2015 Cultivation farm`, `2016 Cultivation farm`, `2017 Cultivation farm`, 
+         `2018 Cultivation farm`, `2019 Cultivation farm`, `2020 Cultivation farm`, 
+         `2021 Cultivation farm`, `2022 Cultivation farm`, `2023 Cultivation farm`) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "Cultivation_Farms") %>%
+  mutate(Year = gsub(" Cultivation farm", "", Year)) %>%  
+  ggplot(aes(x = Year, y = Cultivation_Farms)) +
+  geom_boxplot(fill = "orange") +
+  ggtitle("Boxplot of Cultivation Farms (2012-2023)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+  xlab("Year") + 
+  ylab("Cultivation Farms") %>% 
+  print()
+```
+
+I’ll display this boxplot on the Shiny UI, with the variable "Year" on the x-axis and "Cultivation Farms" on the y-axis. This visualization allows users to explore the distribution of cultivation farms over time, observing any changes in median values, variability, and outliers. Users can get insights into how cultivation has varied from year to year.
+
+```{r}
+enterprise %>%
+  pivot_longer(cols = `2016`:`2023`, names_to = "Year", values_to = "Value") %>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_boxplot(fill = "orange") +
+  ggtitle("Number of Newly Established Enterprises (2016-2023)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab("Year") +
+  ylab("Number of Enterprises")
+```
+
+Positioning this enterprise boxplot alongside the farm boxplot in the Shiny app allows users to explore shifts in growth focus, comparing farm versus enterprise development over time. By including enterprise as a selectable option in the Shiny UI, users can toggle between the two datasets to observe and analyze trends, discovering insights into how regional development may be evolving from agriculture to business establishment in recent years.
+
+```{r}
+plots_list <- list()
+
+for (year in 2012:2023) {
+  p <- ggplot(farms, aes_string(x = paste0("`", year, " Cultivation PR`"))) +
+    geom_histogram(fill = "skyblue", color = "black") +
+    ggtitle(paste(year)) +
+    theme_minimal()
+  
+  plots_list[[as.character(year)]] <- p
+}
+
+arranged_plot <- ggarrange(
+  plots_list[["2012"]], plots_list[["2013"]], plots_list[["2014"]],
+  plots_list[["2015"]], plots_list[["2016"]], plots_list[["2017"]],
+  plots_list[["2018"]], plots_list[["2019"]], plots_list[["2020"]],
+  plots_list[["2021"]], plots_list[["2022"]], plots_list[["2023"]],
+  ncol = 4, nrow = 3
+)
+
+print(arranged_plot)
+```
+
+In Shiny, I’ll present these histograms of "Cultivation PR" (proportion per 1,000 farms) for each year from 2012 to 2023, enabling users to explore the cultivation farm proportion. By examining these histograms, users can see how the cultivation intensity varied year by year, which can highlight shifts in focus or growth in farming activity.
+
+```{r}
+sapply(farms %>% select(contains("Cultivation PR")), function(x) sum(is.na(x)))
+```
+
+This command checks for missing values in the "Cultivation PR" columns, ensuring data quality before display in Shiny.
+
+```{r}
+farms <- farms %>%
+  mutate(across(where(is.numeric), ~replace_na(., 0)))
+```
+
+Here, I replace any remaining missing values with `0` to ensure complete and consistent data visualization within Shiny, preventing display issues with NA values.
+
+```{r}
+farms %>%
+  select(`2012 Cultivation PR`, `2013 Cultivation PR`, `2014 Cultivation PR`, 
+         `2015 Cultivation PR`, `2016 Cultivation PR`, `2017 Cultivation PR`, 
+         `2018 Cultivation PR`, `2019 Cultivation PR`, `2020 Cultivation PR`, 
+         `2021 Cultivation PR`, `2022 Cultivation PR`, `2023 Cultivation PR`) %>%
+  pivot_longer(cols = everything(), names_to = "Year", values_to = "Cultivation_PR") %>%
+  mutate(Year = gsub(" Cultivation PR", "", Year)) %>%
+  ggplot(aes(x = Year, y = Cultivation_PR)) +
+  geom_boxplot(fill = "orange") +
+  ggtitle("Boxplot of Cultivation PR (2012-2023)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  xlab("Year") +  
+  ylab("Cultivation PR (per 1000)") %>% 
+  print()
+```
+
+This boxplot for "Cultivation PR" will also be displayed in the Shiny app, allowing users to explore how the proportion of cultivation farms has changed over the years. With variables "Year" and "Cultivation PR," users can observe fluctuations in farming intensity, identifying years with high or low cultivation proportions.
+
+```{r}
+vietnam_farm <- farms %>%
+  left_join(vietnam_geo %>% select(-Code), by = c("Cities, provincies" = "Name"))
+
+print(vietnam_farm)
+```
+
+By joining `farms` with `vietnam_geo` on matching province names, I create `vietnam_farm`, a comprehensive dataset combining both geographic and farm data. This joined dataset will be essential for displaying farm data across provinces on the Shiny map.
+
+```{r}
+write_rds(vietnam_farm, "data/rds/vietnam_farm.rds")
+```
+
+```{r}
+vietnam_enterprise <- enterprise %>%
+  left_join(vietnam_geo %>% select(-Code), by = c("Cities, provincies" = "Name"))
+
+print(vietnam_enterprise)
+```
+
+```{r}
+vietnam_farm <- st_as_sf(vietnam_farm)
+
+qtm(vietnam_farm, "2012 Cultivation PR")
+```
+
+This code converts `vietnam_farm` into an `sf` spatial data frame and plots "2012 Cultivation PR" using `qtm`. In Shiny, this map will allow users to visually explore the cultivation farm proportion across different provinces, giving a clear geographic representation of farming intensity.
+
+```{r}
+tm_shape(vietnam_farm) +
+  tm_polygons(c("2012 Total", "2012 Cultivation farm"),
+              style = "jenks", 
+              title = c("Total Farms in 2012", "Cultivation Farms in 2012")) +
+  tm_facets(sync = TRUE, ncol = 2) +  
+  tm_legend(legend.position = c("right", "bottom")) + 
+  tm_layout(outer.margins = 0, asp = 0) 
+```
+
+This faceted map displays both "Total Farms" and "Cultivation Farms" for 2012, using `tm_facets` to create a synchronized side-by-side view. I’ll present these maps in Shiny to allow users to visually compare the distribution of total versus cultivation farms across provinces. This visualization, along with the option to explore variables by year, will provide a comprehensive geographic overview in the Shiny app.
+
+```{r}
+vietnam_enterprise <- st_as_sf(vietnam_enterprise)
+
+tm_shape(vietnam_enterprise) +
+  tm_polygons(c("2016", "2017"),
+              style = "jenks", 
+              title = c("New Enterprises (2016)", "New Enterprises (2017)")) +
+  tm_facets(sync = TRUE, ncol = 2) +  
+  tm_legend(legend.position = c("right", "bottom")) + 
+  tm_layout(outer.margins = 0, asp = 0)
+```
+
+In Shiny, I’ll allow users to select different years to compare dynamically on a geographic map. Placed alongside farm distribution maps, these enterprise maps offer insights into potential regional shifts from agriculture to business growth. This setup lets users explore spatial differences year-to-year, revealing trends in economic development and regional focus over time.
+
+```{r}
+enterprise_long <- enterprise %>%
+  pivot_longer(cols = `2016`:`2023`, names_to = "Year", values_to = "Enterprise_Count")
+
+enterprise_long <- enterprise_long %>%
+  mutate(Year = as.numeric(Year))
+
+ggplot(data = enterprise_long, aes(x = Year, y = Enterprise_Count, color = `Cities, provincies`, group = `Cities, provincies`)) +
+  geom_line() +
+  geom_point() +
+  ggtitle("Trend of Enterprises Over the Years (2016-2023)") +
+  xlab("Year") +
+  ylab("Enterprise Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+In the Shiny app, users will be able to select specific provinces to view enterprise trends over time, allowing them to focus on a particular province's growth trajectory. By enabling this selection, users can explore how enterprise development has varied among provinces, revealing insights into regional economic changes. This interactive feature will enhance user engagement and allow for targeted analysis of provincial trends.
+
+## **Correlation Analysis**
+
+When I design the Shiny UI, I will include the variable "year" to allow users to analyze and interact with correlation patterns over time.
+
+```{r}
+farm_2012_pr_data <- vietnam_farm %>%
+  st_drop_geometry() %>%  
+  select(`2012 Cultivation PR`, `2012 Livestock PR`, `2012 Fishing PR`, `2012 Others PR`) %>%
+  mutate(across(everything(), as.numeric))  
+
+colnames(farm_2012_pr_data) <- gsub("2012 ", "", colnames(farm_2012_pr_data))  
+
+cluster_vars_cor_pr <- cor(farm_2012_pr_data, use = "complete.obs")
+
+corrplot.mixed(cluster_vars_cor_pr,
+               lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
+```
+
+This code calculates the correlation matrix for various farm types' proportions (Cultivation, Livestock, Fishing, Others) in 2012, removing geometry to focus on numeric data. Column names are cleaned to simplify variable names, and the `corrplot.mixed` function displays both numeric correlation values and ellipses, helping users easily interpret relationships between farm types. In Shiny, I’ll present this correlation plot to allow users to explore how different farming types relate to one another within a selected year.
+
+### **Data Standardisation**
+
+```{r}
+vietnam_farm_ict <- vietnam_farm %>%
+  st_drop_geometry() %>%  
+  select_if(is.numeric)  
+```
+
+To prepare for standardization, this code removes geometry and retains only numeric data from `vietnam_farm`, creating `vietnam_farm_ict`. This selection forms the base data for applying both Min-Max and Z-score standardizations, which helps in visualizing different scaling methods and their impact on distribution.
+
+### **Min-Max standardisation**
+
+```{r}
+vietnam_farm.std <- normalize(vietnam_farm_ict)
+
+summary(vietnam_farm.std)
+```
+
+Applying Min-Max standardization scales the data to a range of 0 to 1, making it easier to compare variables with different units or ranges. The summary provides insights into how variables are rescaled. In Shiny, this standardization option will allow users to toggle between raw and normalized data views to understand how scaling affects the data distribution.
+
+### **Z-score standardisation**
+
+```{r}
+vietnam_farm.z <- scale(vietnam_farm_ict)
+describe(vietnam_farm.z)
+```
+
+Z-score standardization adjusts each variable to have a mean of 0 and a standard deviation of 1. This method is useful for comparing variables on a common scale without the influence of original units. In Shiny, users will be able to view data using this standardization method, making it easier to detect outliers or extreme values across farm types.
+
+### **Visualising the standardised clustering variables**
+
+To provide users with a complete understanding of the raw and standardized values, I plan to incorporate the options "type of farm," "year," and "selection" (histogram or density) into the Shiny UI.
+
+```{r}
+r <- ggplot(data = vietnam_farm_ict, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_histogram(bins = 20, 
+                 color = "black", 
+                 fill = "light blue") +
+  ggtitle("Raw Values (without Standardization)")
+
+vietnam_farm_std_df <- as.data.frame(vietnam_farm.std)
+
+s <- ggplot(data = vietnam_farm_std_df, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_histogram(bins = 20, 
+                 color = "black", 
+                 fill = "light blue") +
+  ggtitle("Min-Max Standardization")
+
+vietnam_farm_z_df <- as.data.frame(vietnam_farm.z)
+
+z <- ggplot(data = vietnam_farm_z_df, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_histogram(bins = 20, 
+                 color = "black", 
+                 fill = "light blue") +
+  ggtitle("Z-score Standardization")
+
+ggarrange(r, s, z,
+          ncol = 3,
+          nrow = 1)
+```
 
 

@@ -270,6 +270,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#analysing-r-packages" id="toc-analysing-r-packages" class="nav-link" data-scroll-target="#analysing-r-packages"><strong>Analysing R-Packages</strong></a>
   <ul class="collapse">
   <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda"><strong>Exploratory Data Analysis (EDA)</strong></a></li>
+  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis"><strong>Correlation Analysis</strong></a>
+  <ul class="collapse">
+  <li><a href="#data-standardisation" id="toc-data-standardisation" class="nav-link" data-scroll-target="#data-standardisation"><strong>Data Standardisation</strong></a></li>
+  <li><a href="#min-max-standardisation" id="toc-min-max-standardisation" class="nav-link" data-scroll-target="#min-max-standardisation"><strong>Min-Max standardisation</strong></a></li>
+  <li><a href="#z-score-standardisation" id="toc-z-score-standardisation" class="nav-link" data-scroll-target="#z-score-standardisation"><strong>Z-score standardisation</strong></a></li>
+  <li><a href="#visualising-the-standardised-clustering-variables" id="toc-visualising-the-standardised-clustering-variables" class="nav-link" data-scroll-target="#visualising-the-standardised-clustering-variables"><strong>Visualising the standardised clustering variables</strong></a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -905,8 +912,873 @@ dbl (8): 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 </div>
 </div>
 </div>
+<p>This code generates yearly histograms of “Cultivation farms” from 2012 to 2023, arranged in a grid layout. In the Shiny design, I will present these histograms, allowing users to explore the distribution of cultivation farms each year. Users will be able to select different years and compare the frequency distribution of cultivation farm counts over time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>plots_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (year <span class="cf">in</span> <span class="dv">2016</span><span class="sc">:</span><span class="dv">2023</span>) {</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(enterprise, <span class="fu">aes_string</span>(<span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">"`"</span>, year, <span class="st">"`"</span>))) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste</span>(year)) <span class="sc">+</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="fu">as.character</span>(year)]] <span class="ot">&lt;-</span> p</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>arranged_plot <span class="ot">&lt;-</span> <span class="fu">ggarrange</span>(</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2016"</span>]], plots_list[[<span class="st">"2017"</span>]],</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2018"</span>]], plots_list[[<span class="st">"2019"</span>]], plots_list[[<span class="st">"2020"</span>]],</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2021"</span>]], plots_list[[<span class="st">"2022"</span>]], plots_list[[<span class="st">"2023"</span>]],</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">nrow =</span> <span class="dv">2</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>final_plot <span class="ot">&lt;-</span> <span class="fu">annotate_figure</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  arranged_plot,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">top =</span> <span class="fu">text_grob</span>(<span class="st">"Number of Newly Established Enterprises (2016-2023)"</span>, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(final_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This code generates histograms for each year from 2016 to 2023, showing the distribution of newly established enterprises. It first iterates through each year, creating a histogram with <code>ggplot</code> and saving it in <code>plots_list</code>. Each plot represents a single year’s distribution, with a consistent color scheme and minimalist styling.</p>
+<p>This enterprise data is displayed alongside the farm histogram to allow comparison between farm and enterprise development over the years, suggesting other avenues of growth. In Shiny, I’ll add enterprise as a selection option, enabling users to toggle between enterprise and farm data and explore shifts in development focus across time. This approach helps users visually assess potential transitions from agriculture to enterprise-based growth in each province.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>farms <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">2012 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2013 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2014 Cultivation farm</span><span class="st">`</span>, </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2015 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2016 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2017 Cultivation farm</span><span class="st">`</span>, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2018 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2019 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2020 Cultivation farm</span><span class="st">`</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2021 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2022 Cultivation farm</span><span class="st">`</span>, <span class="st">`</span><span class="at">2023 Cultivation farm</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Cultivation_Farms"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Year =</span> <span class="fu">gsub</span>(<span class="st">" Cultivation farm"</span>, <span class="st">""</span>, Year)) <span class="sc">%&gt;%</span>  </span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Cultivation_Farms)) <span class="sc">+</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Boxplot of Cultivation Farms (2012-2023)"</span>) <span class="sc">+</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span>  </span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span> </span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Cultivation Farms"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$y
+[1] "Cultivation Farms"
+
+attr(,"class")
+[1] "labels"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I’ll display this boxplot on the Shiny UI, with the variable “Year” on the x-axis and “Cultivation Farms” on the y-axis. This visualization allows users to explore the distribution of cultivation farms over time, observing any changes in median values, variability, and outliers. Users can get insights into how cultivation has varied from year to year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>enterprise <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="st">`</span><span class="at">2016</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">2023</span><span class="st">`</span>, <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Value"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Value)) <span class="sc">+</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Number of Newly Established Enterprises (2016-2023)"</span>) <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Number of Enterprises"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Positioning this enterprise boxplot alongside the farm boxplot in the Shiny app allows users to explore shifts in growth focus, comparing farm versus enterprise development over time. By including enterprise as a selectable option in the Shiny UI, users can toggle between the two datasets to observe and analyze trends, discovering insights into how regional development may be evolving from agriculture to business establishment in recent years.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>plots_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (year <span class="cf">in</span> <span class="dv">2012</span><span class="sc">:</span><span class="dv">2023</span>) {</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(farms, <span class="fu">aes_string</span>(<span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">"`"</span>, year, <span class="st">" Cultivation PR`"</span>))) <span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste</span>(year)) <span class="sc">+</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="fu">as.character</span>(year)]] <span class="ot">&lt;-</span> p</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>arranged_plot <span class="ot">&lt;-</span> <span class="fu">ggarrange</span>(</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2012"</span>]], plots_list[[<span class="st">"2013"</span>]], plots_list[[<span class="st">"2014"</span>]],</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2015"</span>]], plots_list[[<span class="st">"2016"</span>]], plots_list[[<span class="st">"2017"</span>]],</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2018"</span>]], plots_list[[<span class="st">"2019"</span>]], plots_list[[<span class="st">"2020"</span>]],</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2021"</span>]], plots_list[[<span class="st">"2022"</span>]], plots_list[[<span class="st">"2023"</span>]],</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">nrow =</span> <span class="dv">3</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arranged_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In Shiny, I’ll present these histograms of “Cultivation PR” (proportion per 1,000 farms) for each year from 2012 to 2023, enabling users to explore the cultivation farm proportion. By examining these histograms, users can see how the cultivation intensity varied year by year, which can highlight shifts in focus or growth in farming activity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(farms <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">"Cultivation PR"</span>)), <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2012 Cultivation PR 2013 Cultivation PR 2014 Cultivation PR 2015 Cultivation PR 
+                  2                   2                   0                   0 
+2016 Cultivation PR 2017 Cultivation PR 2018 Cultivation PR 2019 Cultivation PR 
+                  0                   0                   0                   0 
+2020 Cultivation PR 2021 Cultivation PR 2022 Cultivation PR 2023 Cultivation PR 
+                  2                   2                   2                   2 </code></pre>
+</div>
+</div>
+<p>This command checks for missing values in the “Cultivation PR” columns, ensuring data quality before display in Shiny.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>farms <span class="ot">&lt;-</span> farms <span class="sc">%&gt;%</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span><span class="fu">replace_na</span>(., <span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here, I replace any remaining missing values with <code>0</code> to ensure complete and consistent data visualization within Shiny, preventing display issues with NA values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>farms <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2013 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2014 Cultivation PR</span><span class="st">`</span>, </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2015 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2016 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2017 Cultivation PR</span><span class="st">`</span>, </span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2018 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2019 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2020 Cultivation PR</span><span class="st">`</span>, </span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2021 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2022 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2023 Cultivation PR</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Cultivation_PR"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Year =</span> <span class="fu">gsub</span>(<span class="st">" Cultivation PR"</span>, <span class="st">""</span>, Year)) <span class="sc">%&gt;%</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Cultivation_PR)) <span class="sc">+</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Boxplot of Cultivation PR (2012-2023)"</span>) <span class="sc">+</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span>  </span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Cultivation PR (per 1000)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$y
+[1] "Cultivation PR (per 1000)"
+
+attr(,"class")
+[1] "labels"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This boxplot for “Cultivation PR” will also be displayed in the Shiny app, allowing users to explore how the proportion of cultivation farms has changed over the years. With variables “Year” and “Cultivation PR,” users can observe fluctuations in farming intensity, identifying years with high or low cultivation proportions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>vietnam_farm <span class="ot">&lt;-</span> farms <span class="sc">%&gt;%</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(vietnam_geo <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Code), <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Cities, provincies"</span> <span class="ot">=</span> <span class="st">"Name"</span>))</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(vietnam_farm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 63 × 110
+   `Cities, provincies` `2012 Total` `2012 Cultivation farm`
+   &lt;chr&gt;                       &lt;dbl&gt;                   &lt;dbl&gt;
+ 1 Ha Noi                       1233                      11
+ 2 Vinh Phuc                     508                       0
+ 3 Bac Ninh                       74                       0
+ 4 Quang Ninh                    141                       4
+ 5 Hai Duong                     506                       3
+ 6 Hai Phong                     421                       1
+ 7 Hung Yen                      353                       4
+ 8 Thai Binh                     600                       4
+ 9 Ha Nam                        240                       6
+10 Nam Dinh                      366                       2
+# ℹ 53 more rows
+# ℹ 107 more variables: `2012 Livestock farm` &lt;dbl&gt;, `2012 Fishing farm` &lt;dbl&gt;,
+#   `2012 Others(*)` &lt;dbl&gt;, `2013 Total` &lt;dbl&gt;, `2013 Cultivation farm` &lt;dbl&gt;,
+#   `2013 Livestock farm` &lt;dbl&gt;, `2013 Fishing farm` &lt;dbl&gt;,
+#   `2013 Others(*)` &lt;dbl&gt;, `2014 Total` &lt;dbl&gt;, `2014 Cultivation farm` &lt;dbl&gt;,
+#   `2014 Livestock farm` &lt;dbl&gt;, `2014 Fishing farm` &lt;dbl&gt;,
+#   `2014 Others(*)` &lt;dbl&gt;, `2015 Total` &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>By joining <code>farms</code> with <code>vietnam_geo</code> on matching province names, I create <code>vietnam_farm</code>, a comprehensive dataset combining both geographic and farm data. This joined dataset will be essential for displaying farm data across provinces on the Shiny map.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(vietnam_farm, <span class="st">"data/rds/vietnam_farm.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>vietnam_enterprise <span class="ot">&lt;-</span> enterprise <span class="sc">%&gt;%</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(vietnam_geo <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>Code), <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Cities, provincies"</span> <span class="ot">=</span> <span class="st">"Name"</span>))</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(vietnam_enterprise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 63 × 10
+   `Cities, provincies` `2016` `2017` `2018` `2019` `2020` `2021` `2022` `2023`
+   &lt;chr&gt;                 &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Ha Noi                22663  24545  25231  27711  26135  24026  29720  31512
+ 2 Vinh Phuc               857   1250   1145   1194   1249   1214   1377   1523
+ 3 Bac Ninh               1660   2046   2041   2405   2390   2368   2700   3473
+ 4 Quang Ninh             1254   1593   1654   1605   1456   1455   1643   1689
+ 5 Hai Duong              1213   1509   1549   1695   1600   1425   1579   1884
+ 6 Hai Phong              2568   2979   3145   2943   2867   3034   3294   3523
+ 7 Hung Yen                903   1311   1185   1194   1153   1331   1364   1594
+ 8 Thai Binh               631    776    825    890    714    847   1130   1245
+ 9 Ha Nam                  481    628    596    684    682    666    796    771
+10 Nam Dinh                675    799    818    796    794    906   1088   1283
+# ℹ 53 more rows
+# ℹ 1 more variable: geometry &lt;MULTIPOLYGON [°]&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>vietnam_farm <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(vietnam_farm)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(vietnam_farm, <span class="st">"2012 Cultivation PR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This code converts <code>vietnam_farm</code> into an <code>sf</code> spatial data frame and plots “2012 Cultivation PR” using <code>qtm</code>. In Shiny, this map will allow users to visually explore the cultivation farm proportion across different provinces, giving a clear geographic representation of farming intensity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(vietnam_farm) <span class="sc">+</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="fu">c</span>(<span class="st">"2012 Total"</span>, <span class="st">"2012 Cultivation farm"</span>),</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">style =</span> <span class="st">"jenks"</span>, </span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">title =</span> <span class="fu">c</span>(<span class="st">"Total Farms in 2012"</span>, <span class="st">"Cultivation Farms in 2012"</span>)) <span class="sc">+</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_facets</span>(<span class="at">sync =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span>  </span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_legend</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"bottom"</span>)) <span class="sc">+</span> </span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">outer.margins =</span> <span class="dv">0</span>, <span class="at">asp =</span> <span class="dv">0</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This faceted map displays both “Total Farms” and “Cultivation Farms” for 2012, using <code>tm_facets</code> to create a synchronized side-by-side view. I’ll present these maps in Shiny to allow users to visually compare the distribution of total versus cultivation farms across provinces. This visualization, along with the option to explore variables by year, will provide a comprehensive geographic overview in the Shiny app.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>vietnam_enterprise <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(vietnam_enterprise)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(vietnam_enterprise) <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="fu">c</span>(<span class="st">"2016"</span>, <span class="st">"2017"</span>),</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">style =</span> <span class="st">"jenks"</span>, </span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">title =</span> <span class="fu">c</span>(<span class="st">"New Enterprises (2016)"</span>, <span class="st">"New Enterprises (2017)"</span>)) <span class="sc">+</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_facets</span>(<span class="at">sync =</span> <span class="cn">TRUE</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span>  </span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_legend</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"bottom"</span>)) <span class="sc">+</span> </span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">outer.margins =</span> <span class="dv">0</span>, <span class="at">asp =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In Shiny, I’ll allow users to select different years to compare dynamically on a geographic map. Placed alongside farm distribution maps, these enterprise maps offer insights into potential regional shifts from agriculture to business growth. This setup lets users explore spatial differences year-to-year, revealing trends in economic development and regional focus over time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>enterprise_long <span class="ot">&lt;-</span> enterprise <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="st">`</span><span class="at">2016</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">2023</span><span class="st">`</span>, <span class="at">names_to =</span> <span class="st">"Year"</span>, <span class="at">values_to =</span> <span class="st">"Enterprise_Count"</span>)</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>enterprise_long <span class="ot">&lt;-</span> enterprise_long <span class="sc">%&gt;%</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Year =</span> <span class="fu">as.numeric</span>(Year))</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> enterprise_long, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Enterprise_Count, <span class="at">color =</span> <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>, <span class="at">group =</span> <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Trend of Enterprises Over the Years (2016-2023)"</span>) <span class="sc">+</span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Year"</span>) <span class="sc">+</span></span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Enterprise Count"</span>) <span class="sc">+</span></span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the Shiny app, users will be able to select specific provinces to view enterprise trends over time, allowing them to focus on a particular province’s growth trajectory. By enabling this selection, users can explore how enterprise development has varied among provinces, revealing insights into regional economic changes. This interactive feature will enhance user engagement and allow for targeted analysis of provincial trends.</p>
+</section>
+<section id="correlation-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="correlation-analysis"><strong>Correlation Analysis</strong></h2>
+<p>When I design the Shiny UI, I will include the variable “year” to allow users to analyze and interact with correlation patterns over time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>farm_2012_pr_data <span class="ot">&lt;-</span> vietnam_farm <span class="sc">%&gt;%</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span>  </span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2012 Livestock PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2012 Fishing PR</span><span class="st">`</span>, <span class="st">`</span><span class="at">2012 Others PR</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), as.numeric))  </span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(farm_2012_pr_data) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"2012 "</span>, <span class="st">""</span>, <span class="fu">colnames</span>(farm_2012_pr_data))  </span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>cluster_vars_cor_pr <span class="ot">&lt;-</span> <span class="fu">cor</span>(farm_2012_pr_data, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot.mixed</span>(cluster_vars_cor_pr,</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">lower =</span> <span class="st">"ellipse"</span>, </span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">upper =</span> <span class="st">"number"</span>,</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.pos =</span> <span class="st">"lt"</span>,</span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a>               <span class="at">diag =</span> <span class="st">"l"</span>,</span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.col =</span> <span class="st">"black"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This code calculates the correlation matrix for various farm types’ proportions (Cultivation, Livestock, Fishing, Others) in 2012, removing geometry to focus on numeric data. Column names are cleaned to simplify variable names, and the <code>corrplot.mixed</code> function displays both numeric correlation values and ellipses, helping users easily interpret relationships between farm types. In Shiny, I’ll present this correlation plot to allow users to explore how different farming types relate to one another within a selected year.</p>
+<section id="data-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="data-standardisation"><strong>Data Standardisation</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>vietnam_farm_ict <span class="ot">&lt;-</span> vietnam_farm <span class="sc">%&gt;%</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span>  </span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To prepare for standardization, this code removes geometry and retains only numeric data from <code>vietnam_farm</code>, creating <code>vietnam_farm_ict</code>. This selection forms the base data for applying both Min-Max and Z-score standardizations, which helps in visualizing different scaling methods and their impact on distribution.</p>
+</section>
+<section id="min-max-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="min-max-standardisation"><strong>Min-Max standardisation</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>vietnam_farm.std <span class="ot">&lt;-</span> <span class="fu">normalize</span>(vietnam_farm_ict)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(vietnam_farm.std)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   2012 Total       2012 Cultivation farm 2012 Livestock farm
+ Min.   :0.000000   Min.   :0.0000000     Min.   :0.000000   
+ 1st Qu.:0.009195   1st Qu.:0.0007813     1st Qu.:0.007679   
+ Median :0.039287   Median :0.0046875     Median :0.032423   
+ Mean   :0.100196   Mean   :0.1098834     Mean   :0.110149   
+ 3rd Qu.:0.141265   3rd Qu.:0.0910156     3rd Qu.:0.143771   
+ Max.   :1.000000   Max.   :1.0000000     Max.   :1.000000   
+ 2012 Fishing farm  2012 Others(*)      2013 Total      2013 Cultivation farm
+ Min.   :0.000000   Min.   :0.00000   Min.   :0.00000   Min.   :0.0000000    
+ 1st Qu.:0.000000   1st Qu.:0.00000   1st Qu.:0.01075   1st Qu.:0.0004177    
+ Median :0.003717   Median :0.01005   Median :0.05995   Median :0.0041771    
+ Mean   :0.025320   Mean   :0.07506   Mean   :0.10672   Mean   :0.1159645    
+ 3rd Qu.:0.010646   3rd Qu.:0.04020   3rd Qu.:0.15441   3rd Qu.:0.0948204    
+ Max.   :1.000000   Max.   :1.00000   Max.   :1.00000   Max.   :1.0000000    
+ 2013 Livestock farm 2013 Fishing farm  2013 Others(*)      2014 Total     
+ Min.   :0.00000     Min.   :0.000000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.01053     1st Qu.:0.000000   1st Qu.:0.00000   1st Qu.:0.01567  
+ Median :0.03386     Median :0.003085   Median :0.01538   Median :0.08194  
+ Mean   :0.10995     Mean   :0.025521   Mean   :0.09223   Mean   :0.12346  
+ 3rd Qu.:0.14597     3rd Qu.:0.011313   3rd Qu.:0.07692   3rd Qu.:0.17424  
+ Max.   :1.00000     Max.   :1.000000   Max.   :1.00000   Max.   :1.00000  
+ 2014 Cultivation farm 2014 Livestock farm 2014 Fishing farm 
+ Min.   :0.0000000     Min.   :0.000000    Min.   :0.000000  
+ 1st Qu.:0.0005181     1st Qu.:0.008575    1st Qu.:0.000000  
+ Median :0.0082902     Median :0.034302    Median :0.002391  
+ Mean   :0.1469693     Mean   :0.095601    Mean   :0.025184  
+ 3rd Qu.:0.1487047     3rd Qu.:0.128633    3rd Qu.:0.012470  
+ Max.   :1.0000000     Max.   :1.000000    Max.   :1.000000  
+ 2014 Others(*)       2015 Total      2015 Cultivation farm 2015 Livestock farm
+ Min.   :0.000000   Min.   :0.00000   Min.   :0.0000000     Min.   :0.000000   
+ 1st Qu.:0.005181   1st Qu.:0.02145   1st Qu.:0.0005051     1st Qu.:0.009313   
+ Median :0.015544   Median :0.09725   Median :0.0090909     Median :0.030656   
+ Mean   :0.073443   Mean   :0.15242   Mean   :0.1471541     Mean   :0.092423   
+ 3rd Qu.:0.075130   3rd Qu.:0.21775   3rd Qu.:0.1383838     3rd Qu.:0.126892   
+ Max.   :1.000000   Max.   :1.00000   Max.   :1.0000000     Max.   :1.000000   
+ 2015 Fishing farm 2015 Others(*)       2016 Total      2016 Cultivation farm
+ Min.   :0.00000   Min.   :0.000000   Min.   :0.00000   Min.   :0.0000000    
+ 1st Qu.:0.00000   1st Qu.:0.004878   1st Qu.:0.02598   1st Qu.:0.0008772    
+ Median :0.00290   Median :0.014634   Median :0.08346   Median :0.0114035    
+ Mean   :0.02745   Mean   :0.074952   Mean   :0.13925   Mean   :0.1283208    
+ 3rd Qu.:0.01222   3rd Qu.:0.068293   3rd Qu.:0.22717   3rd Qu.:0.1087719    
+ Max.   :1.00000   Max.   :1.000000   Max.   :1.00000   Max.   :1.0000000    
+ 2016 Livestock farm 2016 Fishing farm  2016 Others(*)       2017 Total     
+ Min.   :0.00000     Min.   :0.000000   Min.   :0.000000   Min.   :0.00000  
+ 1st Qu.:0.01183     1st Qu.:0.002976   1st Qu.:0.002336   1st Qu.:0.02794  
+ Median :0.03371     Median :0.026786   Median :0.009346   Median :0.08880  
+ Mean   :0.09765     Mean   :0.111017   Mean   :0.039052   Mean   :0.14088  
+ 3rd Qu.:0.11872     3rd Qu.:0.095238   3rd Qu.:0.024533   3rd Qu.:0.22330  
+ Max.   :1.00000     Max.   :1.000000   Max.   :1.000000   Max.   :1.00000  
+ 2017 Cultivation farm 2017 Livestock farm 2017 Fishing farm 
+ Min.   :0.000000      Min.   :0.00000     Min.   :0.000000  
+ 1st Qu.:0.000885      1st Qu.:0.01290     1st Qu.:0.002976  
+ Median :0.009735      Median :0.03351     Median :0.032738  
+ Mean   :0.127813      Mean   :0.09930     Mean   :0.124102  
+ 3rd Qu.:0.112832      3rd Qu.:0.13523     3rd Qu.:0.095238  
+ Max.   :1.000000      Max.   :1.00000     Max.   :1.000000  
+ 2017 Others(*)       2018 Total      2018 Cultivation farm 2018 Livestock farm
+ Min.   :0.000000   Min.   :0.00000   Min.   :0.0000000     Min.   :0.00000    
+ 1st Qu.:0.000000   1st Qu.:0.03129   1st Qu.:0.0009141     1st Qu.:0.01451    
+ Median :0.006637   Median :0.10828   Median :0.0091408     Median :0.04389    
+ Mean   :0.040877   Mean   :0.15389   Mean   :0.1233133     Mean   :0.10999    
+ 3rd Qu.:0.028761   3rd Qu.:0.23267   3rd Qu.:0.1151737     3rd Qu.:0.15062    
+ Max.   :1.000000   Max.   :1.00000   Max.   :1.0000000     Max.   :1.00000    
+ 2018 Fishing farm  2018 Others(*)       2019 Total      2019 Cultivation farm
+ Min.   :0.000000   Min.   :0.000000   Min.   :0.00000   Min.   :0.0000000    
+ 1st Qu.:0.002882   1st Qu.:0.000000   1st Qu.:0.02834   1st Qu.:0.0009107    
+ Median :0.023055   Median :0.009217   Median :0.11659   Median :0.0100182    
+ Mean   :0.106674   Mean   :0.043815   Mean   :0.15080   Mean   :0.1217220    
+ 3rd Qu.:0.093660   3rd Qu.:0.024193   3rd Qu.:0.22403   3rd Qu.:0.1165756    
+ Max.   :1.000000   Max.   :1.000000   Max.   :1.00000   Max.   :1.0000000    
+ 2019 Livestock farm 2019 Fishing farm  2019 Others(*)       2020 Total     
+ Min.   :0.00000     Min.   :0.000000   Min.   :0.000000   Min.   :0.00000  
+ 1st Qu.:0.01439     1st Qu.:0.002882   1st Qu.:0.000000   1st Qu.:0.03639  
+ Median :0.04604     Median :0.023055   Median :0.009217   Median :0.10980  
+ Mean   :0.10880     Mean   :0.106491   Mean   :0.045900   Mean   :0.15801  
+ 3rd Qu.:0.14878     3rd Qu.:0.096542   3rd Qu.:0.023041   3rd Qu.:0.22549  
+ Max.   :1.00000     Max.   :1.000000   Max.   :1.000000   Max.   :1.00000  
+ 2020 Cultivation farm 2020 Livestock farm 2020 Fishing farm 2020 Others(*)   
+ Min.   :0.000000      Min.   :0.00000     Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.003322      1st Qu.:0.01350     1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.021041      Median :0.05227     Median :0.01679   Median :0.02247  
+ Mean   :0.116103      Mean   :0.12538     Mean   :0.08025   Mean   :0.10612  
+ 3rd Qu.:0.124585      3rd Qu.:0.13125     3rd Qu.:0.06996   3rd Qu.:0.11236  
+ Max.   :1.000000      Max.   :1.00000     Max.   :1.00000   Max.   :1.00000  
+   2021 Total      2021 Cultivation farm 2021 Livestock farm
+ Min.   :0.00000   Min.   :0.000000      Min.   :0.00000    
+ 1st Qu.:0.04167   1st Qu.:0.003344      1st Qu.:0.01782    
+ Median :0.11759   Median :0.022297      Median :0.05805    
+ Mean   :0.17468   Mean   :0.115270      Mean   :0.12542    
+ 3rd Qu.:0.24769   3rd Qu.:0.128205      3rd Qu.:0.13621    
+ Max.   :1.00000   Max.   :1.000000      Max.   :1.00000    
+ 2021 Fishing farm   2021 Others(*)      2022 Total      2022 Cultivation farm
+ Min.   :0.0000000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000000     
+ 1st Qu.:0.0008224   1st Qu.:0.00000   1st Qu.:0.04577   1st Qu.:0.003363     
+ Median :0.0164474   Median :0.01942   Median :0.13484   Median :0.024664     
+ Mean   :0.0734388   Mean   :0.10726   Mean   :0.18806   Mean   :0.112232     
+ 3rd Qu.:0.0649671   3rd Qu.:0.08738   3rd Qu.:0.26698   3rd Qu.:0.128924     
+ Max.   :1.0000000   Max.   :1.00000   Max.   :1.00000   Max.   :1.000000     
+ 2022 Livestock farm 2022 Fishing farm   2022 Others(*)      2023 Total     
+ Min.   :0.00000     Min.   :0.0000000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.01655     1st Qu.:0.0008013   1st Qu.:0.00000   1st Qu.:0.04781  
+ Median :0.05936     Median :0.0144231   Median :0.01923   Median :0.14446  
+ Mean   :0.12760     Mean   :0.0747863   Mean   :0.11355   Mean   :0.20134  
+ 3rd Qu.:0.13955     3rd Qu.:0.0817308   3rd Qu.:0.10096   3rd Qu.:0.31027  
+ Max.   :1.00000     Max.   :1.0000000   Max.   :1.00000   Max.   :1.00000  
+ 2023 Cultivation farm 2023 Livestock farm 2023 Fishing farm 2023 Others(*)   
+ Min.   :0.000000      Min.   :0.00000     Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.002711      1st Qu.:0.01599     1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.021692      Median :0.05540     Median :0.01329   Median :0.03509  
+ Mean   :0.122646      Mean   :0.12727     Mean   :0.06952   Mean   :0.11278  
+ 3rd Qu.:0.119306      3rd Qu.:0.14991     3rd Qu.:0.08272   3rd Qu.:0.09211  
+ Max.   :1.000000      Max.   :1.00000     Max.   :1.00000   Max.   :1.00000  
+ 2012 Cultivation PR 2012 Livestock PR 2012 Fishing PR   2012 Others PR   
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.003592    1st Qu.:0.1262    1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.058139    Median :0.4783    Median :0.04912   Median :0.03667  
+ Mean   :0.276857    Mean   :0.4694    Mean   :0.15451   Mean   :0.16009  
+ 3rd Qu.:0.539111    3rd Qu.:0.7819    3rd Qu.:0.16923   3rd Qu.:0.16954  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.00000   Max.   :1.00000  
+ 2013 Cultivation PR 2013 Livestock PR 2013 Fishing PR   2013 Others PR   
+ Min.   :0.0000000   Min.   :0.0000    Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.0007692   1st Qu.:0.1637    1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.0437956   Median :0.4576    Median :0.05271   Median :0.02632  
+ Mean   :0.2720218   Mean   :0.4843    Mean   :0.13529   Mean   :0.15630  
+ 3rd Qu.:0.5211864   3rd Qu.:0.8117    3rd Qu.:0.14261   3rd Qu.:0.22118  
+ Max.   :1.0000000   Max.   :1.0000    Max.   :1.00000   Max.   :1.00000  
+ 2014 Cultivation PR 2014 Livestock PR 2014 Fishing PR   2014 Others PR    
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.00000   Min.   :0.000000  
+ 1st Qu.:0.001281    1st Qu.:0.2084    1st Qu.:0.00000   1st Qu.:0.003282  
+ Median :0.063622    Median :0.5771    Median :0.04351   Median :0.038228  
+ Mean   :0.282096    Mean   :0.5405    Mean   :0.13291   Mean   :0.144265  
+ 3rd Qu.:0.547042    3rd Qu.:0.8709    3rd Qu.:0.11597   3rd Qu.:0.187017  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.00000   Max.   :1.000000  
+ 2015 Cultivation PR 2015 Livestock PR 2015 Fishing PR   2015 Others PR    
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.00000   Min.   :0.000000  
+ 1st Qu.:0.001255    1st Qu.:0.2749    1st Qu.:0.00000   1st Qu.:0.005116  
+ Median :0.065970    Median :0.6338    Median :0.03843   Median :0.055556  
+ Mean   :0.272500    Mean   :0.5600    Mean   :0.12213   Mean   :0.187827  
+ 3rd Qu.:0.481251    3rd Qu.:0.8722    3rd Qu.:0.09858   3rd Qu.:0.261364  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.00000   Max.   :1.000000  
+ 2016 Cultivation PR 2016 Livestock PR 2016 Fishing PR    2016 Others PR    
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.000000   Min.   :0.000000  
+ 1st Qu.:0.005843    1st Qu.:0.2901    1st Qu.:0.004281   1st Qu.:0.002937  
+ Median :0.068469    Median :0.7162    Median :0.032834   Median :0.021423  
+ Mean   :0.249853    Mean   :0.6012    Mean   :0.110272   Mean   :0.071175  
+ 3rd Qu.:0.463326    3rd Qu.:0.8927    3rd Qu.:0.110687   3rd Qu.:0.074641  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.000000   Max.   :1.000000  
+ 2017 Cultivation PR 2017 Livestock PR 2017 Fishing PR    2017 Others PR   
+ Min.   :0.00000     Min.   :0.0000    Min.   :0.000000   Min.   :0.00000  
+ 1st Qu.:0.00378     1st Qu.:0.2829    1st Qu.:0.004268   1st Qu.:0.00000  
+ Median :0.06756     Median :0.7049    Median :0.031480   Median :0.01382  
+ Mean   :0.25321     Mean   :0.5882    Mean   :0.116152   Mean   :0.08881  
+ 3rd Qu.:0.48539     3rd Qu.:0.8948    3rd Qu.:0.091937   3rd Qu.:0.06693  
+ Max.   :1.00000     Max.   :1.0000    Max.   :1.000000   Max.   :1.00000  
+ 2018 Cultivation PR 2018 Livestock PR 2018 Fishing PR    2018 Others PR   
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.000000   Min.   :0.00000  
+ 1st Qu.:0.004927    1st Qu.:0.3234    1st Qu.:0.005248   1st Qu.:0.00000  
+ Median :0.072482    Median :0.6965    Median :0.030015   Median :0.01476  
+ Mean   :0.241739    Mean   :0.5927    Mean   :0.107518   Mean   :0.10894  
+ 3rd Qu.:0.441395    3rd Qu.:0.8863    3rd Qu.:0.097035   3rd Qu.:0.08908  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.000000   Max.   :1.00000  
+ 2019 Cultivation PR 2019 Livestock PR 2019 Fishing PR    2019 Others PR   
+ Min.   :0.000000    Min.   :0.0000    Min.   :0.000000   Min.   :0.00000  
+ 1st Qu.:0.003145    1st Qu.:0.3374    1st Qu.:0.003824   1st Qu.:0.00000  
+ Median :0.063750    Median :0.6910    Median :0.028498   Median :0.01432  
+ Mean   :0.238869    Mean   :0.5989    Mean   :0.105171   Mean   :0.11263  
+ 3rd Qu.:0.438990    3rd Qu.:0.8786    3rd Qu.:0.092836   3rd Qu.:0.08735  
+ Max.   :1.000000    Max.   :1.0000    Max.   :1.000000   Max.   :1.00000  
+ 2020 Cultivation PR 2020 Livestock PR 2020 Fishing PR   2020 Others PR   
+ Min.   :0.00000     Min.   :0.0000    Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.01447     1st Qu.:0.2644    1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.08328     Median :0.6348    Median :0.04222   Median :0.05104  
+ Mean   :0.25842     Mean   :0.5523    Mean   :0.13689   Mean   :0.17761  
+ 3rd Qu.:0.50470     3rd Qu.:0.8064    3rd Qu.:0.11884   3rd Qu.:0.25183  
+ Max.   :1.00000     Max.   :1.0000    Max.   :1.00000   Max.   :1.00000  
+ 2021 Cultivation PR 2021 Livestock PR 2021 Fishing PR     2021 Others PR   
+ Min.   :0.00000     Min.   :0.0000    Min.   :0.0000000   Min.   :0.00000  
+ 1st Qu.:0.01811     1st Qu.:0.3058    1st Qu.:0.0006245   1st Qu.:0.00000  
+ Median :0.08292     Median :0.6286    Median :0.0407631   Median :0.03155  
+ Mean   :0.25446     Mean   :0.5479    Mean   :0.1353759   Mean   :0.16091  
+ 3rd Qu.:0.47135     3rd Qu.:0.7966    3rd Qu.:0.1324030   3rd Qu.:0.19928  
+ Max.   :1.00000     Max.   :1.0000    Max.   :1.0000000   Max.   :1.00000  
+ 2022 Cultivation PR 2022 Livestock PR 2022 Fishing PR     2022 Others PR   
+ Min.   :0.00000     Min.   :0.0000    Min.   :0.0000000   Min.   :0.00000  
+ 1st Qu.:0.02144     1st Qu.:0.3252    1st Qu.:0.0006252   1st Qu.:0.00000  
+ Median :0.08465     Median :0.6341    Median :0.0414502   Median :0.01538  
+ Mean   :0.24510     Mean   :0.5506    Mean   :0.1352420   Mean   :0.11489  
+ 3rd Qu.:0.42178     3rd Qu.:0.8138    3rd Qu.:0.1155287   3rd Qu.:0.13504  
+ Max.   :1.00000     Max.   :1.0000    Max.   :1.0000000   Max.   :1.00000  
+ 2023 Cultivation PR 2023 Livestock PR 2023 Fishing PR   2023 Others PR   
+ Min.   :0.00000     Min.   :0.0000    Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.01848     1st Qu.:0.3333    1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.08225     Median :0.5835    Median :0.04273   Median :0.02492  
+ Mean   :0.25285     Mean   :0.5407    Mean   :0.13393   Mean   :0.12645  
+ 3rd Qu.:0.50624     3rd Qu.:0.8336    3rd Qu.:0.12952   3rd Qu.:0.13201  
+ Max.   :1.00000     Max.   :1.0000    Max.   :1.00000   Max.   :1.00000  </code></pre>
+</div>
+</div>
+<p>Applying Min-Max standardization scales the data to a range of 0 to 1, making it easier to compare variables with different units or ranges. The summary provides insights into how variables are rescaled. In Shiny, this standardization option will allow users to toggle between raw and normalized data views to understand how scaling affects the data distribution.</p>
+</section>
+<section id="z-score-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="z-score-standardisation"><strong>Z-score standardisation</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>vietnam_farm.z <span class="ot">&lt;-</span> <span class="fu">scale</span>(vietnam_farm_ict)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(vietnam_farm.z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      vars  n mean sd median trimmed  mad   min  max range
+2012 Total               1 63    0  1  -0.39   -0.20 0.36 -0.65 5.83  6.47
+2012 Cultivation farm    2 63    0  1  -0.49   -0.24 0.03 -0.51 4.17  4.68
+2012 Livestock farm      3 63    0  1  -0.43   -0.20 0.25 -0.61 4.92  5.53
+2012 Fishing farm        4 63    0  1  -0.17   -0.16 0.04 -0.20 7.72  7.92
+2012 Others(*)           5 63    0  1  -0.34   -0.26 0.08 -0.40 4.90  5.29
+2013 Total               6 63    0  1  -0.30   -0.19 0.54 -0.68 5.71  6.39
+2013 Cultivation farm    7 63    0  1  -0.50   -0.24 0.03 -0.52 3.99  4.51
+2013 Livestock farm      8 63    0  1  -0.43   -0.20 0.27 -0.63 5.07  5.69
+2013 Fishing farm        9 63    0  1  -0.18   -0.16 0.04 -0.20 7.72  7.92
+2013 Others(*)          10 63    0  1  -0.39   -0.25 0.12 -0.47 4.58  5.05
+2014 Total              11 63    0  1  -0.24   -0.19 0.65 -0.72 5.14  5.86
+2014 Cultivation farm   12 63    0  1  -0.54   -0.22 0.05 -0.57 3.31  3.88
+2014 Livestock farm     13 63    0  1  -0.38   -0.19 0.28 -0.59 5.61  6.20
+2014 Fishing farm       14 63    0  1  -0.18   -0.15 0.03 -0.20 7.74  7.94
+2014 Others(*)          15 63    0  1  -0.35   -0.23 0.14 -0.44 5.57  6.01
+2015 Total              16 63    0  1  -0.28   -0.19 0.64 -0.76 4.24  5.00
+2015 Cultivation farm   17 63    0  1  -0.53   -0.22 0.05 -0.57 3.28  3.84
+2015 Livestock farm     18 63    0  1  -0.38   -0.19 0.25 -0.57 5.55  6.12
+2015 Fishing farm       19 63    0  1  -0.19   -0.16 0.03 -0.22 7.70  7.91
+2015 Others(*)          20 63    0  1  -0.37   -0.23 0.13 -0.46 5.73  6.20
+2016 Total              21 63    0  1  -0.32   -0.16 0.63 -0.80 4.94  5.73
+2016 Cultivation farm   22 63    0  1  -0.48   -0.25 0.07 -0.53 3.59  4.12
+2016 Livestock farm     23 63    0  1  -0.37   -0.21 0.26 -0.56 5.18  5.74
+2016 Fishing farm       24 63    0  1  -0.41   -0.25 0.19 -0.54 4.34  4.88
+2016 Others(*)          25 63    0  1  -0.23   -0.18 0.11 -0.30 7.46  7.77
+2017 Total              26 63    0  1  -0.30   -0.15 0.68 -0.81 4.96  5.77
+2017 Cultivation farm   27 63    0  1  -0.50   -0.25 0.06 -0.54 3.66  4.20
+2017 Livestock farm     28 63    0  1  -0.38   -0.21 0.26 -0.57 5.17  5.74
+2017 Fishing farm       29 63    0  1  -0.39   -0.25 0.21 -0.53 3.77  4.31
+2017 Others(*)          30 63    0  1  -0.26   -0.20 0.07 -0.31 7.30  7.62
+2018 Total              31 63    0  1  -0.25   -0.15 0.74 -0.84 4.61  5.45
+2018 Cultivation farm   32 63    0  1  -0.50   -0.24 0.06 -0.54 3.84  4.39
+2018 Livestock farm     33 63    0  1  -0.36   -0.19 0.32 -0.60 4.85  5.45
+2018 Fishing farm       34 63    0  1  -0.42   -0.25 0.17 -0.53 4.47  5.00
+2018 Others(*)          35 63    0  1  -0.26   -0.22 0.10 -0.32 7.05  7.37
+2019 Total              36 63    0  1  -0.19   -0.16 0.76 -0.82 4.64  5.46
+2019 Cultivation farm   37 63    0  1  -0.50   -0.24 0.07 -0.55 3.94  4.49
+2019 Livestock farm     38 63    0  1  -0.35   -0.20 0.34 -0.60 4.91  5.51
+2019 Fishing farm       39 63    0  1  -0.42   -0.25 0.17 -0.54 4.49  5.02
+2019 Others(*)          40 63    0  1  -0.27   -0.22 0.10 -0.33 6.90  7.23
+2020 Total              41 63    0  1  -0.27   -0.16 0.71 -0.89 4.75  5.64
+2020 Cultivation farm   42 63    0  1  -0.44   -0.24 0.14 -0.54 4.09  4.63
+2020 Livestock farm     43 63    0  1  -0.39   -0.21 0.37 -0.66 4.61  5.27
+2020 Fishing farm       44 63    0  1  -0.39   -0.23 0.15 -0.50 5.69  6.19
+2020 Others(*)          45 63    0  1  -0.43   -0.26 0.17 -0.55 4.61  5.16
+2021 Total              46 63    0  1  -0.30   -0.16 0.70 -0.92 4.34  5.26
+2021 Cultivation farm   47 63    0  1  -0.45   -0.24 0.16 -0.56 4.29  4.85
+2021 Livestock farm     48 63    0  1  -0.36   -0.21 0.37 -0.66 4.63  5.29
+2021 Fishing farm       49 63    0  1  -0.37   -0.23 0.16 -0.47 5.97  6.44
+2021 Others(*)          50 63    0  1  -0.42   -0.26 0.14 -0.52 4.30  4.81
+2022 Total              51 63    0  1  -0.27   -0.15 0.75 -0.94 4.07  5.01
+2022 Cultivation farm   52 63    0  1  -0.44   -0.24 0.17 -0.56 4.41  4.97
+2022 Livestock farm     53 63    0  1  -0.37   -0.20 0.41 -0.69 4.69  5.38
+2022 Fishing farm       54 63    0  1  -0.39   -0.23 0.14 -0.49 6.01  6.50
+2022 Others(*)          55 63    0  1  -0.44   -0.25 0.13 -0.53 4.17  4.70
+2023 Total              56 63    0  1  -0.27   -0.15 0.76 -0.97 3.84  4.81
+2023 Cultivation farm   57 63    0  1  -0.45   -0.24 0.14 -0.55 3.93  4.48
+2023 Livestock farm     58 63    0  1  -0.40   -0.20 0.39 -0.70 4.81  5.51
+2023 Fishing farm       59 63    0  1  -0.38   -0.22 0.13 -0.47 6.30  6.77
+2023 Others(*)          60 63    0  1  -0.40   -0.24 0.26 -0.57 4.52  5.09
+2012 Cultivation PR     61 63    0  1  -0.62   -0.14 0.25 -0.79 2.06  2.85
+2012 Livestock PR       62 63    0  1   0.03   -0.01 1.40 -1.38 1.57  2.95
+2012 Fishing PR         63 63    0  1  -0.42   -0.25 0.29 -0.62 3.39  4.01
+2012 Others PR          64 63    0  1  -0.46   -0.23 0.20 -0.59 3.12  3.71
+2013 Cultivation PR     65 63    0  1  -0.65   -0.14 0.19 -0.78 2.09  2.87
+2013 Livestock PR       66 63    0  1  -0.08   -0.01 1.50 -1.42 1.51  2.93
+2013 Fishing PR         67 63    0  1  -0.36   -0.25 0.34 -0.59 3.80  4.39
+2013 Others PR          68 63    0  1  -0.54   -0.21 0.16 -0.64 3.48  4.13
+2014 Cultivation PR     69 63    0  1  -0.61   -0.13 0.26 -0.79 2.02  2.81
+2014 Livestock PR       70 63    0  1   0.11    0.03 1.39 -1.60 1.36  2.96
+2014 Fishing PR         71 63    0  1  -0.39   -0.26 0.28 -0.59 3.82  4.41
+2014 Others PR          72 63    0  1  -0.48   -0.23 0.26 -0.65 3.86  4.51
+2015 Cultivation PR     73 63    0  1  -0.59   -0.15 0.28 -0.78 2.07  2.84
+2015 Livestock PR       74 63    0  1   0.22    0.04 1.17 -1.67 1.32  2.99
+2015 Fishing PR         75 63    0  1  -0.39   -0.25 0.27 -0.57 4.09  4.66
+2015 Others PR          76 63    0  1  -0.50   -0.20 0.31 -0.71 3.05  3.76
+2016 Cultivation PR     77 63    0  1  -0.55   -0.16 0.31 -0.75 2.26  3.01
+2016 Livestock PR       78 63    0  1   0.34    0.06 1.08 -1.79 1.18  2.97
+2016 Fishing PR         79 63    0  1  -0.41   -0.24 0.26 -0.58 4.70  5.29
+2016 Others PR          80 63    0  1  -0.33   -0.23 0.21 -0.47 6.11  6.58
+2017 Cultivation PR     81 63    0  1  -0.54   -0.16 0.29 -0.74 2.19  2.93
+2017 Livestock PR       82 63    0  1   0.35    0.06 1.08 -1.76 1.23  2.99
+2017 Fishing PR         83 63    0  1  -0.41   -0.25 0.23 -0.57 4.31  4.88
+2017 Others PR          84 63    0  1  -0.40   -0.24 0.11 -0.48 4.92  5.40
+2018 Cultivation PR     85 63    0  1  -0.51   -0.16 0.33 -0.73 2.30  3.04
+2018 Livestock PR       86 63    0  1   0.32    0.06 1.14 -1.84 1.26  3.10
+2018 Fishing PR         87 63    0  1  -0.40   -0.26 0.23 -0.55 4.56  5.10
+2018 Others PR          88 63    0  1  -0.44   -0.25 0.10 -0.51 4.19  4.70
+2019 Cultivation PR     89 63    0  1  -0.52   -0.17 0.28 -0.71 2.27  2.99
+2019 Livestock PR       90 63    0  1   0.29    0.06 1.09 -1.86 1.25  3.11
+2019 Fishing PR         91 63    0  1  -0.40   -0.26 0.22 -0.55 4.66  5.20
+2019 Others PR          92 63    0  1  -0.45   -0.26 0.10 -0.51 4.05  4.57
+2020 Cultivation PR     93 63    0  1  -0.55   -0.15 0.39 -0.81 2.33  3.14
+2020 Livestock PR       94 63    0  1   0.26    0.05 1.16 -1.72 1.39  3.11
+2020 Fishing PR         95 63    0  1  -0.39   -0.25 0.26 -0.57 3.59  4.15
+2020 Others PR          96 63    0  1  -0.47   -0.21 0.28 -0.66 3.04  3.70
+2021 Cultivation PR     97 63    0  1  -0.57   -0.14 0.41 -0.84 2.47  3.32
+2021 Livestock PR       98 63    0  1   0.26    0.05 1.10 -1.77 1.46  3.24
+2021 Fishing PR         99 63    0  1  -0.40   -0.25 0.26 -0.57 3.65  4.22
+2021 Others PR         100 63    0  1  -0.51   -0.22 0.18 -0.63 3.30  3.93
+2022 Cultivation PR    101 63    0  1  -0.54   -0.16 0.42 -0.82 2.53  3.35
+2022 Livestock PR      102 63    0  1   0.27    0.05 1.06 -1.75 1.43  3.19
+2022 Fishing PR        103 63    0  1  -0.40   -0.25 0.26 -0.57 3.67  4.24
+2022 Others PR         104 63    0  1  -0.49   -0.23 0.11 -0.56 4.34  4.91
+2023 Cultivation PR    105 63    0  1  -0.55   -0.15 0.39 -0.82 2.41  3.23
+2023 Livestock PR      106 63    0  1   0.14    0.04 1.18 -1.72 1.46  3.18
+2023 Fishing PR        107 63    0  1  -0.39   -0.25 0.27 -0.57 3.71  4.28
+2023 Others PR         108 63    0  1  -0.45   -0.25 0.16 -0.56 3.88  4.44
+                       skew kurtosis   se
+2012 Total             3.48    16.15 0.13
+2012 Cultivation farm  2.24     4.73 0.13
+2012 Livestock farm    2.85     9.72 0.13
+2012 Fishing farm      7.31    53.39 0.13
+2012 Others(*)         3.61    13.14 0.13
+2013 Total             3.33    14.90 0.13
+2013 Cultivation farm  2.14     4.07 0.13
+2013 Livestock farm    2.85    10.01 0.13
+2013 Fishing farm      7.30    53.31 0.13
+2013 Others(*)         3.18    10.06 0.13
+2014 Total             2.95    11.00 0.13
+2014 Cultivation farm  1.71     1.74 0.13
+2014 Livestock farm    3.46    14.92 0.13
+2014 Fishing farm      7.36    54.01 0.13
+2014 Others(*)         3.99    17.28 0.13
+2015 Total             2.55     7.57 0.13
+2015 Cultivation farm  1.77     2.07 0.13
+2015 Livestock farm    3.63    15.57 0.13
+2015 Fishing farm      7.24    52.70 0.13
+2015 Others(*)         3.97    17.71 0.13
+2016 Total             2.88    10.67 0.13
+2016 Cultivation farm  2.17     3.98 0.13
+2016 Livestock farm    3.57    14.32 0.13
+2016 Fishing farm      2.57     6.34 0.13
+2016 Others(*)         6.63    46.30 0.13
+2017 Total             2.86    10.67 0.13
+2017 Cultivation farm  2.09     3.54 0.13
+2017 Livestock farm    3.48    13.76 0.13
+2017 Fishing farm      2.45     5.36 0.13
+2017 Others(*)         6.26    42.30 0.13
+2018 Total             2.77     9.81 0.13
+2018 Cultivation farm  2.18     4.17 0.13
+2018 Livestock farm    3.46    13.50 0.13
+2018 Fishing farm      2.62     6.77 0.13
+2018 Others(*)         5.75    36.55 0.13
+2019 Total             2.87    10.38 0.13
+2019 Cultivation farm  2.26     4.74 0.13
+2019 Livestock farm    3.45    13.46 0.13
+2019 Fishing farm      2.62     6.77 0.13
+2019 Others(*)         5.47    33.47 0.13
+2020 Total             2.52     8.44 0.13
+2020 Cultivation farm  2.57     6.39 0.13
+2020 Livestock farm    2.79     8.88 0.13
+2020 Fishing farm      3.56    15.29 0.13
+2020 Others(*)         2.63     7.11 0.13
+2021 Total             2.20     6.29 0.13
+2021 Cultivation farm  2.52     6.54 0.13
+2021 Livestock farm    2.77     8.75 0.13
+2021 Fishing farm      3.89    18.35 0.13
+2021 Others(*)         2.72     7.39 0.13
+2022 Total             2.07     5.58 0.13
+2022 Cultivation farm  2.57     6.87 0.13
+2022 Livestock farm    2.58     7.78 0.13
+2022 Fishing farm      3.92    18.85 0.13
+2022 Others(*)         2.67     7.12 0.13
+2023 Total             1.68     3.26 0.13
+2023 Cultivation farm  2.30     4.72 0.13
+2023 Livestock farm    2.47     7.40 0.13
+2023 Fishing farm      4.32    22.77 0.13
+2023 Others(*)         2.53     6.69 0.13
+2012 Cultivation PR    0.93    -0.73 0.13
+2012 Livestock PR      0.03    -1.47 0.13
+2012 Fishing PR        2.03     3.14 0.13
+2012 Others PR         1.90     2.43 0.13
+2013 Cultivation PR    0.92    -0.73 0.13
+2013 Livestock PR      0.01    -1.47 0.13
+2013 Fishing PR        2.21     4.18 0.13
+2013 Others PR         1.69     1.99 0.13
+2014 Cultivation PR    0.89    -0.81 0.13
+2014 Livestock PR     -0.21    -1.47 0.13
+2014 Fishing PR        2.27     4.36 0.13
+2014 Others PR         2.00     3.49 0.13
+2015 Cultivation PR    1.00    -0.52 0.13
+2015 Livestock PR     -0.30    -1.38 0.13
+2015 Fishing PR        2.34     5.04 0.13
+2015 Others PR         1.59     1.61 0.13
+2016 Cultivation PR    1.09    -0.37 0.13
+2016 Livestock PR     -0.47    -1.31 0.13
+2016 Fishing PR        2.61     7.29 0.13
+2016 Others PR         4.15    20.58 0.13
+2017 Cultivation PR    1.10    -0.38 0.13
+2017 Livestock PR     -0.41    -1.36 0.13
+2017 Fishing PR        2.39     5.45 0.13
+2017 Others PR         3.12    10.55 0.13
+2018 Cultivation PR    1.16    -0.24 0.13
+2018 Livestock PR     -0.40    -1.28 0.13
+2018 Fishing PR        2.65     6.94 0.13
+2018 Others PR         2.52     6.05 0.13
+2019 Cultivation PR    1.18    -0.22 0.13
+2019 Livestock PR     -0.44    -1.25 0.13
+2019 Fishing PR        2.69     7.41 0.13
+2019 Others PR         2.43     5.37 0.13
+2020 Cultivation PR    1.01    -0.47 0.13
+2020 Livestock PR     -0.44    -1.22 0.13
+2020 Fishing PR        2.32     4.62 0.13
+2020 Others PR         1.64     1.58 0.13
+2021 Cultivation PR    1.00    -0.44 0.13
+2021 Livestock PR     -0.41    -1.14 0.13
+2021 Fishing PR        2.40     5.03 0.13
+2021 Others PR         1.86     2.61 0.13
+2022 Cultivation PR    1.11    -0.12 0.13
+2022 Livestock PR     -0.41    -1.15 0.13
+2022 Fishing PR        2.39     5.02 0.13
+2022 Others PR         2.38     5.85 0.13
+2023 Cultivation PR    1.04    -0.38 0.13
+2023 Livestock PR     -0.29    -1.21 0.13
+2023 Fishing PR        2.34     4.82 0.13
+2023 Others PR         2.26     4.50 0.13</code></pre>
+</div>
+</div>
+<p>Z-score standardization adjusts each variable to have a mean of 0 and a standard deviation of 1. This method is useful for comparing variables on a common scale without the influence of original units. In Shiny, users will be able to view data using this standardization method, making it easier to detect outliers or extreme values across farm types.</p>
+</section>
+<section id="visualising-the-standardised-clustering-variables" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-the-standardised-clustering-variables"><strong>Visualising the standardised clustering variables</strong></h3>
+<p>To provide users with a complete understanding of the raw and standardized values, I plan to incorporate the options “type of farm,” “year,” and “selection” (histogram or density) into the Shiny UI.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> vietnam_farm_ict, </span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, </span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, </span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"light blue"</span>) <span class="sc">+</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Raw Values (without Standardization)"</span>)</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>vietnam_farm_std_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(vietnam_farm.std)</span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> vietnam_farm_std_df, </span>
+<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb69-12"><a href="#cb69-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, </span>
+<span id="cb69-13"><a href="#cb69-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, </span>
+<span id="cb69-14"><a href="#cb69-14" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"light blue"</span>) <span class="sc">+</span></span>
+<span id="cb69-15"><a href="#cb69-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Min-Max Standardization"</span>)</span>
+<span id="cb69-16"><a href="#cb69-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-17"><a href="#cb69-17" aria-hidden="true" tabindex="-1"></a>vietnam_farm_z_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(vietnam_farm.z)</span>
+<span id="cb69-18"><a href="#cb69-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-19"><a href="#cb69-19" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> vietnam_farm_z_df, </span>
+<span id="cb69-20"><a href="#cb69-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb69-21"><a href="#cb69-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, </span>
+<span id="cb69-22"><a href="#cb69-22" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, </span>
+<span id="cb69-23"><a href="#cb69-23" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"light blue"</span>) <span class="sc">+</span></span>
+<span id="cb69-24"><a href="#cb69-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Z-score Standardization"</span>)</span>
+<span id="cb69-25"><a href="#cb69-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-26"><a href="#cb69-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(r, s, z,</span>
+<span id="cb69-27"><a href="#cb69-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">3</span>,</span>
+<span id="cb69-28"><a href="#cb69-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">nrow =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 
