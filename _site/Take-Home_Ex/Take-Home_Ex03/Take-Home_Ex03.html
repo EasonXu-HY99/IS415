@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Xu Haiyang">
+<meta name="dcterms.date" content="2024-10-14">
+
+<title>Take Home Exercise 3 – IS415 - Xu Haiyang</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">IS415 - Xu Haiyang</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercise" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Hands-on Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-hands-on-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html">
+ <span class="dropdown-text">Hands-on Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html">
+ <span class="dropdown-text">Hands-on Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html">
+ <span class="dropdown-text">Hands-on Exercise 3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html">
+ <span class="dropdown-text">Hands-on Exercise 4</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html">
+ <span class="dropdown-text">Hands-on Exercise 5</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html">
+ <span class="dropdown-text">Hands-on Exercise 6</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html">
+ <span class="dropdown-text">Hands-on Exercise 7</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html">
+ <span class="dropdown-text">Hands-on Exercise 8</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html">
+ <span class="dropdown-text">Hands-on Exercise 9</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercise" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">In-class Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex01/In-class_Ex01-v2.html">
+ <span class="dropdown-text">In-class Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex02/In-class_Ex02.html">
+ <span class="dropdown-text">In-class Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex03/In-class_Ex03.html">
+ <span class="dropdown-text">In-class Exercise 3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex04/In-class_Ex04.html">
+ <span class="dropdown-text">In-class Exercise 4</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/In-class_Ex05.html">
+ <span class="dropdown-text">In-class Exercise 5</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/In-class_Ex06.html">
+ <span class="dropdown-text">In-class Exercise 6</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex09/In-class_Ex09.html">
+ <span class="dropdown-text">In-class Exercise 9</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex10/In-class_Ex10.html">
+ <span class="dropdown-text">In-class Exercise 10</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercise" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Take-Home Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html">
+ <span class="dropdown-text">Take-Home Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-Home_Ex/Take-Home_Ex02/Take-Home_Ex02.html">
+ <span class="dropdown-text">Take-Home Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html">
+ <span class="dropdown-text">Take-Home Exercise 3</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#prototyping-modules-for-geospatial-analytics-shiny-application" id="toc-prototyping-modules-for-geospatial-analytics-shiny-application" class="nav-link active" data-scroll-target="#prototyping-modules-for-geospatial-analytics-shiny-application"><strong>Prototyping Modules for Geospatial Analytics Shiny Application</strong></a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview"><strong>Overview</strong></a></li>
+  <li><a href="#prototyping-for-shiny-application" id="toc-prototyping-for-shiny-application" class="nav-link" data-scroll-target="#prototyping-for-shiny-application"><strong>Prototyping for Shiny Application</strong></a></li>
+  </ul></li>
+  <li><a href="#understanding-basics-of-shiny" id="toc-understanding-basics-of-shiny" class="nav-link" data-scroll-target="#understanding-basics-of-shiny"><strong>Understanding Basics of Shiny</strong></a>
+  <ul class="collapse">
+  <li><a href="#core-components-of-shiny" id="toc-core-components-of-shiny" class="nav-link" data-scroll-target="#core-components-of-shiny"><strong>Core Components of Shiny</strong></a></li>
+  <li><a href="#ui-layout-in-shiny" id="toc-ui-layout-in-shiny" class="nav-link" data-scroll-target="#ui-layout-in-shiny"><strong>UI Layout in Shiny</strong></a></li>
+  <li><a href="#flexible-layout-with-fluidrow-and-column" id="toc-flexible-layout-with-fluidrow-and-column" class="nav-link" data-scroll-target="#flexible-layout-with-fluidrow-and-column"><strong>Flexible Layout with FluidRow and Column</strong></a></li>
+  <li><a href="#navbar-pages-for-organized-layouts" id="toc-navbar-pages-for-organized-layouts" class="nav-link" data-scroll-target="#navbar-pages-for-organized-layouts"><strong>Navbar Pages for Organized Layouts</strong></a></li>
+  <li><a href="#user-inputs-and-controls-in-sidebar-panel" id="toc-user-inputs-and-controls-in-sidebar-panel" class="nav-link" data-scroll-target="#user-inputs-and-controls-in-sidebar-panel"><strong>User Inputs and Controls in Sidebar Panel</strong></a></li>
+  <li><a href="#outputs-in-main-panel" id="toc-outputs-in-main-panel" class="nav-link" data-scroll-target="#outputs-in-main-panel"><strong>Outputs in Main Panel</strong></a></li>
+  <li><a href="#organizing-outputs-with-tabsets" id="toc-organizing-outputs-with-tabsets" class="nav-link" data-scroll-target="#organizing-outputs-with-tabsets"><strong>Organizing Outputs with Tabsets</strong></a></li>
+  <li><a href="#server-component" id="toc-server-component" class="nav-link" data-scroll-target="#server-component"><strong>Server Component</strong></a></li>
+  </ul></li>
+  <li><a href="#analysing-r-packages" id="toc-analysing-r-packages" class="nav-link" data-scroll-target="#analysing-r-packages"><strong>Analysing R-Packages</strong></a>
+  <ul class="collapse">
+  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda"><strong>Exploratory Data Analysis (EDA)</strong></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Take Home Exercise 3</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Xu Haiyang </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 14, 2024</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">October 31, 2024</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="prototyping-modules-for-geospatial-analytics-shiny-application" class="level1">
+<h1><strong>Prototyping Modules for Geospatial Analytics Shiny Application</strong></h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview"><strong>Overview</strong></h2>
+<p>Prototyping serves as a pivotal step in application development, bridging theoretical design with practical user interaction. A well-constructed prototype validates design decisions by providing a tangible platform to test user experience (UX) elements with stakeholders. This approach helps refine the application’s UX before further resources are invested, enhancing both efficiency and effectiveness.</p>
+</section>
+<section id="prototyping-for-shiny-application" class="level2">
+<h2 class="anchored" data-anchor-id="prototyping-for-shiny-application"><strong>Prototyping for Shiny Application</strong></h2>
+<p>In the context of developing a <strong>Shiny application</strong> using <strong>R</strong>, prototyping plays a crucial role in defining technical requirements, testing functionality, and refining the user interface.</p>
+<ol type="1">
+<li><p><strong>Evaluating R Packages</strong>: The initial step in Shiny prototyping involves identifying and validating R packages from CRAN that support the app’s functionality. This ensures the application’s foundation is reliable and compatible with the required analyses and visualizations.</p></li>
+<li><p><strong>Testing R Code</strong>: Prototyping also involves running and validating specific R code snippets to confirm they produce expected outputs. This testing process helps ensure a smooth experience for end-users by troubleshooting issues early.</p></li>
+<li><p><strong>Setting Parameters and Outputs</strong>: Deciding on the parameters and outputs to expose in the application is a key step. These will guide user interaction and determine the dynamic nature of the app.</p></li>
+<li><p><strong>Designing the UI with Shiny Components</strong>: The final prototyping phase involves selecting Shiny UI components that allow users to interact with the chosen parameters intuitively.</p></li>
+</ol>
+<p>This structured approach facilitates a seamless transition from conceptual design to a fully functional application, prioritizing both technical robustness and user experience.</p>
+</section>
+</section>
+<section id="understanding-basics-of-shiny" class="level1">
+<h1><strong>Understanding Basics of Shiny</strong></h1>
+<p><strong>Shiny</strong> is an open-source R package designed to simplify the creation of interactive web applications without requiring knowledge of web design languages like HTML, CSS, or JavaScript.</p>
+<section id="core-components-of-shiny" class="level3">
+<h3 class="anchored" data-anchor-id="core-components-of-shiny"><strong>Core Components of Shiny</strong></h3>
+<p>A Shiny application typically consists of an <strong><code>app.R</code></strong> file that includes two main sections:</p>
+<ol type="1">
+<li><p><strong>User Interface (UI)</strong> - Defines the front-end layout and elements that users interact with.</p></li>
+<li><p><strong>Server</strong> - Contains the back-end logic, handling input-processing and output-rendering functions.</p></li>
+</ol>
+<p>This modular structure keeps the UI and server functions distinct, ensuring a clean, organized codebase.</p>
+</section>
+<section id="ui-layout-in-shiny" class="level3">
+<h3 class="anchored" data-anchor-id="ui-layout-in-shiny"><strong>UI Layout in Shiny</strong></h3>
+<p>The Shiny UI includes components like:</p>
+<ol type="1">
+<li><p><strong>Header Panel</strong> (<code>headerPanel</code>): Displays the app’s title or brief descriptions.</p></li>
+<li><p><strong>Sidebar Panel</strong> (<code>sidebarPanel</code>): A vertical panel for input controls, offering users a way to interact with the app.</p></li>
+<li><p><strong>Main Panel</strong> (<code>mainPanel</code>): The primary area for output displays (e.g., maps, plots, tables).</p></li>
+</ol>
+</section>
+<section id="flexible-layout-with-fluidrow-and-column" class="level3">
+<h3 class="anchored" data-anchor-id="flexible-layout-with-fluidrow-and-column"><strong>Flexible Layout with FluidRow and Column</strong></h3>
+<p>Shiny employs a grid layout system through <code>fluidRow()</code> and <code>column()</code>, based on a 12-column structure, allowing flexible UI design. Each <code>fluidRow</code> can hold multiple <code>column</code> elements, enabling a variety of layouts by adjusting column widths.</p>
+</section>
+<section id="navbar-pages-for-organized-layouts" class="level3">
+<h3 class="anchored" data-anchor-id="navbar-pages-for-organized-layouts"><strong>Navbar Pages for Organized Layouts</strong></h3>
+<p>To structure complex applications, <strong><code>navbarPage()</code></strong> is available, enabling multiple sub-components within the app, each with distinct sidebar, tabset, or layout configurations.</p>
+</section>
+<section id="user-inputs-and-controls-in-sidebar-panel" class="level3">
+<h3 class="anchored" data-anchor-id="user-inputs-and-controls-in-sidebar-panel"><strong>User Inputs and Controls in Sidebar Panel</strong></h3>
+<p>Shiny provides various functions for defining user inputs, such as:</p>
+<ul>
+<li><p><strong><code>sliderInput()</code></strong>: Creates a slider for range-based input.</p></li>
+<li><p><strong><code>selectInput()</code></strong>: Generates a dropdown list.</p></li>
+<li><p><strong><code>textInput()</code></strong>: Adds a text box for user input.</p></li>
+<li><p><strong><code>numericInput()</code></strong>: Allows users to enter numeric values.</p></li>
+<li><p><strong><code>checkboxInput()</code> &amp; <code>checkboxGroupInput()</code></strong>: Useful for binary or multiple-choice selections.</p></li>
+</ul>
+<p>After configuring inputs, <strong><code>submitButton()</code></strong> compiles and sends inputs to the server, updating outputs accordingly.</p>
+</section>
+<section id="outputs-in-main-panel" class="level3">
+<h3 class="anchored" data-anchor-id="outputs-in-main-panel"><strong>Outputs in Main Panel</strong></h3>
+<p>Outputs are defined in the main panel with placeholders like:</p>
+<ul>
+<li><p><strong><code>textOutput()</code></strong>, <strong><code>tableOutput()</code></strong>, and <strong><code>plotOutput()</code></strong>.</p></li>
+<li><p>Rendered on the UI via corresponding functions (<code>renderText</code>, <code>renderTable</code>, <code>renderPlot</code>), these components can be customized using <code>fluidRow()</code> and <code>column()</code>.</p></li>
+</ul>
+</section>
+<section id="organizing-outputs-with-tabsets" class="level3">
+<h3 class="anchored" data-anchor-id="organizing-outputs-with-tabsets"><strong>Organizing Outputs with Tabsets</strong></h3>
+<p>To segment content in the main panel, <strong><code>tabsetPanel()</code></strong> creates a series of tabs, helping organize multiple outputs within the application.</p>
+</section>
+<section id="server-component" class="level3">
+<h3 class="anchored" data-anchor-id="server-component"><strong>Server Component</strong></h3>
+<p>The server function processes inputs from the UI and defines outputs based on input values. It typically includes parameters for:</p>
+<ul>
+<li><p><strong>Input</strong>: Accesses user-specified UI inputs.</p></li>
+<li><p><strong>Output</strong>: Dictates output displays on the UI.</p></li>
+<li><p><strong>Session</strong> (optional): Manages session-specific settings.</p></li>
+</ul>
+<p>The <strong>UI and server interaction</strong> is a two-way communication loop, where inputs from the UI are processed by the server, and the resulting outputs are displayed back on the UI.</p>
+</section>
+</section>
+<section id="analysing-r-packages" class="level1">
+<h1><strong>Analysing R-Packages</strong></h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(spdep, tmap, sf, ClustGeo, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               ggpubr, cluster, factoextra, NbClust,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               heatmaply, corrplot, psych, tidyverse, GGally)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This line uses <code>pacman::p_load</code> to load all necessary packages in one command, ensuring that all packages required for data manipulation, visualization, clustering, and spatial analysis are ready for use.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>vietnam_geo <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial/DiaphanTinh"</span>, <span class="at">layer =</span> <span class="st">"Dia_phan_Tinh"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Dia_phan_Tinh' from data source 
+  `C:\EasonXu-HY99\IS415\Take-Home_Ex\Take-Home_Ex03\data\geospatial\DiaphanTinh' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 63 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 102.1421 ymin: 6.953306 xmax: 116.9473 ymax: 23.3939
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(vietnam_geo, <span class="st">"data/rds/vietnam_geo.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(vietnam_geo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 63
+Columns: 3
+$ Code     &lt;chr&gt; "AD01", "AD01", "AD01", "AD01", "AD01", "AD01", "AD01", "AD01…
+$ Name     &lt;chr&gt; "An Giang", "Ba Ria - Vung Tau", "Bac Giang", "Bac Kan", "Bac…
+$ geometry &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((105.1152 10..., MULTIPOLYGON (((…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>farms <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/farms.csv"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 69 Columns: 61
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (50): Cities, provincies, 2012 Total, 2012 Cultivation farm, 2012 Livest...
+dbl (11): 2014 Total, 2015 Total, 2015 Livestock farm, 2016 Total, 2016 Live...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(farms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Cities, provincies  2012 Total        2012 Cultivation farm
+ Length:69          Length:69          Length:69            
+ Class :character   Class :character   Class :character     
+ Mode  :character   Mode  :character   Mode  :character     
+                                                            
+                                                            
+                                                            
+ 2012 Livestock farm 2012 Fishing farm  2012 Others(*)      2013 Total       
+ Length:69           Length:69          Length:69          Length:69         
+ Class :character    Class :character   Class :character   Class :character  
+ Mode  :character    Mode  :character   Mode  :character   Mode  :character  
+                                                                             
+                                                                             
+                                                                             
+ 2013 Cultivation farm 2013 Livestock farm 2013 Fishing farm 
+ Length:69             Length:69           Length:69         
+ Class :character      Class :character    Class :character  
+ Mode  :character      Mode  :character    Mode  :character  
+                                                             
+                                                             
+                                                             
+ 2013 Others(*)       2014 Total     2014 Cultivation farm 2014 Livestock farm
+ Length:69          Min.   :   1.0   Length:69             Length:69          
+ Class :character   1st Qu.:  61.0   Class :character      Class :character   
+ Mode  :character   Median : 361.0   Mode  :character      Mode  :character   
+                    Mean   : 785.9                                            
+                    3rd Qu.: 697.0                                            
+                    Max.   :7599.0                                            
+ 2014 Fishing farm  2014 Others(*)       2015 Total     2015 Cultivation farm
+ Length:69          Length:69          Min.   :   1.0   Length:69            
+ Class :character   Class :character   1st Qu.:  71.0   Class :character     
+ Mode  :character   Mode  :character   Median : 370.0   Mode  :character     
+                                       Mean   : 851.9                        
+                                       3rd Qu.: 710.0                        
+                                       Max.   :7347.0                        
+ 2015 Livestock farm 2015 Fishing farm  2015 Others(*)       2016 Total    
+ Min.   :   1.0      Length:69          Length:69          Min.   :   1.0  
+ 1st Qu.:  32.0      Class :character   Class :character   1st Qu.: 107.0  
+ Median : 105.0      Mode  :character   Mode  :character   Median : 453.0  
+ Mean   : 436.8                                            Mean   : 970.7  
+ 3rd Qu.: 501.0                                            3rd Qu.: 927.0  
+ Max.   :5998.0                                            Max.   :9946.0  
+ 2016 Cultivation farm 2016 Livestock farm 2016 Fishing farm 
+ Length:69             Min.   :   1.0      Length:69         
+ Class :character      1st Qu.:  43.0      Class :character  
+ Mode  :character      Median : 124.0      Mode  :character  
+                       Mean   : 604.9                        
+                       3rd Qu.: 593.0                        
+                       Max.   :8726.0                        
+ 2016 Others(*)       2017 Total      2017 Cultivation farm 2017 Livestock farm
+ Length:69          Min.   :    1.0   Length:69             Min.   :   1.0     
+ Class :character   1st Qu.:  114.0   Class :character      1st Qu.:  46.0     
+ Mode  :character   Median :  466.0   Mode  :character      Median : 130.0     
+                    Mean   :  986.9                         Mean   : 613.3     
+                    3rd Qu.:  960.0                         3rd Qu.: 618.0     
+                    Max.   :10120.0                         Max.   :8841.0     
+ 2017 Fishing farm  2017 Others(*)       2018 Total     2018 Cultivation farm
+ Length:69          Length:69          Min.   :   1.0   Length:69            
+ Class :character   Class :character   1st Qu.: 113.0   Class :character     
+ Mode  :character   Mode  :character   Median : 447.0   Mode  :character     
+                                       Mean   : 917.9                        
+                                       3rd Qu.: 846.0                        
+                                       Max.   :9192.0                        
+ 2018 Livestock farm 2018 Fishing farm  2018 Others(*)       2019 Total    
+ Min.   :   1.0      Length:69          Length:69          Min.   :   2.0  
+ 1st Qu.:  43.0      Class :character   Class :character   1st Qu.: 114.0  
+ Median : 150.0      Mode  :character   Mode  :character   Median : 447.0  
+ Mean   : 569.2                                            Mean   : 936.6  
+ 3rd Qu.: 580.0                                            3rd Qu.: 861.0  
+ Max.   :7882.0                                            Max.   :9593.0  
+ 2019 Cultivation farm 2019 Livestock farm 2019 Fishing farm 
+ Length:69             Min.   :   1.0      Length:69         
+ Class :character      1st Qu.:  45.0      Class :character  
+ Mode  :character      Median : 156.0      Mode  :character  
+                       Mean   : 588.7                        
+                       3rd Qu.: 580.0                        
+                       Max.   :8180.0                        
+ 2019 Others(*)      2020 Total        2020 Cultivation farm
+ Length:69          Length:69          Length:69            
+ Class :character   Class :character   Class :character     
+ Mode  :character   Mode  :character   Mode  :character     
+                                                            
+                                                            
+                                                            
+ 2020 Livestock farm 2020 Fishing farm  2020 Others(*)      2021 Total       
+ Length:69           Length:69          Length:69          Length:69         
+ Class :character    Class :character   Class :character   Class :character  
+ Mode  :character    Mode  :character   Mode  :character   Mode  :character  
+                                                                             
+                                                                             
+                                                                             
+ 2021 Cultivation farm 2021 Livestock farm 2021 Fishing farm 
+ Length:69             Length:69           Length:69         
+ Class :character      Class :character    Class :character  
+ Mode  :character      Mode  :character    Mode  :character  
+                                                             
+                                                             
+                                                             
+ 2021 Others(*)      2022 Total        2022 Cultivation farm
+ Length:69          Length:69          Length:69            
+ Class :character   Class :character   Class :character     
+ Mode  :character   Mode  :character   Mode  :character     
+                                                            
+                                                            
+                                                            
+ 2022 Livestock farm 2022 Fishing farm  2022 Others(*)      2023 Total       
+ Length:69           Length:69          Length:69          Length:69         
+ Class :character    Class :character   Class :character   Class :character  
+ Mode  :character    Mode  :character   Mode  :character   Mode  :character  
+                                                                             
+                                                                             
+                                                                             
+ 2023 Cultivation farm 2023 Livestock farm 2023 Fishing farm 
+ Length:69             Length:69           Length:69         
+ Class :character      Class :character    Class :character  
+ Mode  :character      Mode  :character    Mode  :character  
+                                                             
+                                                             
+                                                             
+ 2023 Others(*)    
+ Length:69         
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>enterprise <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/enterprise.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 69 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): Cities, provincies
+dbl (8): 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>farms <span class="ot">&lt;-</span> farms <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">str_trim</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Red River Delta"</span>, <span class="st">"Northern midlands and mountain areas"</span>, </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Northern Central area and Central coastal area"</span>, <span class="st">"Central Highlands"</span>, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"South East"</span>, <span class="st">"Mekong River Delta"</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Ho Chi Minh city"</span> <span class="sc">~</span> <span class="st">"TP. Ho Chi Minh"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Thai  Nguyen"</span> <span class="sc">~</span> <span class="st">"Thai Nguyen"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Thua Thien-Hue"</span> <span class="sc">~</span> <span class="st">"Thua Thien - Hue"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Quang  Nam"</span> <span class="sc">~</span> <span class="st">"Quang Nam"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Quang  Ngai"</span> <span class="sc">~</span> <span class="st">"Quang Ngai"</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Khanh  Hoa"</span> <span class="sc">~</span> <span class="st">"Khanh Hoa"</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Ninh  Thuan"</span> <span class="sc">~</span> <span class="st">"Ninh Thuan"</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Binh  Duong"</span> <span class="sc">~</span> <span class="st">"Binh Duong"</span>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Kien  Giang"</span> <span class="sc">~</span> <span class="st">"Kien Giang"</span>,</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>, <span class="sc">~</span><span class="fu">str_replace_all</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">"0"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>, <span class="sc">~</span><span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(.))))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(farms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 63 × 61
+   `Cities, provincies` `2012 Total` `2012 Cultivation farm`
+   &lt;chr&gt;                       &lt;dbl&gt;                   &lt;dbl&gt;
+ 1 Ha Noi                       1233                      11
+ 2 Vinh Phuc                     508                       0
+ 3 Bac Ninh                       74                       0
+ 4 Quang Ninh                    141                       4
+ 5 Hai Duong                     506                       3
+ 6 Hai Phong                     421                       1
+ 7 Hung Yen                      353                       4
+ 8 Thai Binh                     600                       4
+ 9 Ha Nam                        240                       6
+10 Nam Dinh                      366                       2
+# ℹ 53 more rows
+# ℹ 58 more variables: `2012 Livestock farm` &lt;dbl&gt;, `2012 Fishing farm` &lt;dbl&gt;,
+#   `2012 Others(*)` &lt;dbl&gt;, `2013 Total` &lt;dbl&gt;, `2013 Cultivation farm` &lt;dbl&gt;,
+#   `2013 Livestock farm` &lt;dbl&gt;, `2013 Fishing farm` &lt;dbl&gt;,
+#   `2013 Others(*)` &lt;dbl&gt;, `2014 Total` &lt;dbl&gt;, `2014 Cultivation farm` &lt;dbl&gt;,
+#   `2014 Livestock farm` &lt;dbl&gt;, `2014 Fishing farm` &lt;dbl&gt;,
+#   `2014 Others(*)` &lt;dbl&gt;, `2015 Total` &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>This segment cleans and standardizes province names in <code>farms</code>, trimming whitespace and correcting inconsistent naming conventions (e.g., replacing “Ho Chi Minh city” with “TP. Ho Chi Minh”). It also removes rows representing regions rather than specific provinces. Missing values, represented as <code>..</code>, are replaced with <code>0</code> to facilitate calculations, and remaining non-province columns are converted to numeric format to avoid errors in numeric operations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(farms, <span class="st">"data/rds/farms.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> farms <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"2012"</span>), <span class="fu">starts_with</span>(<span class="st">"2013"</span>), <span class="fu">starts_with</span>(<span class="st">"2014"</span>), <span class="fu">starts_with</span>(<span class="st">"2015"</span>),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"2016"</span>), <span class="fu">starts_with</span>(<span class="st">"2017"</span>), <span class="fu">starts_with</span>(<span class="st">"2018"</span>), <span class="fu">starts_with</span>(<span class="st">"2019"</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"2020"</span>), <span class="fu">starts_with</span>(<span class="st">"2021"</span>), <span class="fu">starts_with</span>(<span class="st">"2022"</span>), <span class="fu">starts_with</span>(<span class="st">"2023"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Summary Statistics:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Summary Statistics:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(summary_stats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   2012 Total     2012 Cultivation farm 2012 Livestock farm 2012 Fishing farm
+ Min.   :   0.0   Min.   :   0.0        Min.   :   0.0      Min.   :   0.00  
+ 1st Qu.:  33.0   1st Qu.:   1.0        1st Qu.:   9.0      1st Qu.:   0.00  
+ Median : 141.0   Median :   6.0        Median :  38.0      Median :  11.00  
+ Mean   : 359.6   Mean   : 140.7        Mean   : 129.1      Mean   :  74.92  
+ 3rd Qu.: 507.0   3rd Qu.: 116.5        3rd Qu.: 168.5      3rd Qu.:  31.50  
+ Max.   :3589.0   Max.   :1280.0        Max.   :1172.0      Max.   :2959.00  
+ 2012 Others(*)     2013 Total     2013 Cultivation farm 2013 Livestock farm
+ Min.   :  0.00   Min.   :   0.0   Min.   :   0.0        Min.   :   0.0     
+ 1st Qu.:  0.00   1st Qu.:  38.0   1st Qu.:   0.5        1st Qu.:  14.0     
+ Median :  2.00   Median : 212.0   Median :   5.0        Median :  45.0     
+ Mean   : 14.94   Mean   : 377.4   Mean   : 138.8        Mean   : 146.1     
+ 3rd Qu.:  8.00   3rd Qu.: 546.0   3rd Qu.: 113.5        3rd Qu.: 194.0     
+ Max.   :199.00   Max.   :3536.0   Max.   :1197.0        Max.   :1329.0     
+ 2013 Fishing farm 2013 Others(*)     2014 Total     2014 Cultivation farm
+ Min.   :   0.00   Min.   :  0.00   Min.   :   1.0   Min.   :  0.0        
+ 1st Qu.:   0.00   1st Qu.:  0.00   1st Qu.:  55.5   1st Qu.:  0.5        
+ Median :   9.00   Median :  3.00   Median : 286.0   Median :  8.0        
+ Mean   :  74.44   Mean   : 17.98   Mean   : 430.4   Mean   :141.8        
+ 3rd Qu.:  33.00   3rd Qu.: 15.00   3rd Qu.: 607.0   3rd Qu.:143.5        
+ Max.   :2917.00   Max.   :195.00   Max.   :3479.0   Max.   :965.0        
+ 2014 Livestock farm 2014 Fishing farm 2014 Others(*)     2015 Total    
+ Min.   :   0.0      Min.   :   0.00   Min.   :  0.00   Min.   :   1.0  
+ 1st Qu.:  18.0      1st Qu.:   0.00   1st Qu.:  1.00   1st Qu.:  66.5  
+ Median :  72.0      Median :   7.00   Median :  3.00   Median : 298.0  
+ Mean   : 200.7      Mean   :  73.71   Mean   : 14.17   Mean   : 466.5  
+ 3rd Qu.: 270.0      3rd Qu.:  36.50   3rd Qu.: 14.50   3rd Qu.: 666.0  
+ Max.   :2099.0      Max.   :2927.00   Max.   :193.00   Max.   :3055.0  
+ 2015 Cultivation farm 2015 Livestock farm 2015 Fishing farm 2015 Others(*)  
+ Min.   :  0.0         Min.   :   1.0      Min.   :   0.00   Min.   :  0.00  
+ 1st Qu.:  0.5         1st Qu.:  25.0      1st Qu.:   0.00   1st Qu.:  1.00  
+ Median :  9.0         Median :  80.0      Median :   7.00   Median :  3.00  
+ Mean   :145.7         Mean   : 239.2      Mean   :  66.27   Mean   : 15.37  
+ 3rd Qu.:137.0         3rd Qu.: 328.0      3rd Qu.:  29.50   3rd Qu.: 14.00  
+ Max.   :990.0         Max.   :2578.0      Max.   :2414.00   Max.   :205.00  
+   2016 Total     2016 Cultivation farm 2016 Livestock farm 2016 Fishing farm
+ Min.   :   1.0   Min.   :   0.0        Min.   :   1.0      Min.   :  0.0    
+ 1st Qu.: 100.0   1st Qu.:   1.0        1st Qu.:  41.0      1st Qu.:  1.0    
+ Median : 319.0   Median :  13.0        Median : 115.0      Median :  9.0    
+ Mean   : 531.6   Mean   : 146.3        Mean   : 331.3      Mean   : 37.3    
+ 3rd Qu.: 866.5   3rd Qu.: 124.0        3rd Qu.: 402.5      3rd Qu.: 32.0    
+ Max.   :3811.0   Max.   :1140.0        Max.   :3383.0      Max.   :336.0    
+ 2016 Others(*)     2017 Total     2017 Cultivation farm 2017 Livestock farm
+ Min.   :  0.00   Min.   :   1.0   Min.   :   0.0        Min.   :   1.0     
+ 1st Qu.:  1.00   1st Qu.: 108.0   1st Qu.:   1.0        1st Qu.:  44.5     
+ Median :  4.00   Median : 341.0   Median :  11.0        Median : 114.0     
+ Mean   : 16.71   Mean   : 540.4   Mean   : 144.4        Mean   : 335.8     
+ 3rd Qu.: 10.50   3rd Qu.: 856.0   3rd Qu.: 127.5        3rd Qu.: 457.0     
+ Max.   :428.00   Max.   :3830.0   Max.   :1130.0        Max.   :3373.0     
+ 2017 Fishing farm 2017 Others(*)     2018 Total     2018 Cultivation farm
+ Min.   :  0.0     Min.   :  0.00   Min.   :   1.0   Min.   :   0.0       
+ 1st Qu.:  1.0     1st Qu.:  0.00   1st Qu.: 103.0   1st Qu.:   1.0       
+ Median : 11.0     Median :  3.00   Median : 354.0   Median :  10.0       
+ Mean   : 41.7     Mean   : 18.48   Mean   : 502.7   Mean   : 134.9       
+ 3rd Qu.: 32.0     3rd Qu.: 13.00   3rd Qu.: 759.5   3rd Qu.: 126.0       
+ Max.   :336.0     Max.   :452.00   Max.   :3261.0   Max.   :1094.0       
+ 2018 Livestock farm 2018 Fishing farm 2018 Others(*)     2019 Total    
+ Min.   :   1.0      Min.   :  0.00    Min.   :  0.00   Min.   :   2.0  
+ 1st Qu.:  42.0      1st Qu.:  1.00    1st Qu.:  0.00   1st Qu.:  98.0  
+ Median : 125.0      Median :  8.00    Median :  4.00   Median : 397.0  
+ Mean   : 311.7      Mean   : 37.02    Mean   : 19.02   Mean   : 512.9  
+ 3rd Qu.: 426.5      3rd Qu.: 32.50    3rd Qu.: 10.50   3rd Qu.: 761.0  
+ Max.   :2826.0      Max.   :347.00    Max.   :434.00   Max.   :3390.0  
+ 2019 Cultivation farm 2019 Livestock farm 2019 Fishing farm 2019 Others(*)  
+ Min.   :   0.0        Min.   :   1.0      Min.   :  0.00    Min.   :  0.00  
+ 1st Qu.:   1.0        1st Qu.:  43.5      1st Qu.:  1.00    1st Qu.:  0.00  
+ Median :  11.0        Median : 137.0      Median :  8.00    Median :  4.00  
+ Mean   : 133.7        Mean   : 322.4      Mean   : 36.95    Mean   : 19.92  
+ 3rd Qu.: 128.0        3rd Qu.: 440.5      3rd Qu.: 33.50    3rd Qu.: 10.00  
+ Max.   :1098.0        Max.   :2955.0      Max.   :347.00    Max.   :434.00  
+   2020 Total     2020 Cultivation farm 2020 Livestock farm 2020 Fishing farm
+ Min.   :   0.0   Min.   :  0.0         Min.   :   0.0      Min.   :  0.00   
+ 1st Qu.:  86.5   1st Qu.:  3.0         1st Qu.:  23.5      1st Qu.:  0.00   
+ Median : 261.0   Median : 19.0         Median :  91.0      Median :  9.00   
+ Mean   : 375.6   Mean   :104.8         Mean   : 218.3      Mean   : 43.02   
+ 3rd Qu.: 536.0   3rd Qu.:112.5         3rd Qu.: 228.5      3rd Qu.: 37.50   
+ Max.   :2377.0   Max.   :903.0         Max.   :1741.0      Max.   :536.00   
+ 2020 Others(*)     2021 Total     2021 Cultivation farm 2021 Livestock farm
+ Min.   : 0.000   Min.   :   0.0   Min.   :  0.0         Min.   :   0.0     
+ 1st Qu.: 0.000   1st Qu.:  90.0   1st Qu.:  3.0         1st Qu.:  31.0     
+ Median : 2.000   Median : 254.0   Median : 20.0         Median : 101.0     
+ Mean   : 9.444   Mean   : 377.3   Mean   :103.4         Mean   : 218.2     
+ 3rd Qu.:10.000   3rd Qu.: 535.0   3rd Qu.:115.0         3rd Qu.: 237.0     
+ Max.   :89.000   Max.   :2160.0   Max.   :897.0         Max.   :1740.0     
+ 2021 Fishing farm 2021 Others(*)     2022 Total     2022 Cultivation farm
+ Min.   :  0.00    Min.   :  0.00   Min.   :   0.0   Min.   :  0.0        
+ 1st Qu.:  0.50    1st Qu.:  0.00   1st Qu.:  93.0   1st Qu.:  3.0        
+ Median : 10.00    Median :  2.00   Median : 274.0   Median : 22.0        
+ Mean   : 44.65    Mean   : 11.05   Mean   : 382.1   Mean   :100.1        
+ 3rd Qu.: 39.50    3rd Qu.:  9.00   3rd Qu.: 542.5   3rd Qu.:115.0        
+ Max.   :608.00    Max.   :103.00   Max.   :2032.0   Max.   :892.0        
+ 2022 Livestock farm 2022 Fishing farm 2022 Others(*)     2023 Total    
+ Min.   :   0.0      Min.   :  0.00    Min.   :  0.00   Min.   :   0.0  
+ 1st Qu.:  29.0      1st Qu.:  0.50    1st Qu.:  0.00   1st Qu.:  94.0  
+ Median : 104.0      Median :  9.00    Median :  2.00   Median : 284.0  
+ Mean   : 223.6      Mean   : 46.67    Mean   : 11.81   Mean   : 395.8  
+ 3rd Qu.: 244.5      3rd Qu.: 51.00    3rd Qu.: 10.50   3rd Qu.: 610.0  
+ Max.   :1752.0      Max.   :624.00    Max.   :104.00   Max.   :1966.0  
+ 2023 Cultivation farm 2023 Livestock farm 2023 Fishing farm 2023 Others(*)  
+ Min.   :  0.0         Min.   :   0.0      Min.   :  0.00    Min.   :  0.00  
+ 1st Qu.:  2.5         1st Qu.:  28.0      1st Qu.:  0.00    1st Qu.:  0.00  
+ Median : 20.0         Median :  97.0      Median :  9.00    Median :  4.00  
+ Mean   :113.1         Mean   : 222.8      Mean   : 47.06    Mean   : 12.86  
+ 3rd Qu.:110.0         3rd Qu.: 262.5      3rd Qu.: 56.00    3rd Qu.: 10.50  
+ Max.   :922.0         Max.   :1751.0      Max.   :677.00    Max.   :114.00  </code></pre>
+</div>
+</div>
+<p>This code calculates and prints summary statistics for columns associated with the years 2012 through 2023. This gives a quick, aggregated view of each year’s data, providing insight into distributions and highlighting potential outliers or trends over time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>farms <span class="ot">&lt;-</span> farms <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2012 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2012 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2012 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2012 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2012 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2012 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2012 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2012 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2012 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2012 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2012 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2012 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2013 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2013 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2013 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2013 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2013 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2013 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2013 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2013 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2013 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2013 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2013 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2013 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2014 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2014 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2014 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2014 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2014 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2014 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2014 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2014 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2014 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2014 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2014 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2014 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2015 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2015 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2015 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2015 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2015 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2015 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2015 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2015 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2015 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2015 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2015 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2015 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2016 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2016 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2016 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2016 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2016 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2016 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2016 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2016 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2016 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2016 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2016 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2016 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2017 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2017 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2017 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2017 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2017 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2017 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2017 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2017 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2017 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2017 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2017 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2017 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2018 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2018 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2018 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2018 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2018 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2018 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2018 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2018 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2018 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2018 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2018 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2018 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2019 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2019 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2019 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2019 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2019 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2019 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2019 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2019 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2019 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2019 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2019 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2019 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2020 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2020 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2020 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2020 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2020 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2020 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2020 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2020 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2020 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2020 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2020 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2020 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2021 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2021 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2021 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2021 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2021 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2021 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2021 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2021 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2021 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2021 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2021 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2021 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2022 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2022 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2022 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2022 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2022 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2022 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2022 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2022 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2022 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2022 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2022 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2022 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">2023 Cultivation PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2023 Cultivation farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2023 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2023 Livestock PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2023 Livestock farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2023 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2023 Fishing PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2023 Fishing farm</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2023 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">2023 Others PR</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">2023 Others(*)</span><span class="st">`</span> <span class="sc">/</span> <span class="st">`</span><span class="at">2023 Total</span><span class="st">`</span> <span class="sc">*</span> <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this part, proportion ratios for various farm types (Cultivation, Livestock, Fishing, and Others) are calculated for each year, relative to the total farms. Scaling each type per 1,000 total farms allows us to compare regions with different total farm sizes on an equal footing, making it possible to see the proportionate focus of each province’s farming sector over time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>enterprise <span class="ot">&lt;-</span> enterprise <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">str_trim</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Red River Delta"</span>, <span class="st">"Northern midlands and mountain areas"</span>, </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Northern Central area and Central coastal area"</span>, <span class="st">"Central Highlands"</span>, </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"South East"</span>, <span class="st">"Mekong River Delta"</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Ho Chi Minh city"</span> <span class="sc">~</span> <span class="st">"TP. Ho Chi Minh"</span>,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Thai  Nguyen"</span> <span class="sc">~</span> <span class="st">"Thai Nguyen"</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Thua Thien-Hue"</span> <span class="sc">~</span> <span class="st">"Thua Thien - Hue"</span>,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Quang  Nam"</span> <span class="sc">~</span> <span class="st">"Quang Nam"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Quang  Ngai"</span> <span class="sc">~</span> <span class="st">"Quang Ngai"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Khanh  Hoa"</span> <span class="sc">~</span> <span class="st">"Khanh Hoa"</span>,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Ninh  Thuan"</span> <span class="sc">~</span> <span class="st">"Ninh Thuan"</span>,</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Binh  Duong"</span> <span class="sc">~</span> <span class="st">"Binh Duong"</span>,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Kien  Giang"</span> <span class="sc">~</span> <span class="st">"Kien Giang"</span>,</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>, <span class="sc">~</span><span class="fu">str_replace_all</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">"0"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="st">`</span><span class="at">Cities, provincies</span><span class="st">`</span>, <span class="sc">~</span><span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(.))))</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(enterprise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 63 × 9
+   `Cities, provincies` `2016` `2017` `2018` `2019` `2020` `2021` `2022` `2023`
+   &lt;chr&gt;                 &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Ha Noi                22663  24545  25231  27711  26135  24026  29720  31512
+ 2 Vinh Phuc               857   1250   1145   1194   1249   1214   1377   1523
+ 3 Bac Ninh               1660   2046   2041   2405   2390   2368   2700   3473
+ 4 Quang Ninh             1254   1593   1654   1605   1456   1455   1643   1689
+ 5 Hai Duong              1213   1509   1549   1695   1600   1425   1579   1884
+ 6 Hai Phong              2568   2979   3145   2943   2867   3034   3294   3523
+ 7 Hung Yen                903   1311   1185   1194   1153   1331   1364   1594
+ 8 Thai Binh               631    776    825    890    714    847   1130   1245
+ 9 Ha Nam                  481    628    596    684    682    666    796    771
+10 Nam Dinh                675    799    818    796    794    906   1088   1283
+# ℹ 53 more rows</code></pre>
+</div>
+</div>
+<p>This segment cleans and standardizes province names in <code>enterprise</code>, trimming whitespace and correcting inconsistent naming conventions (e.g., replacing “Ho Chi Minh city” with “TP. Ho Chi Minh”). It also removes rows that represent regions rather than specific provinces, ensuring a focus on individual provincial data. Missing values, represented as “..”, are replaced with 0 to enable smooth calculations, and all non-province columns are converted to numeric format to prevent errors in numeric operations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(enterprise, <span class="st">"data/rds/enterprise.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="exploratory-data-analysis-eda" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis-eda"><strong>Exploratory Data Analysis (EDA)</strong></h2>
+<p>When designing the Shiny UI, I plan to include the variable “type of farm,” allowing users to explore the agricultural data across different years and farm types interactively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>plots_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (year <span class="cf">in</span> <span class="dv">2012</span><span class="sc">:</span><span class="dv">2023</span>) {</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(farms, <span class="fu">aes_string</span>(<span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">"`"</span>, year, <span class="st">" Cultivation farm`"</span>))) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste</span>(year)) <span class="sc">+</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="fu">as.character</span>(year)]] <span class="ot">&lt;-</span> p</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`.
+ℹ See also `vignette("ggplot2-in-packages")` for more information.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>arranged_plot <span class="ot">&lt;-</span> <span class="fu">ggarrange</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2012"</span>]], plots_list[[<span class="st">"2013"</span>]], plots_list[[<span class="st">"2014"</span>]],</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2015"</span>]], plots_list[[<span class="st">"2016"</span>]], plots_list[[<span class="st">"2017"</span>]],</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2018"</span>]], plots_list[[<span class="st">"2019"</span>]], plots_list[[<span class="st">"2020"</span>]],</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  plots_list[[<span class="st">"2021"</span>]], plots_list[[<span class="st">"2022"</span>]], plots_list[[<span class="st">"2023"</span>]],</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">nrow =</span> <span class="dv">3</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arranged_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-Home_Ex03_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

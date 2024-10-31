@@ -1,0 +1,298 @@
+---
+title: "Take Home Exercise 3"
+author: "Xu Haiyang"
+date: "14 October, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+# **Prototyping Modules for Geospatial Analytics Shiny Application**
+
+## **Overview**
+
+Prototyping serves as a pivotal step in application development, bridging theoretical design with practical user interaction. A well-constructed prototype validates design decisions by providing a tangible platform to test user experience (UX) elements with stakeholders. This approach helps refine the application's UX before further resources are invested, enhancing both efficiency and effectiveness.
+
+## **Prototyping for Shiny Application**
+
+In the context of developing a **Shiny application** using **R**, prototyping plays a crucial role in defining technical requirements, testing functionality, and refining the user interface.
+
+1.  **Evaluating R Packages**: The initial step in Shiny prototyping involves identifying and validating R packages from CRAN that support the app’s functionality. This ensures the application’s foundation is reliable and compatible with the required analyses and visualizations.
+
+2.  **Testing R Code**: Prototyping also involves running and validating specific R code snippets to confirm they produce expected outputs. This testing process helps ensure a smooth experience for end-users by troubleshooting issues early.
+
+3.  **Setting Parameters and Outputs**: Deciding on the parameters and outputs to expose in the application is a key step. These will guide user interaction and determine the dynamic nature of the app.
+
+4.  **Designing the UI with Shiny Components**: The final prototyping phase involves selecting Shiny UI components that allow users to interact with the chosen parameters intuitively.
+
+This structured approach facilitates a seamless transition from conceptual design to a fully functional application, prioritizing both technical robustness and user experience.
+
+# **Understanding Basics of Shiny**
+
+**Shiny** is an open-source R package designed to simplify the creation of interactive web applications without requiring knowledge of web design languages like HTML, CSS, or JavaScript.
+
+### **Core Components of Shiny**
+
+A Shiny application typically consists of an **`app.R`** file that includes two main sections:
+
+1.  **User Interface (UI)** - Defines the front-end layout and elements that users interact with.
+
+2.  **Server** - Contains the back-end logic, handling input-processing and output-rendering functions.
+
+This modular structure keeps the UI and server functions distinct, ensuring a clean, organized codebase.
+
+### **UI Layout in Shiny**
+
+The Shiny UI includes components like:
+
+1.  **Header Panel** (`headerPanel`): Displays the app’s title or brief descriptions.
+
+2.  **Sidebar Panel** (`sidebarPanel`): A vertical panel for input controls, offering users a way to interact with the app.
+
+3.  **Main Panel** (`mainPanel`): The primary area for output displays (e.g., maps, plots, tables).
+
+### **Flexible Layout with FluidRow and Column**
+
+Shiny employs a grid layout system through `fluidRow()` and `column()`, based on a 12-column structure, allowing flexible UI design. Each `fluidRow` can hold multiple `column` elements, enabling a variety of layouts by adjusting column widths.
+
+### **Navbar Pages for Organized Layouts**
+
+To structure complex applications, **`navbarPage()`** is available, enabling multiple sub-components within the app, each with distinct sidebar, tabset, or layout configurations.
+
+### **User Inputs and Controls in Sidebar Panel**
+
+Shiny provides various functions for defining user inputs, such as:
+
+-   **`sliderInput()`**: Creates a slider for range-based input.
+
+-   **`selectInput()`**: Generates a dropdown list.
+
+-   **`textInput()`**: Adds a text box for user input.
+
+-   **`numericInput()`**: Allows users to enter numeric values.
+
+-   **`checkboxInput()` & `checkboxGroupInput()`**: Useful for binary or multiple-choice selections.
+
+After configuring inputs, **`submitButton()`** compiles and sends inputs to the server, updating outputs accordingly.
+
+### **Outputs in Main Panel**
+
+Outputs are defined in the main panel with placeholders like:
+
+-   **`textOutput()`**, **`tableOutput()`**, and **`plotOutput()`**.
+
+-   Rendered on the UI via corresponding functions (`renderText`, `renderTable`, `renderPlot`), these components can be customized using `fluidRow()` and `column()`.
+
+### **Organizing Outputs with Tabsets**
+
+To segment content in the main panel, **`tabsetPanel()`** creates a series of tabs, helping organize multiple outputs within the application.
+
+### **Server Component**
+
+The server function processes inputs from the UI and defines outputs based on input values. It typically includes parameters for:
+
+-   **Input**: Accesses user-specified UI inputs.
+
+-   **Output**: Dictates output displays on the UI.
+
+-   **Session** (optional): Manages session-specific settings.
+
+The **UI and server interaction** is a two-way communication loop, where inputs from the UI are processed by the server, and the resulting outputs are displayed back on the UI.
+
+# **Analysing R-Packages**
+
+```{r}
+pacman::p_load(spdep, tmap, sf, ClustGeo, 
+               ggpubr, cluster, factoextra, NbClust,
+               heatmaply, corrplot, psych, tidyverse, GGally)
+```
+
+This line uses `pacman::p_load` to load all necessary packages in one command, ensuring that all packages required for data manipulation, visualization, clustering, and spatial analysis are ready for use.
+
+```{r}
+vietnam_geo <- st_read(dsn = "data/geospatial/DiaphanTinh", layer = "Dia_phan_Tinh")
+```
+
+```{r}
+write_rds(vietnam_geo, "data/rds/vietnam_geo.rds")
+```
+
+```{r}
+glimpse(vietnam_geo)
+```
+
+```{r}
+farms <- read_csv("data/aspatial/farms.csv") 
+```
+
+```{r}
+summary(farms)
+```
+
+```{r}
+enterprise <- read_csv("data/aspatial/enterprise.csv")
+```
+
+```{r}
+farms <- farms %>%
+  mutate(`Cities, provincies` = str_trim(`Cities, provincies`)) %>%
+  filter(!`Cities, provincies` %in% c(
+    "Red River Delta", "Northern midlands and mountain areas", 
+    "Northern Central area and Central coastal area", "Central Highlands", 
+    "South East", "Mekong River Delta"
+  )) %>%
+  mutate(`Cities, provincies` = case_when(
+    `Cities, provincies` == "Ho Chi Minh city" ~ "TP. Ho Chi Minh",
+    `Cities, provincies` == "Thai  Nguyen" ~ "Thai Nguyen",
+    `Cities, provincies` == "Thua Thien-Hue" ~ "Thua Thien - Hue",
+    `Cities, provincies` == "Quang  Nam" ~ "Quang Nam",
+    `Cities, provincies` == "Quang  Ngai" ~ "Quang Ngai",
+    `Cities, provincies` == "Khanh  Hoa" ~ "Khanh Hoa",
+    `Cities, provincies` == "Ninh  Thuan" ~ "Ninh Thuan",
+    `Cities, provincies` == "Binh  Duong" ~ "Binh Duong",
+    `Cities, provincies` == "Kien  Giang" ~ "Kien Giang",
+    TRUE ~ `Cities, provincies`
+  )) %>%
+  mutate(across(-`Cities, provincies`, ~str_replace_all(., "\\.\\.", "0"))) %>%
+  mutate(across(-`Cities, provincies`, ~suppressWarnings(as.numeric(.))))
+
+print(farms)
+```
+
+This segment cleans and standardizes province names in `farms`, trimming whitespace and correcting inconsistent naming conventions (e.g., replacing "Ho Chi Minh city" with "TP. Ho Chi Minh"). It also removes rows representing regions rather than specific provinces. Missing values, represented as `..`, are replaced with `0` to facilitate calculations, and remaining non-province columns are converted to numeric format to avoid errors in numeric operations.
+
+```{r}
+write_rds(farms, "data/rds/farms.rds")
+```
+
+```{r}
+summary_stats <- farms %>%
+  select(starts_with("2012"), starts_with("2013"), starts_with("2014"), starts_with("2015"),
+         starts_with("2016"), starts_with("2017"), starts_with("2018"), starts_with("2019"),
+         starts_with("2020"), starts_with("2021"), starts_with("2022"), starts_with("2023")) %>%
+  summary()
+
+print("Summary Statistics:")
+print(summary_stats)
+```
+
+This code calculates and prints summary statistics for columns associated with the years 2012 through 2023. This gives a quick, aggregated view of each year’s data, providing insight into distributions and highlighting potential outliers or trends over time.
+
+```{r}
+farms <- farms %>%
+  mutate(`2012 Cultivation PR` = `2012 Cultivation farm` / `2012 Total` * 1000,
+         `2012 Livestock PR` = `2012 Livestock farm` / `2012 Total` * 1000,
+         `2012 Fishing PR` = `2012 Fishing farm` / `2012 Total` * 1000,
+         `2012 Others PR` = `2012 Others(*)` / `2012 Total` * 1000) %>%
+  mutate(`2013 Cultivation PR` = `2013 Cultivation farm` / `2013 Total` * 1000,
+         `2013 Livestock PR` = `2013 Livestock farm` / `2013 Total` * 1000,
+         `2013 Fishing PR` = `2013 Fishing farm` / `2013 Total` * 1000,
+         `2013 Others PR` = `2013 Others(*)` / `2013 Total` * 1000) %>%
+  mutate(`2014 Cultivation PR` = `2014 Cultivation farm` / `2014 Total` * 1000,
+         `2014 Livestock PR` = `2014 Livestock farm` / `2014 Total` * 1000,
+         `2014 Fishing PR` = `2014 Fishing farm` / `2014 Total` * 1000,
+         `2014 Others PR` = `2014 Others(*)` / `2014 Total` * 1000) %>%
+  mutate(`2015 Cultivation PR` = `2015 Cultivation farm` / `2015 Total` * 1000,
+         `2015 Livestock PR` = `2015 Livestock farm` / `2015 Total` * 1000,
+         `2015 Fishing PR` = `2015 Fishing farm` / `2015 Total` * 1000,
+         `2015 Others PR` = `2015 Others(*)` / `2015 Total` * 1000) %>%
+  mutate(`2016 Cultivation PR` = `2016 Cultivation farm` / `2016 Total` * 1000,
+         `2016 Livestock PR` = `2016 Livestock farm` / `2016 Total` * 1000,
+         `2016 Fishing PR` = `2016 Fishing farm` / `2016 Total` * 1000,
+         `2016 Others PR` = `2016 Others(*)` / `2016 Total` * 1000) %>%
+  mutate(`2017 Cultivation PR` = `2017 Cultivation farm` / `2017 Total` * 1000,
+         `2017 Livestock PR` = `2017 Livestock farm` / `2017 Total` * 1000,
+         `2017 Fishing PR` = `2017 Fishing farm` / `2017 Total` * 1000,
+         `2017 Others PR` = `2017 Others(*)` / `2017 Total` * 1000) %>%
+  mutate(`2018 Cultivation PR` = `2018 Cultivation farm` / `2018 Total` * 1000,
+         `2018 Livestock PR` = `2018 Livestock farm` / `2018 Total` * 1000,
+         `2018 Fishing PR` = `2018 Fishing farm` / `2018 Total` * 1000,
+         `2018 Others PR` = `2018 Others(*)` / `2018 Total` * 1000) %>%
+  mutate(`2019 Cultivation PR` = `2019 Cultivation farm` / `2019 Total` * 1000,
+         `2019 Livestock PR` = `2019 Livestock farm` / `2019 Total` * 1000,
+         `2019 Fishing PR` = `2019 Fishing farm` / `2019 Total` * 1000,
+         `2019 Others PR` = `2019 Others(*)` / `2019 Total` * 1000) %>%
+  mutate(`2020 Cultivation PR` = `2020 Cultivation farm` / `2020 Total` * 1000,
+         `2020 Livestock PR` = `2020 Livestock farm` / `2020 Total` * 1000,
+         `2020 Fishing PR` = `2020 Fishing farm` / `2020 Total` * 1000,
+         `2020 Others PR` = `2020 Others(*)` / `2020 Total` * 1000) %>%
+  mutate(`2021 Cultivation PR` = `2021 Cultivation farm` / `2021 Total` * 1000,
+         `2021 Livestock PR` = `2021 Livestock farm` / `2021 Total` * 1000,
+         `2021 Fishing PR` = `2021 Fishing farm` / `2021 Total` * 1000,
+         `2021 Others PR` = `2021 Others(*)` / `2021 Total` * 1000) %>%
+  mutate(`2022 Cultivation PR` = `2022 Cultivation farm` / `2022 Total` * 1000,
+         `2022 Livestock PR` = `2022 Livestock farm` / `2022 Total` * 1000,
+         `2022 Fishing PR` = `2022 Fishing farm` / `2022 Total` * 1000,
+         `2022 Others PR` = `2022 Others(*)` / `2022 Total` * 1000) %>%
+  mutate(`2023 Cultivation PR` = `2023 Cultivation farm` / `2023 Total` * 1000,
+         `2023 Livestock PR` = `2023 Livestock farm` / `2023 Total` * 1000,
+         `2023 Fishing PR` = `2023 Fishing farm` / `2023 Total` * 1000,
+         `2023 Others PR` = `2023 Others(*)` / `2023 Total` * 1000)
+```
+
+In this part, proportion ratios for various farm types (Cultivation, Livestock, Fishing, and Others) are calculated for each year, relative to the total farms. Scaling each type per 1,000 total farms allows us to compare regions with different total farm sizes on an equal footing, making it possible to see the proportionate focus of each province’s farming sector over time.
+
+```{r}
+enterprise <- enterprise %>%
+  mutate(`Cities, provincies` = str_trim(`Cities, provincies`)) %>%
+  filter(!`Cities, provincies` %in% c(
+    "Red River Delta", "Northern midlands and mountain areas", 
+    "Northern Central area and Central coastal area", "Central Highlands", 
+    "South East", "Mekong River Delta"
+  )) %>%
+  mutate(`Cities, provincies` = case_when(
+    `Cities, provincies` == "Ho Chi Minh city" ~ "TP. Ho Chi Minh",
+    `Cities, provincies` == "Thai  Nguyen" ~ "Thai Nguyen",
+    `Cities, provincies` == "Thua Thien-Hue" ~ "Thua Thien - Hue",
+    `Cities, provincies` == "Quang  Nam" ~ "Quang Nam",
+    `Cities, provincies` == "Quang  Ngai" ~ "Quang Ngai",
+    `Cities, provincies` == "Khanh  Hoa" ~ "Khanh Hoa",
+    `Cities, provincies` == "Ninh  Thuan" ~ "Ninh Thuan",
+    `Cities, provincies` == "Binh  Duong" ~ "Binh Duong",
+    `Cities, provincies` == "Kien  Giang" ~ "Kien Giang",
+    TRUE ~ `Cities, provincies`
+  )) %>%
+  mutate(across(-`Cities, provincies`, ~str_replace_all(., "\\.\\.", "0"))) %>%
+  mutate(across(-`Cities, provincies`, ~suppressWarnings(as.numeric(.))))
+
+print(enterprise)
+```
+
+This segment cleans and standardizes province names in `enterprise`, trimming whitespace and correcting inconsistent naming conventions (e.g., replacing "Ho Chi Minh city" with "TP. Ho Chi Minh"). It also removes rows that represent regions rather than specific provinces, ensuring a focus on individual provincial data. Missing values, represented as "..", are replaced with 0 to enable smooth calculations, and all non-province columns are converted to numeric format to prevent errors in numeric operations.
+
+```{r}
+write_rds(enterprise, "data/rds/enterprise.rds")
+```
+
+## **Exploratory Data Analysis (EDA)**
+
+When designing the Shiny UI, I plan to include the variable "type of farm," allowing users to explore the agricultural data across different years and farm types interactively.
+
+```{r}
+plots_list <- list()
+
+for (year in 2012:2023) {
+  p <- ggplot(farms, aes_string(x = paste0("`", year, " Cultivation farm`"))) +
+    geom_histogram(fill = "skyblue", color = "black") +
+    ggtitle(paste(year)) +
+    theme_minimal()
+  
+  plots_list[[as.character(year)]] <- p
+}
+
+arranged_plot <- ggarrange(
+  plots_list[["2012"]], plots_list[["2013"]], plots_list[["2014"]],
+  plots_list[["2015"]], plots_list[["2016"]], plots_list[["2017"]],
+  plots_list[["2018"]], plots_list[["2019"]], plots_list[["2020"]],
+  plots_list[["2021"]], plots_list[["2022"]], plots_list[["2023"]],
+  ncol = 4, nrow = 3
+)
+
+print(arranged_plot)
+```
+
+
+
+

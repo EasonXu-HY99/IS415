@@ -1,0 +1,15 @@
+{
+  "hash": "abe6f192036d8b3ba1052511e0fc3071",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands on Exercise 10\"\nauthor: \"Xu Haiyang\"\ndate: \"28 October, 2024\" \ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  freeze: true\n---\n\n\n\n\n\n## **Overview**\n\n**Geographically weighted regression (GWR)** is a spatial statistical technique that takes non-stationary variables into consideration (e.g., climate; demographic factors; physical environment characteristics) and models the local relationships between these independent variables and an outcome of interest (also known as dependent variable). In this hands-on exercise, you will learn how to build [hedonic pricing](https://www.investopedia.com/terms/h/hedonicpricing.asp) models by using GWR methods. The dependent variable is the resale prices of condominium in 2015. The independent variables are divided into either structural and locational.\n\n\n\n\n\n::: {.cell}\n\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
