@@ -581,4 +581,369 @@ ggarrange(r, s, z,
           nrow = 1)
 ```
 
+Here, histograms compare the distribution of "Cultivation PR" for 2012 under three conditions: raw values, Min-Max standardized, and Z-score standardized. In the Shiny UI, I’ll present these options to allow users to view the impact of different standardization methods on the data. This visualization will help users understand how scaling changes the data’s spread and enables them to select the most informative view for their analysis.
+
+```{r}
+r <- ggplot(data = vietnam_farm_ict, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_density(color = "black", 
+               fill = "light blue") +
+  ggtitle("Raw Values (without Standardization)")
+
+vietnam_farm_std_df <- as.data.frame(vietnam_farm.std)
+
+s <- ggplot(data = vietnam_farm_std_df, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_density(color = "black", 
+               fill = "light blue") +
+  ggtitle("Min-Max Standardization")
+
+vietnam_farm_z_df <- as.data.frame(vietnam_farm.z)
+
+z <- ggplot(data = vietnam_farm_z_df, 
+            aes(x = `2012 Cultivation PR`)) +
+  geom_density(color = "black", 
+               fill = "light blue") +
+  ggtitle("Z-score Standardization")
+
+ggarrange(r, s, z,
+          ncol = 3,
+          nrow = 1)
+```
+
+Similar to the histograms, these density plots display the distribution of "Cultivation PR" for 2012 under raw, Min-Max, and Z-score standardizations. In Shiny, I’ll offer a choice between histogram and density plot types so users can explore the data distribution in the format that best suits their analysis. These density plots provide a smoother view of data spread, aiding users in understanding variability and data concentration more intuitively.
+
+### **Computing proximity matrix**
+
+When designing the Shiny UI, I’ll include the variable "year," allowing users to explore data clustering for different years.
+
+```{r}
+vietnam_farm_ict_2012 <- vietnam_farm %>%
+  st_drop_geometry() %>%
+  select(matches("^2012.*(PR|farm|Others\\(\\*\\))"))
+```
+
+This code creates a subset of `vietnam_farm` containing only 2012 data for variables related to farm counts and proportions. Removing geometry with `st_drop_geometry()` makes it easier to compute distances for numeric data only.
+
+```{r}
+proxmat <- dist(vietnam_farm_ict_2012, method = 'euclidean')
+```
+
+Here, I calculate a proximity matrix using Euclidean distance, which measures similarity across provinces based on their farm metrics. This proximity matrix is foundational for clustering analysis in Shiny, helping users see how similar or different provinces are from each other based on the chosen year.
+
+### **Computing hierarchical clustering**
+
+```{r}
+hclust_ward <- hclust(proxmat, method = 'ward.D')
+```
+
+Using the `ward.D` method, this line creates a hierarchical clustering model based on the computed proximity matrix. The Ward method minimizes variance within clusters, making it ideal for grouping provinces with similar farm characteristics.
+
+### **Selecting the optimal clustering algorithm**
+
+```{r}
+m <- c("average", "single", "complete", "ward")
+names(m) <- c("average", "single", "complete", "ward")
+
+ac <- function(x) {
+  agnes(vietnam_farm_ict_2012, method = x)$ac 
+}
+
+ac_values <- map_dbl(m, ac)
+
+print(ac_values)
+```
+
+To identify the best clustering method, I calculate the agglomerative coefficient (`ac`) for multiple algorithms (average, single, complete, and ward). Higher `ac` values indicate more compact clusters. In Shiny, users will be able to choose their preferred clustering method based on these coefficients, helping them explore the segmentation of provinces under different methods.
+
+### **Determining Optimal Clusters**
+
+```{r}
+set.seed(12345)
+
+gap_stat <- clusGap(vietnam_farm_ict_2012, 
+                    FUN = hcut,      
+                    nstart = 25,     
+                    K.max = 10, 
+                    B = 50)          
+
+print(gap_stat, method = "firstmax")
+```
+
+```{r}
+fviz_gap_stat(gap_stat)
+```
+
+The `clusGap` function uses gap statistics to determine the optimal number of clusters (K) by comparing clustering quality across different K values. In Shiny, I’ll include the option to adjust K values, allowing users to view how segmentation quality changes and helping them select an ideal number of clusters based on the gap statistic plot.
+
+### **Interpreting the dendrograms**
+
+When designing the Shiny UI, I will include the variable: k value and variable: year to enable users to explore clustering results in detail.
+
+```{r}
+plot(hclust_ward, labels = vietnam_farm$`Cities, provincies`, cex = 0.7)
+rect.hclust(hclust_ward, 
+            k = 6, 
+            border = 2:5)
+```
+
+The dendrogram plot visualizes hierarchical clustering, with rectangles drawn around six clusters to show grouping. In Shiny, I’ll include adjustable K values, allowing users to choose the number of clusters (K) interactively and visualize how provinces group under different K values.
+
+```{r}
+vietnam_farm_ict_mat <- data.matrix(vietnam_farm_ict_2012)
+```
+
+This line converts the `vietnam_farm_ict_2012` data frame into a matrix format for use in clustering and heatmap visualization.
+
+#### Plotting interactive cluster heatmap using *heatmaply()*
+
+When designing the Shiny UI, I will include variable: k value and variable: year to allow users to customize the heatmap view.
+
+```{r}
+vietnam_farm_ict_pr_2012 <- vietnam_farm %>%
+  st_drop_geometry() %>%
+  select(matches("^2012.*PR$")) %>%
+  mutate(across(everything(), ~replace_na(as.numeric(.), 0)))
+
+rownames(vietnam_farm_ict_pr_2012) <- vietnam_farm$`Cities, provincies`
+
+vietnam_farm_ict_pr_2012_std <- normalize(vietnam_farm_ict_pr_2012)
+
+heatmaply(
+  vietnam_farm_ict_pr_2012_std,
+  Colv = NA,
+  dist_method = "euclidean",
+  hclust_method = "ward.D",
+  seriate = "OLO",
+  colors = Blues,
+  k_row = 6,
+  margins = c(NA, 200, 60, NA),
+  fontsize_row = 4,
+  fontsize_col = 5,
+  main = "Geographic Segmentation of Vietnam Farms by ICT Indicators (2012)",
+  xlab = "ICT Indicators",
+  ylab = "Provinces of Vietnam"
+)
+```
+
+In this heatmap, the selected farm proportions are normalized for 2012, and a Ward hierarchical clustering model is applied. The heatmap groups similar provinces based on ICT indicators and displays the intensity of each metric by color. Within the Shiny UI, I’ll allow users to adjust K values and explore clustering structures interactively, making it easy to identify similar clusters among provinces visually.
+
+### **Mapping the clusters formed**
+
+When designing the Shiny UI, I will include options for variable: k value and variable: year, allowing users to dynamically adjust the number of clusters and explore clusters across different years.
+
+```{r}
+groups <- as.factor(cutree(hclust_ward, k=6))
+```
+
+This line creates a grouping variable (`groups`) by cutting the hierarchical clustering dendrogram at K=6 clusters, assigning each province to one of the clusters.
+
+```{r}
+vietnam_farm_cluster <- cbind(vietnam_farm, as.matrix(groups)) %>%
+  rename(`CLUSTER`=`as.matrix.groups.`)
+```
+
+Next, I add the `groups` variable to `vietnam_farm`, renaming it as `CLUSTER`. This combined data frame (`vietnam_farm_cluster`) now includes cluster assignments, making it ready for spatial visualization.
+
+```{r}
+qtm(vietnam_farm_cluster, "CLUSTER")
+```
+
+Using `qtm`, I map the clusters for visualization. In Shiny, this map will allow users to view how provinces are grouped based on farm characteristics for a selected year, with an adjustable K value so users can see how different cluster numbers impact segmentation.
+
+## **Spatially Constrained Clustering: SKATER approach**
+
+The SKATER approach adds spatial constraints to clustering, ensuring clusters are contiguous geographically, which is useful in spatial analysis.
+
+```{r}
+vietnam_farm_sp <- as_Spatial(vietnam_farm)
+```
+
+To work with SKATER, the `vietnam_farm` dataset is converted into a spatial format (`vietnam_farm_sp`), making it compatible with functions that require spatial data structure.
+
+### **Computing Neighbour List**
+
+```{r}
+vietnam_farm.nb <- poly2nb(vietnam_farm_sp)
+summary(vietnam_farm.nb)
+```
+
+This computes the neighborhood list for each province using adjacency, helping to establish spatial relationships necessary for the SKATER algorithm. In Shiny, this process allows for geographically informed clustering based on the provinces’ proximity to each other.
+
+```{r}
+coords <- st_coordinates(
+  st_centroid(st_geometry(vietnam_farm)))
+```
+
+This code calculates the centroid coordinates of each province, used to assess spatial relationships and visualize each cluster’s spatial configuration accurately.
+
+### **Computing minimum spanning tree**
+
+```{r}
+lcosts <- nbcosts(vietnam_farm.nb, vietnam_farm_ict_2012)
+```
+
+The `nbcosts` function calculates edge costs based on Euclidean distances, indicating the cost of connecting each province to its neighbors. This will help in creating a minimum spanning tree for clustering.
+
+```{r}
+vietnam_farm.w <- nb2listw(vietnam_farm.nb, 
+                   lcosts, 
+                   style="B")
+summary(vietnam_farm.w)
+```
+
+Using the neighborhood list and calculated costs, I create a spatial weights list (`vietnam_farm.w`). The weights define connectivity and are crucial for forming the minimum spanning tree in the SKATER method.
+
+```{r}
+vietnam_farm.mst <- mstree(vietnam_farm.w)
+```
+
+The minimum spanning tree (`vietnam_farm.mst`) is created, providing the basis for spatially constrained clusters by ensuring that clusters are spatially connected.
+
+### **Computing spatially constrained clusters using SKATER method**
+
+When designing the Shiny UI, I will include variable: year and selection of `ncuts` to allow users to interactively select both the year and the number of clusters they wish to analyze.
+
+```{r}
+clust <- spdep::skater(edges = vietnam_farm.mst[,1:2], 
+                 data = vietnam_farm_ict_2012, 
+                 method = "euclidean", 
+                 ncuts = 5)
+```
+
+Using the SKATER method, spatially constrained clusters are created based on the minimum spanning tree, using Euclidean distance to determine the cost of connecting provinces. By including `ncuts` as a selectable parameter in Shiny, users can explore how changing the number of clusters impacts spatial segmentation. This flexibility allows them to see various cluster configurations and observe how spatial constraints shape cluster formation across different parameter choices.
+
+### **Visualising the clusters in choropleth map**
+
+When designing the Shiny UI, I will include variable: year so users can interactively select the year for analysis and variable: K value to adjust the number of clusters.
+
+```{r}
+groups_mat <- as.matrix(clust$groups)
+vietnam_farm_spatialcluster <- cbind(vietnam_farm_cluster, as.factor(groups_mat)) %>%
+  rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
+qtm(vietnam_farm_spatialcluster, "SP_CLUSTER")
+```
+
+This code binds the spatially constrained cluster groups to the data and renames the cluster column as `SP_CLUSTER`. The `qtm` function then visualizes these clusters, allowing users to see spatial cluster distributions directly on the map.
+
+```{r}
+hclust.map <- qtm(vietnam_farm_cluster,
+                  "CLUSTER") + 
+  tm_borders(alpha = 0.5) 
+
+shclust.map <- qtm(vietnam_farm_spatialcluster,
+                   "SP_CLUSTER") + 
+  tm_borders(alpha = 0.5) 
+
+tmap_arrange(hclust.map, shclust.map,
+             asp=NA, ncol=2)
+```
+
+Using `tmap_arrange`, I display both the regular and spatially constrained clusters side-by-side, providing users with a comparative view of the cluster types for a given year. The Shiny app will feature year and K value selectors to let users see how clusters vary by different configurations.
+
+## **Spatially Constrained Clustering: ClustGeo Method**
+
+### **Ward-like hierarchical clustering: ClustGeo**
+
+In the Shiny UI, I will include **variable: year** and **variable: K value** so users can explore different years and adjust the number of clusters.
+
+```{r}
+nongeo_cluster <- hclustgeo(proxmat)
+plot(nongeo_cluster, cex = 0.5)
+rect.hclust(nongeo_cluster, 
+            k = 6, 
+            border = 2:5)
+```
+
+The `hclustgeo` function performs hierarchical clustering based on the proximity matrix, producing a dendrogram. Users can select **K values** in Shiny to visualize different clustering arrangements on the dendrogram, adjusting to see various levels of grouping across the chosen year.
+
+#### Mapping the clusters formed
+
+```{r}
+groups <- as.factor(cutree(nongeo_cluster, k=6))
+```
+
+```{r}
+vietnam_farm_ngeo_cluster <- cbind(vietnam_farm, as.matrix(groups)) %>%
+  rename(`CLUSTER` = `as.matrix.groups.`)
+```
+
+This code assigns each province to a cluster (based on `K=6`) and renames the column `CLUSTER`, allowing us to map and display the clusters in Shiny with an adjustable **K value** and **year** for user-driven exploration.
+
+```{r}
+qtm(vietnam_farm_ngeo_cluster, "CLUSTER")
+```
+
+The `qtm` function visualizes these ClustGeo-based clusters, showing spatially relevant groupings across provinces.
+
+### **Spatially Constrained Hierarchical Clustering**
+
+```{r}
+dist <- st_distance(vietnam_farm, vietnam_farm)
+distmat <- as.dist(dist)
+```
+
+This line calculates spatial distances between provinces, forming a distance matrix essential for combining spatial constraints with ClustGeo clustering.
+
+```{r}
+cr <- choicealpha(proxmat, distmat, range.alpha = seq(0, 1, 0.1), K=6, graph = TRUE)
+```
+
+Using `choicealpha`, I generate a plot that helps select the optimal balance (`alpha`) between geographic distance and attribute-based clustering, aiding in refining clusters by integrating spatial proximity.
+
+```{r}
+clustG <- hclustgeo(proxmat, distmat, alpha = 0.2)
+```
+
+This command performs spatially constrained clustering with a specific `alpha` value (0.2), balancing geographic and attribute-based clustering. In Shiny, users will select **K value** and **year** for visualizing clusters under different constraints.
+
+```{r}
+groups <- as.factor(cutree(clustG, k=6))
+```
+
+```{r}
+vietnam_farm_Gcluster <- cbind(vietnam_farm, as.matrix(groups)) %>%
+  rename(`CLUSTER` = `as.matrix.groups.`)
+```
+
+After assigning clusters based on `K=6`, this code binds cluster groupings to the data, allowing each province to be categorized by its cluster number.
+
+```{r}
+qtm(vietnam_farm_Gcluster, "CLUSTER")
+```
+
+The `qtm` map of `CLUSTER` displays the spatially constrained hierarchical clustering for each province, allowing users to examine cluster distributions in Shiny with selectable year and cluster parameters.
+
+## **Visual Interpretation of Clusters**
+
+When designing the Shiny UI, I will include **variable: year** and **variable: K value** to give users flexibility in examining clustering results across years and different cluster groupings.
+
+```{r}
+ggplot(data = vietnam_farm_ngeo_cluster, aes(x = CLUSTER, y = `X2012.Cultivation.PR`)) + geom_boxplot()
+```
+
+This boxplot shows the distribution of `Cultivation PR` within each cluster for the year 2012, providing insights into how similar or varied the clusters are in terms of cultivation proportions. In Shiny, users can adjust **K values** and **years** to explore how clusters relate to different farm indicators.
+
+### **Multivariate Visualisation**
+
+In the Shiny UI, I will include **variable: year**, **K value**, and the option to explore farm indicators across clusters for multivariate analysis.
+
+```{r}
+ggparcoord(data = vietnam_farm_ngeo_cluster, 
+           columns = c(62:65), 
+           scale = "globalminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE, 
+           title = "Multiple Parallel Coordinates Plots of ICT Variables by Cluster (2012)") +
+  facet_grid(~ CLUSTER) + 
+  theme(axis.text.x = element_text(angle = 30)) +
+  scale_x_discrete(labels = c(
+    "X2012.Cultivation.PR" = "Cultivation PR",
+    "X2012.Livestock.PR" = "Livestock PR",
+    "X2012.Fishing.PR" = "Fishing PR",
+    "X2012.Others.PR" = "Others PR"
+  ))
+```
+
+Using parallel coordinate plots, this visualization allows users to view multiple farm indicators across clusters, with variables standardized on a global min-max scale. In Shiny, users can interactively explore these multivariate relationships by adjusting **year** and **K values**, gaining insights into how different farm types are distributed across clusters.
 
