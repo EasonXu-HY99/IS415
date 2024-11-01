@@ -89,6 +89,8 @@ Outputs are defined in the main panel with placeholders like:
 
 To segment content in the main panel, **`tabsetPanel()`** creates a series of tabs, helping organize multiple outputs within the application.
 
+![](images/clipboard-873200038.png)
+
 ### **Server Component**
 
 The server function processes inputs from the UI and defines outputs based on input values. It typically includes parameters for:
@@ -295,6 +297,8 @@ print(arranged_plot)
 
 This code generates yearly histograms of "Cultivation farms" from 2012 to 2023, arranged in a grid layout. In the Shiny design, I will present these histograms, allowing users to explore the distribution of cultivation farms each year. Users will be able to select different years and compare the frequency distribution of cultivation farm counts over time.
 
+![](images/clipboard-926565402.png)
+
 ```{r}
 plots_list <- list()
 
@@ -327,6 +331,8 @@ This code generates histograms for each year from 2016 to 2023, showing the dist
 
 This enterprise data is displayed alongside the farm histogram to allow comparison between farm and enterprise development over the years, suggesting other avenues of growth. In Shiny, I’ll add enterprise as a selection option, enabling users to toggle between enterprise and farm data and explore shifts in development focus across time. This approach helps users visually assess potential transitions from agriculture to enterprise-based growth in each province.
 
+![](images/clipboard-390042237.png)
+
 ```{r}
 farms %>%
   select(`2012 Cultivation farm`, `2013 Cultivation farm`, `2014 Cultivation farm`, 
@@ -347,6 +353,8 @@ farms %>%
 
 I’ll display this boxplot on the Shiny UI, with the variable "Year" on the x-axis and "Cultivation Farms" on the y-axis. This visualization allows users to explore the distribution of cultivation farms over time, observing any changes in median values, variability, and outliers. Users can get insights into how cultivation has varied from year to year.
 
+![](images/clipboard-926565402.png)
+
 ```{r}
 enterprise %>%
   pivot_longer(cols = `2016`:`2023`, names_to = "Year", values_to = "Value") %>%
@@ -360,6 +368,8 @@ enterprise %>%
 ```
 
 Positioning this enterprise boxplot alongside the farm boxplot in the Shiny app allows users to explore shifts in growth focus, comparing farm versus enterprise development over time. By including enterprise as a selectable option in the Shiny UI, users can toggle between the two datasets to observe and analyze trends, discovering insights into how regional development may be evolving from agriculture to business establishment in recent years.
+
+![](images/clipboard-390042237.png)
 
 ```{r}
 plots_list <- list()
@@ -385,6 +395,8 @@ print(arranged_plot)
 ```
 
 In Shiny, I’ll present these histograms of "Cultivation PR" (proportion per 1,000 farms) for each year from 2012 to 2023, enabling users to explore the cultivation farm proportion. By examining these histograms, users can see how the cultivation intensity varied year by year, which can highlight shifts in focus or growth in farming activity.
+
+![](images/clipboard-926565402.png)
 
 ```{r}
 sapply(farms %>% select(contains("Cultivation PR")), function(x) sum(is.na(x)))
@@ -419,6 +431,8 @@ farms %>%
 
 This boxplot for "Cultivation PR" will also be displayed in the Shiny app, allowing users to explore how the proportion of cultivation farms has changed over the years. With variables "Year" and "Cultivation PR," users can observe fluctuations in farming intensity, identifying years with high or low cultivation proportions.
 
+![](images/clipboard-926565402.png)
+
 ```{r}
 vietnam_farm <- farms %>%
   left_join(vietnam_geo %>% select(-Code), by = c("Cities, provincies" = "Name"))
@@ -447,6 +461,8 @@ qtm(vietnam_farm, "2012 Cultivation PR")
 
 This code converts `vietnam_farm` into an `sf` spatial data frame and plots "2012 Cultivation PR" using `qtm`. In Shiny, this map will allow users to visually explore the cultivation farm proportion across different provinces, giving a clear geographic representation of farming intensity.
 
+![](images/clipboard-111619408.png)
+
 ```{r}
 tm_shape(vietnam_farm) +
   tm_polygons(c("2012 Total", "2012 Cultivation farm"),
@@ -458,6 +474,8 @@ tm_shape(vietnam_farm) +
 ```
 
 This faceted map displays both "Total Farms" and "Cultivation Farms" for 2012, using `tm_facets` to create a synchronized side-by-side view. I’ll present these maps in Shiny to allow users to visually compare the distribution of total versus cultivation farms across provinces. This visualization, along with the option to explore variables by year, will provide a comprehensive geographic overview in the Shiny app.
+
+![](images/clipboard-1034109930.png)
 
 ```{r}
 vietnam_enterprise <- st_as_sf(vietnam_enterprise)
@@ -472,6 +490,8 @@ tm_shape(vietnam_enterprise) +
 ```
 
 In Shiny, I’ll allow users to select different years to compare dynamically on a geographic map. Placed alongside farm distribution maps, these enterprise maps offer insights into potential regional shifts from agriculture to business growth. This setup lets users explore spatial differences year-to-year, revealing trends in economic development and regional focus over time.
+
+![](images/clipboard-2649044800.png)
 
 ```{r}
 enterprise_long <- enterprise %>%
@@ -491,6 +511,8 @@ ggplot(data = enterprise_long, aes(x = Year, y = Enterprise_Count, color = `Citi
 ```
 
 In the Shiny app, users will be able to select specific provinces to view enterprise trends over time, allowing them to focus on a particular province's growth trajectory. By enabling this selection, users can explore how enterprise development has varied among provinces, revealing insights into regional economic changes. This interactive feature will enhance user engagement and allow for targeted analysis of provincial trends.
+
+![](images/clipboard-2568801538.png)
 
 ## **Correlation Analysis**
 
