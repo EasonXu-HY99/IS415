@@ -1,0 +1,343 @@
+---
+title: "In Class Exercise 12"
+author: "Xu Haiyang"
+date: "11 November, 2024" 
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## Getting Started
+
+## **Installing and Loading R packages**
+
+```{r}
+pacman::p_load(sf, spdep, GWmodel, SpatialML, 
+               tmap, rsample, yardstick, tidyverse,
+               knitr, kableExtra, spatialRF)
+```
+
+## **Preparing Data**
+
+### **Reading data file to rds**
+
+Reading the input data sets. It is in simple feature data frame.
+
+```{r}
+mdata <- read_rds("data/rds/mdata.rds")
+```
+
+### **Data Sampling**
+
+The entire data are split into training and test data sets with 65% and 35% respectively by using *initial_split()* of **rsample** package. rsample is one of the package of tigymodels.
+
+```{r}
+set.seed(1234)
+HDB_sample <- mdata %>%
+  sample_n(1500)
+```
+
+Randomly samples 1,500 records from the dataset for modeling.
+
+### Checking of overlapping point
+
+```{r}
+overlapping_points <- HDB_sample %>%
+  mutate(overlap = lengths(st_equals(., .)) > 1)
+summary(overlapping_points$overlap)
+```
+
+Checks for overlapping points in `HDB_sample` to identify duplicate spatial locations.
+
+### Spatial Jitter
+
+```{r}
+HDB_sample <- HDB_sample %>%
+  st_jitter(amount = 5)
+```
+
+Applies a spatial jitter to slightly offset overlapping points by 5 units for visualization and modeling.
+
+## Data Sampling
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(HDB_sample, prop = 0.67/10,)
+
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+```{r}
+write_rds(train_data, "data/rds/train_data.rds")
+write_rds(test_data, "data/rds/test_data.rds")
+```
+
+The data is split into 67% training and 33% testing, and each subset is saved for later use.
+
+### Multicollinearity check
+
+```{r, fig.width=10, fig.height=10}
+mdata_nogeo <- mdata %>%
+  st_drop_geometry()
+ggstatsplot::ggcorrmat(mdata_nogeo[, 2:17])
+```
+
+Calculates a correlation matrix for numerical columns (excluding spatial geometry) to identify potential multicollinearity issues among predictors.
+
+### Predictive Modelling with GWR
+
+```{r}
+gwr_bw_train_ad <- bw.gwr(resale_price ~ floor_area_sqm +
+                            storey_order + remaining_lease_mths +
+                            PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
+                            PROX_MRT + PROX_PARK + PROX_MALL +
+                            PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                            WITHIN_350M_CHILDCARE + WITHIN_350M_BUS + WITHIN_1KM_PRISCH,
+                          data=train_data,
+                          approach="CV",
+                          kernel="gaussian",
+                          adaptive=TRUE,
+                          longlat=FALSE)
+```
+
+Calculates the optimal adaptive bandwidth for GWR using cross-validation.
+
+### Saving Predicted values
+
+```{r}
+gwr_pred <- gwr.predict(formula = resale_price ~
+                          floor_area_sqm + storey_order +
+                          remaining_lease_mths + PROX_CBD + 
+                          PROX_ELDERLYCARE + PROX_HAWKER + 
+                          PROX_MRT + PROX_PARK + PROX_MALL + 
+                          PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                          WITHIN_350M_CHILDCARE + WITHIN_350M_BUS + 
+                          WITHIN_1KM_PRISCH, 
+                        data=train_data, 
+                        predictdata = test_data, 
+                        bw=20, 
+                        kernel = 'gaussian', 
+                        adaptive=TRUE, 
+                        longlat = FALSE)
+gwr_pred_df <- as.data.frame(
+  gwr_pred$SDF$prediction
+) %>%
+  rename(gwr_pred = "gwr_pred$SDF$prediction")
+gwr_pred_df
+```
+
+Predicts resale prices using the GWR model on test data, saving predictions to `gwr_pred_df`.
+
+## Predictive Modelling with RF method
+
+```{r}
+coords <- st_coordinates(HDB_sample)
+coords_train <- st_coordinates(train_data)
+coords_test <- st_coordinates(test_data)
+
+train_data_nogeom <- train_data %>%
+  st_drop_geometry()
+```
+
+Extracts coordinate data for spatial models and drops geometry from training data for non-spatial random forest modeling.
+
+### Calibrating RF model
+
+```{r}
+set.seed(1234)
+rf <- ranger(resale_price ~ floor_area_sqm +
+                            storey_order + remaining_lease_mths +
+                            PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
+                            PROX_MRT + PROX_PARK + PROX_MALL +
+                            PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                            WITHIN_350M_CHILDCARE + WITHIN_350M_BUS + WITHIN_1KM_PRISCH, data=train_data_nogeom)
+```
+
+Trains a non-spatial Random Forest model on the training data without spatial coordinates.
+
+### Preparing Test Data
+
+```{r}
+test_data_nogeom <- cbind(
+  test_data, coords_test) %>%
+  st_drop_geometry()
+```
+
+### Predicting with rf
+
+```{r}
+rf_pred <- predict(rf, data = test_data_nogeom)
+```
+
+### Saving the predicted values
+
+```{r}
+rf_pred_df <- as.data.frame(rf_pred$predictions) %>%
+  rename(rf_pred = "rf_pred$predictions")
+```
+
+Prepares the test data, makes predictions using the RF model, and stores predictions in `rf_pred_df`.
+
+### Predictive Modelling with SpatialML
+
+```{r}
+set.seed(1234)
+grf_ad <- grf(resale_price ~ floor_area_sqm +
+                            storey_order + remaining_lease_mths +
+                            PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
+                            PROX_MRT + PROX_PARK + PROX_MALL +
+                            PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                            WITHIN_350M_CHILDCARE + WITHIN_350M_BUS + WITHIN_1KM_PRISCH, 
+              dframe = train_data_nogeom,
+              bw=20,
+              kernel="adaptive",
+              coords=coords_train)
+```
+
+Trains an adaptive Geographically Weighted Random Forest (GRF) model, taking into account the spatial coordinates of each observation.
+
+### Predicting the test data
+
+```{r}
+grf_pred <- predict.grf(grf_ad,
+                        test_data_nogeom,
+                        x.var.name="X",
+                        y.var.name="Y",
+                        local.w=1,
+                        global.w=0)
+```
+
+### Saving the predicted values
+
+```{r}
+grf_pred_df <- as.data.frame(grf_pred)
+```
+
+Generates predictions with the GRF model on the test data and stores the predictions in `grf_pred_df`.
+
+## Model Comparison
+
+```{r}
+test_data_pred <- test_data %>%
+  select(resale_price) %>%
+  cbind(gwr_pred_df) %>%
+  cbind(rf_pred_df) %>%
+  cbind(grf_pred_df)
+```
+
+Combines actual resale prices with predictions from the GWR, RF, and GRF models into one data frame.
+
+### Transposing Data
+
+```{r}
+test_longer <- test_data_pred %>%
+  st_drop_geometry() %>%
+  pivot_longer(cols = ends_with("pred"),
+               names_to = "model",
+               values_to = "predicted")
+```
+
+### Renaming
+
+```{r}
+model_labels <- c(
+  gwr_pred = "gwr",
+  rf_pred = "Random Forest",
+  grf_pred = "gwRF"
+)
+
+test_longer <- test_longer %>%
+  mutate(model = recode(
+    model, !!!model_labels
+  ))
+```
+
+Reshapes the data into a long format, labeling each model for RMSE comparison.
+
+## Computing RMSE
+
+```{r}
+rmse_results <- test_longer %>%
+  group_by(model) %>%
+  rmse(truth = resale_price,
+       estimate = predicted) %>%
+  rename(rmse = .estimate) %>%
+  select(model, rmse)
+```
+
+Calculates RMSE for each model’s predictions to assess performance.
+
+## Model Comparison Plots
+
+```{r}
+ggplot(rmse_results,
+       aes(x = reorder(model, rmse),
+           y = rmse,
+           fill = "skyblue")) +
+  geom_bar(stat = "identity",
+           fill = "skyblue",
+           color = "black",
+           width = 0.7) +
+  labs(title = "RMSE Comparison of Mod",
+       y = "RMSE",
+       x = "Model") +
+  theme_minimal()
+```
+
+Creates a bar plot comparing RMSE values for each model.
+
+### Scatter Plots
+
+```{r}
+test_longer <- test_longer %>%
+  left_join(rmse_results,
+            by = "model")
+
+ggplot(data = test_longer,
+       aes(x = predicted,
+           y = resale_price)) +
+  facet_wrap(~ model) +
+  geom_point() +
+  geom_text(data = test_longer,
+            aes(x = Inf, y = Inf,
+                label = paste("RMSE:", round(rmse, 2))),
+            hjust = 1.1, vjust = 1.1,
+            color = "black", size = 4)
+```
+
+Scatter plots of predicted vs. actual prices for each model, with RMSE displayed in each facet.
+
+## Variable Importance
+
+### Preparing the output
+
+```{r}
+var_imp <- data.frame(
+  Variable = names(grf_ad$Global.Model$variable.importance),
+  Importance = grf_ad$Global.Model$variable.importance
+)
+```
+
+Extracts variable importance from the GRF model.
+
+### The plot
+
+```{r}
+ggplot(var_imp, aes(x = reorder(Variable,
+                                Importance),
+                    y = Importance)) +
+  geom_bar(stat = "identity",
+           fill = "skyblue") +
+  coord_flip() +
+  labs(
+    title = "Variable Importance from Ranger Model",
+    x = "Variables",
+    y = "Importance"
+  ) +
+  theme_minimal()
+```
+
+Displays a bar chart of variable importance, showing the relative impact of each predictor on the GRF model’s predictions.
